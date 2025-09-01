@@ -1,0 +1,1 @@
+Xin chào khách hàng

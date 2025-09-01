@@ -1,0 +1,13 @@
+Options -Indexes
+RewriteEngine On
+
+# Nếu đường dẫn bắt đầu với "api/", thì chuyển vào thư mục api/
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^api/(.*)$ api/$1 [L]
+
+# Nếu đường dẫn bắt đầu với "internal/", thì chuyển vào thư mục internal/
+RewriteCond %{REQUEST_URI} ^/internal/
+RewriteRule ^internal/(.*)$ internal/$1 [L]
+
+# Các yêu cầu còn lại chuyển vào thư mục customer/
+RewriteRule ^(.*)$ customer/$1 [L]
