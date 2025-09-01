@@ -1,10 +1,9 @@
 <?php
     namespace App\Controllers;
     use function App\Core\view;
-
-    class Ctrl_Phim{
+    class Ctrl_GiaVe{
         public function index(){
-            return view('internal.phim');
+            return view('internal.gia-ve');
         }
     }
 ?>

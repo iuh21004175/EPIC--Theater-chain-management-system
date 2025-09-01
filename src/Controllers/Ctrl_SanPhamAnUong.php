@@ -2,9 +2,9 @@
     namespace App\Controllers;
     use function App\Core\view;
 
-    class Ctrl_Phim{
+    class Ctrl_SanPhamAnUong{
         public function index(){
-            return view('internal.phim');
+            return view('internal.san-pham-an-uong');
         }
     }
 ?>

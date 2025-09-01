@@ -7,11 +7,11 @@
     {
         public function index()
         {
-            echo view('internal.dang-nhap');
+            return view('internal.dang-nhap');
         }
         public function pageBangDieuKhien()
         {
-            echo view('internal.bang-dieu-khien');
+            return view('internal.bang-dieu-khien');
         }
         public function dangNhap()
         {

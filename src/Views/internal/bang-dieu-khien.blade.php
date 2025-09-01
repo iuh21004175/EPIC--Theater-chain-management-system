@@ -78,7 +78,7 @@
             </a>
             @elseif($_SESSION['UserInternal']['VaiTro'] == 'Quản lý chuỗi rạp')
              <!-- Quản lý rạp phim -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-rap-phim" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý danh sách rạp phim">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/rap-phim" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý danh sách rạp phim">
                 <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -96,7 +96,7 @@
                 <span class="text-xs text-center font-medium text-gray-700">Phim</span>
             </a>
             <!-- Quản lý giá vé -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-gia-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý giá vé">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/gia-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý giá vé">
                 <div class="w-12 h-12 flex items-center justify-center bg-green-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
@@ -105,7 +105,7 @@
                 <span class="text-xs text-center font-medium text-gray-700">Giá vé</span>
             </a>
             <!-- Quản lý sản phẩm ăn uống -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-san-pham" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý sản phẩm ăn uống">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/san-pham-an-uong" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý sản phẩm ăn uống">
                 <div class="w-12 h-12 flex items-center justify-center bg-pink-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />

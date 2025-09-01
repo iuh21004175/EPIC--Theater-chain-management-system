@@ -3,7 +3,6 @@
 @section('title', 'Quản lý Phim')
 
 @section('head')
-<link rel="stylesheet" href="{{$_ENV['URL_INTERNAL_BASE']}}/css/phim.css">
 <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/phim.js"></script>
 <style>
     /* Giữ nguyên CSS cũ */

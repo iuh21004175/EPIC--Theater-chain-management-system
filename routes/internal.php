@@ -1,6 +1,9 @@
 <?php
 use App\Controllers\Ctrl_XacThucInternal;
 use App\Controllers\Ctrl_Phim;
+use App\Controllers\Ctrl_RapPhim;
+use App\Controllers\Ctrl_GiaVe;
+use App\Controllers\Ctrl_SanPhamAnUong;
 use function App\Core\view;
 
 // Vai trò: Quản trị viên, Nhân viên, Khách hàng
@@ -10,6 +13,10 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/dang-xuat', [Ctrl_XacThucInternal::class, 'dangXuat']);
     $r->addRoute('GET', '/bang-dieu-khien', [Ctrl_XacThucInternal::class, 'pageBangDieuKhien']);
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'index', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'index', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/gia-ve', [Ctrl_GiaVe::class, 'index', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/san-pham-an-uong', [Ctrl_SanPhamAnUong::class, 'index', ['Quản lý chuỗi rạp']]);
+
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -34,9 +41,14 @@ switch ($routeInfo[0]) {
         $vars = $routeInfo[2];
         if (is_array($handler)) {
             if(count($handler) == 3){
+                // Kiểm tra xem người dùng đã đăng nhập chưa
+                if (!isset($_SESSION['UserInternal'])) {
+                    echo view("internal.unauthenticated");
+                    exit();
+                }
                 // Kiểm tra phân quyền
                 $requiredRoles = $handler[2]; // Lấy vai trò yêu cầu từ định tuyến
-                if (!isset($_SESSION['UserInternal']) || !in_array($_SESSION['UserInternal']['VaiTro'], $requiredRoles)) {
+                if (!in_array($_SESSION['UserInternal']['VaiTro'], $requiredRoles)) {
                     // Người dùng không có quyền truy cập
                     echo view("internal.403");
                     exit();
