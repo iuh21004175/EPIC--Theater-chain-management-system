@@ -1,0 +1,24 @@
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="container mx-auto max-w-screen-xl px-4 py-2 flex justify-between items-center">
+      <!-- Logo -->
+      <a href="/">
+        <img src="https://res.cloudinary.com/dtkm5uyx1/image/upload/v1756391269/logo_cinema_z2pcda.jpg" alt="Cinema Logo" class="h-14">
+      </a>
+      
+      <!-- Navigation -->
+      <nav class="hidden md:flex items-center space-x-8">
+         <a href="{{$_ENV['URL_WEB_BASE']}}/" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300">Trang chủ</a>
+        <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300">Đặt vé</a>
+        <a href="{{$_ENV['URL_WEB_BASE']}}/phim" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300">Phim</a>
+        <a href="{{$_ENV['URL_WEB_BASE']}}/rap" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300">Rạp</a>
+        <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300">Tin tức</a>
+      </nav>
+      
+      <!-- Login Button -->
+      <div>
+        <a href="{{$_ENV['URL_WEB_BASE']}}/login" class="bg-red-600 text-white font-bold py-2 px-5 rounded-md hover:bg-red-700 transition duration-300 text-sm">Đăng nhập</a>
+      </div>
+    </div>
+  </header>
