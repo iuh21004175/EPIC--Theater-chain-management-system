@@ -1,0 +1,321 @@
+@extends('internal.layout')
+
+@section('title', 'Thống kê toàn rạp')
+
+@section('head')
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/thong-ke-toan-rap.js"></script>
+    <style>
+        .card {
+            @apply bg-white rounded-lg shadow p-6 h-full;
+        }
+        .card-title {
+            @apply text-lg font-medium text-gray-900 mb-4;
+        }
+        .stats-card {
+            @apply bg-white rounded-lg shadow p-4 relative overflow-hidden;
+        }
+        .stats-card-value {
+            @apply text-2xl font-bold text-gray-900;
+        }
+        .stats-card-label {
+            @apply text-sm text-gray-500;
+        }
+        .stats-card-trend {
+            @apply text-xs font-medium flex items-center mt-1;
+        }
+        .stats-card-trend-up {
+            @apply text-green-600;
+        }
+        .stats-card-trend-down {
+            @apply text-red-600;
+        }
+        .stats-card-icon {
+            @apply absolute right-4 top-4 text-gray-200;
+        }
+        .filter-active {
+            @apply bg-red-100 text-red-700 border-red-700;
+        }
+    </style>
+@endsection
+
+@section('breadcrumbs')
+<li>
+    <div class="flex items-center">
+        <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+        <span class="ml-1 text-gray-500 hover:text-gray-700 text-sm font-medium">Thống kê toàn rạp</span>
+    </div>
+</li>
+@endsection
+
+@section('content')
+    <!-- Page header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Thống kê toàn rạp</h1>
+        <p class="mt-1 text-sm text-gray-600">
+            Phân tích dữ liệu kinh doanh toàn chuỗi rạp EPIC Cinema
+        </p>
+    </div>
+
+    <!-- Date range filter -->
+    <div class="mb-6 bg-white p-4 rounded-lg shadow">
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 items-end">
+            <div class="w-full md:w-auto">
+                <label for="date-range" class="block text-sm font-medium text-gray-700 mb-1">Khoảng thời gian</label>
+                <select id="date-range" class="form-input rounded-md w-full md:w-48">
+                    <option value="7">7 ngày qua</option>
+                    <option value="30" selected>30 ngày qua</option>
+                    <option value="90">90 ngày qua</option>
+                    <option value="365">365 ngày qua</option>
+                    <option value="custom">Tùy chỉnh</option>
+                </select>
+            </div>
+            
+            <div class="date-range-custom hidden flex-grow md:flex-grow-0 space-x-4">
+                <div>
+                    <label for="date-start" class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+                    <input type="date" id="date-start" class="form-input rounded-md w-full">
+                </div>
+                <div>
+                    <label for="date-end" class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+                    <input type="date" id="date-end" class="form-input rounded-md w-full">
+                </div>
+            </div>
+            
+            <div class="w-full md:w-auto">
+                <label for="cinema-filter" class="block text-sm font-medium text-gray-700 mb-1">Rạp phim</label>
+                <select id="cinema-filter" class="form-input rounded-md w-full md:w-48">
+                    <option value="all" selected>Tất cả rạp</option>
+                    <option value="1">EPIC Hà Nội</option>
+                    <option value="2">EPIC Hồ Chí Minh</option>
+                    <option value="3">EPIC Đà Nẵng</option>
+                    <option value="4">EPIC Cần Thơ</option>
+                </select>
+            </div>
+            
+            <div>
+                <button id="btn-apply-filter" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 h-[42px]">
+                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    Áp dụng
+                </button>
+            </div>
+        </div>
+        
+        <!-- Comparison toggle -->
+        <div class="mt-4 flex items-center">
+            <input id="toggle-compare" type="checkbox" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+            <label for="toggle-compare" class="ml-2 block text-sm text-gray-900">
+                So sánh với kỳ trước
+            </label>
+        </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Total Revenue Card -->
+        <div class="stats-card">
+            <div class="stats-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="stats-card-label">Tổng doanh thu</div>
+            <div class="stats-card-value" id="total-revenue">---</div>
+            <div class="stats-card-trend stats-card-trend-up" id="revenue-trend">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+                <span>---</span>
+            </div>
+        </div>
+        
+        <!-- Total Tickets Card -->
+        <div class="stats-card">
+            <div class="stats-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
+            </div>
+            <div class="stats-card-label">Tổng vé bán</div>
+            <div class="stats-card-value" id="total-tickets">---</div>
+            <div class="stats-card-trend stats-card-trend-up" id="tickets-trend">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+                <span>---</span>
+            </div>
+        </div>
+        
+        <!-- Average Occupancy Card -->
+        <div class="stats-card">
+            <div class="stats-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+            </div>
+            <div class="stats-card-label">Tỉ lệ lấp đầy</div>
+            <div class="stats-card-value" id="avg-occupancy">---</div>
+            <div class="stats-card-trend stats-card-trend-down" id="occupancy-trend">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+                <span>---</span>
+            </div>
+        </div>
+        
+        <!-- F&B Revenue Card -->
+        <div class="stats-card">
+            <div class="stats-card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="stats-card-label">Doanh thu F&B</div>
+            <div class="stats-card-value" id="fnb-revenue">---</div>
+            <div class="stats-card-trend stats-card-trend-up" id="fnb-trend">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+                <span>---</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Revenue Trend Chart -->
+        <div class="card">
+            <h2 class="card-title flex justify-between items-center">
+                <span>Xu hướng doanh thu</span>
+                <div class="flex space-x-2">
+                    <button class="time-filter px-2 py-1 text-xs border rounded-md filter-active" data-period="daily">Theo ngày</button>
+                    <button class="time-filter px-2 py-1 text-xs border rounded-md" data-period="weekly">Theo tuần</button>
+                    <button class="time-filter px-2 py-1 text-xs border rounded-md" data-period="monthly">Theo tháng</button>
+                </div>
+            </h2>
+            <div class="h-80">
+                <div id="revenue-chart"></div>
+            </div>
+        </div>
+
+        <!-- Ticket Sales Trend Chart -->
+        <div class="card">
+            <h2 class="card-title flex justify-between items-center">
+                <span>Xu hướng lượng vé</span>
+                <div class="flex space-x-2">
+                    <button class="time-filter px-2 py-1 text-xs border rounded-md filter-active" data-period="daily">Theo ngày</button>
+                    <button class="time-filter px-2 py-1 text-xs border rounded-md" data-period="weekly">Theo tuần</button>
+                    <button class="time-filter px-2 py-1 text-xs border rounded-md" data-period="monthly">Theo tháng</button>
+                </div>
+            </h2>
+            <div class="h-80">
+                <div id="tickets-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Second row of charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Top Films -->
+        <div class="card">
+            <h2 class="card-title">Top 10 phim có doanh thu cao nhất</h2>
+            <div class="overflow-y-auto max-h-80">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Phim
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Doanh thu
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Vé bán
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="top-films-table">
+                        <!-- Data will be populated by JavaScript -->
+                        <tr><td colspan="3" class="text-center py-4 text-gray-500">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Theater Performance -->
+        <div class="card">
+            <h2 class="card-title">Hiệu suất theo rạp</h2>
+            <div class="h-80">
+                <div id="theater-performance-chart"></div>
+            </div>
+        </div>
+
+        <!-- Revenue Breakdown -->
+        <div class="card">
+            <h2 class="card-title">Cơ cấu doanh thu</h2>
+            <div class="h-80">
+                <div id="revenue-breakdown-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Third row of charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Weekly Performance Chart -->
+        <div class="card">
+            <h2 class="card-title">Hiệu suất theo ngày trong tuần</h2>
+            <div class="h-80">
+                <div id="weekly-performance-chart"></div>
+            </div>
+        </div>
+
+        <!-- Hourly Performance Chart -->
+        <div class="card">
+            <h2 class="card-title">Hiệu suất theo giờ trong ngày</h2>
+            <div class="h-80">
+                <div id="hourly-performance-chart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Food & Beverage Analysis -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Top F&B Items -->
+        <div class="card">
+            <h2 class="card-title">Top 10 sản phẩm F&B bán chạy nhất</h2>
+            <div class="overflow-y-auto max-h-80">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Sản phẩm
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Số lượng
+                            </th>
+                            <th scope="col" class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Doanh thu
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="top-fnb-table">
+                        <!-- Data will be populated by JavaScript -->
+                        <tr><td colspan="3" class="text-center py-4 text-gray-500">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- F&B vs Ticket Revenue Trend -->
+        <div class="card">
+            <h2 class="card-title">Tỉ lệ doanh thu F&B trên mỗi vé</h2>
+            <div class="h-80">
+                <div id="fnb-per-ticket-chart"></div>
+            </div>
+        </div>
+    </div>
+@endsection
