@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Đặt vé - EPIC CINEMAS</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 @include('customer.layout.header')

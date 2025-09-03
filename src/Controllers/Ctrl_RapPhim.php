@@ -5,5 +5,8 @@
         public function index() {
             return view('internal.rap-phim');
         }
+        public function rapKhachHang() {
+            return view('customer.rap');
+        }
     }
 ?>

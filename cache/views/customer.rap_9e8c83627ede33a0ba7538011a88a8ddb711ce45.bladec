@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Galaxy Co.opXtra Linh Trung</title>
+ <link rel="stylesheet" href="<?php echo \htmlentities($_ENV['URL_WEB_BASE']??'', ENT_QUOTES, 'UTF-8', false); ?>/css/tailwind.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+ <!-- Header -->
+ <?php echo $this->runChild('customer.layout.header'); ?>
+
+ <!-- Main content -->
+ <main class="py-10 px-4 sm:px-6 lg:px-8">
+ <div class="max-w-6xl mx-auto bg-white shadow-xl rounded-lg overflow-hidden">
+
+ <!-- Title -->
+ <header class="p-6 sm:p-8 border-b border-gray-200">
+ <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight">
+ Galaxy Co.opXtra Linh Trung
+ </h1>
+ </header>
+
+ <!-- Body -->
+ <section class="p-6 sm:p-8 space-y-10">
+
+ <!-- Thông tin rạp -->
+ <div>
+ <h2 class="text-2xl font-bold text-gray-800 mb-4">Thông tin rạp</h2>
+ <ul class="list-disc list-inside space-y-2 text-gray-700">
+ <li>
+ <span class="font-semibold">Địa chỉ:</span> Tầng trệt, TTTM Co.opXtra Linh Trung, số 934 Quốc lộ 1A, Phường Linh Trung, Quận Thủ Đức, Thành phố Hồ Chí Minh, Việt Nam
+ </li>
+ <li>
+ <span class="font-semibold">Hotline:</span>
+ <a href="tel:19002224" class="text-blue-600 hover:underline">19002224</a>
+ </li>
+ </ul>
+ </div>
+ </section>
+ </div>
+
+ <!-- PHIM -->
+ <section class="max-w-6xl mx-auto px-4 py-10">
+ <h2 class="text-2xl font-bold text-gray-900 border-l-4 border-blue-600 pl-3 mb-6">PHIM</h2>
+
+ <!-- Tabs chọn ngày -->
+ <div class="flex items-center gap-2 mb-8">
+ <button id="prevDay" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">«</button>
+ <div id="dayTabs" class="flex gap-2 overflow-x-auto"></div>
+ <button id="nextDay" class="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">»</button>
+ </div>
+
+ <!-- Danh sách phim -->
+ <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+ <!-- Phim 1 -->
+ <div class="group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer" data-movie="mua-do" data-name="Mưa Đỏ">
+ <img src="https://res.cloudinary.com/dtkm5uyx1/image/upload/v1756787663/mua-do-500_1755156035605_amofs8.jpg"
+ alt="Mưa Đỏ"
+ class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500">
+ <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+ <button type="button"
+ class="flex items-center justify-center w-[140px] h-[40px] border border-white rounded-lg text-white font-semibold text-sm hover:bg-red-500 hover:border-transparent transition-all duration-300">
+ <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play"
+ class="w-4 h-4 mr-2" role="img"
+ xmlns="http://www.w3.org/2000/svg"
+ viewBox="0 0 512 512">
+ <path fill="currentColor"
+ d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 147.1c-7.6 
+ 4.2-12.3 12.3-12.3 20.9V344c0 8.7 4.7 16.7 
+ 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 
+ 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z"/>
+ </svg>
+ Trailer
+ </button>
+ </div>
+ <p class="mb-5 mt-3 text-center font-bold text-gray-800">Mưa Đỏ</p>
+ </div>
+
+ <!-- Phim 2 -->
+ <div class="group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer" data-movie="lam-giau" data-name="Làm Giàu Với Ma: Cuộc Chiến Hột Xoàn">
+ <img src="https://res.cloudinary.com/dtkm5uyx1/image/upload/v1756787663/mua-do-500_1755156035605_amofs8.jpg"
+ alt="Mưa Đỏ"
+ class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500">
+ <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+ <button type="button"
+ class="flex items-center justify-center w-[140px] h-[40px] border border-white rounded-lg text-white font-semibold text-sm hover:bg-red-500 hover:border-transparent transition-all duration-300">
+ <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play"
+ class="w-4 h-4 mr-2" role="img"
+ xmlns="http://www.w3.org/2000/svg"
+ viewBox="0 0 512 512">
+ <path fill="currentColor"
+ d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 147.1c-7.6 
+ 4.2-12.3 12.3-12.3 20.9V344c0 8.7 4.7 16.7 
+ 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 
+ 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z"/>
+ </svg>
+ Trailer
+ </button>
+ </div>
+ <p class="mb-5 mt-3 text-center font-bold text-gray-800">Làm Giàu Với Ma: Cuộc Chiến Hột Xoàn</p>
+ </div>
+ </div>
+
+ <!-- Section suất chiếu -->
+ <div id="loadSuatChieu" class="mt-10 hidden" data-movie=""></div>
+
+ </section>
+
+ </main>
+
+ <!-- Footer -->
+ <?php echo $this->runChild('customer.layout.footer'); ?>
+
+<script>
+const showtimesData = {
+ "mua-do": ["17:00","18:00","19:00","19:30","20:15"],
+ "lam-giau": ["16:30","18:00","19:30","20:45"]
+};
+
+document.querySelectorAll('.group[data-movie]').forEach(card => {
+ card.addEventListener('click', (e) => {
+ e.stopPropagation();
+ const movieKey = card.dataset.movie;
+ const movieName = card.dataset.name;
+ const loadSuatChieu = document.getElementById('loadSuatChieu');
+
+ // Nếu đang hiển thị cùng phim → tắt
+ if(loadSuatChieu.dataset.movie === movieKey && !loadSuatChieu.classList.contains('hidden')) {
+ loadSuatChieu.classList.add('hidden');
+ // Ẩn nút đánh dấu
+ const markBtn = card.querySelector('.mark-selected');
+ if(markBtn) markBtn.remove();
+ return;
+ }
+
+ // Ẩn tất cả nút “Đã chọn” của các phim khác
+ document.querySelectorAll('.mark-selected').forEach(btn => btn.remove());
+
+ // Render HTML suất chiếu
+ let html = `<div class="showtimes mt-4 bg-gray-50 p-4 rounded-lg shadow-inner">
+ <h3 class="font-semibold mb-2">Suất chiếu: ${movieName}</h3>
+ <div class="space-y-2">
+ <div class="flex items-center gap-2">
+ <span class="w-24 font-semibold text-gray-700">2D Phụ Đề</span>
+ <div class="flex gap-2 flex-wrap">`;
+
+ showtimesData[movieKey].forEach(time => {
+ html += `<button class="px-3 py-1 bg-white border rounded-lg hover:bg-blue-600 hover:text-white transition">${time}</button>`;
+ });
+
+ html += `   </div>
+ </div>
+ </div>`;
+
+ loadSuatChieu.innerHTML = html;
+ loadSuatChieu.dataset.movie = movieKey;
+ loadSuatChieu.classList.remove('hidden');
+ loadSuatChieu.scrollIntoView({behavior: "smooth"});
+
+ // Thêm nút đánh dấu "Đã chọn" cho phim hiện tại
+ const markBtn = document.createElement('div');
+ markBtn.textContent = "Đã chọn";
+ markBtn.className = "mark-selected absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded";
+ card.appendChild(markBtn);
+ });
+});
+
+// Danh sách ngày
+const dayTabs = document.getElementById('dayTabs');
+const nextBtn = document.getElementById('nextDay');
+const prevBtn = document.getElementById('prevDay');
+
+let startDate = new Date();
+let visibleDays = 7;
+let currentStartIndex = 0;
+let allDays = [];
+let activeIndex = 0;
+
+for (let i = 0; i < 30; i++) {
+ let d = new Date(startDate);
+ d.setDate(d.getDate() + i);
+ allDays.push(d);
+}
+
+function formatDate(d) {
+ return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2);
+}
+
+function formatWeekday(d) {
+ const weekdays = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
+ return weekdays[d.getDay()];
+}
+
+function renderDays() {
+ dayTabs.innerHTML = '';
+ for (let i = currentStartIndex; i < currentStartIndex + visibleDays; i++) {
+ if (!allDays[i]) continue;
+
+ const btn = document.createElement('button');
+ btn.className = 'flex-shrink-0 px-4 py-2 rounded-lg font-semibold border transition-colors text-sm';
+ btn.innerHTML = `${formatWeekday(allDays[i])}<br>${formatDate(allDays[i])}`;
+
+ if (i === activeIndex) {
+ btn.classList.add('bg-blue-600','text-white','border-blue-600');
+ } else {
+ btn.classList.add('bg-gray-100','hover:bg-gray-200','text-gray-800','border-gray-300');
+ }
+
+ btn.addEventListener('click', () => {
+ activeIndex = i;
+ renderDays();
+ console.log("Chọn ngày:", allDays[i]);
+ // TODO: load phim/suất chiếu theo ngày
+ });
+
+ dayTabs.appendChild(btn);
+ }
+}
+
+nextBtn.addEventListener('click', () => {
+ if (currentStartIndex + visibleDays < allDays.length) {
+ currentStartIndex++;
+ renderDays();
+ }
+});
+prevBtn.addEventListener('click', () => {
+ if (currentStartIndex > 0) {
+ currentStartIndex--;
+ renderDays();
+ }
+});
+
+renderDays();
+</script>
+
+</body>
+</html>
