@@ -8,3 +8,5 @@
 
 # Cấu hình .env
 /.env
+#cache view
+/cache/views/
