@@ -21,5 +21,8 @@
         public function chiTietTinTuc(){
             return view('customer.chi-tiet-tin-tuc');
         }
+        public function banVe(){
+            return view('internal.ban-ve');
+        }
     }
 ?>
