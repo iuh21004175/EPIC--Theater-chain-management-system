@@ -5,6 +5,14 @@ use App\Controllers\Ctrl_RapPhim;
 use App\Controllers\Ctrl_GiaVe;
 use App\Controllers\Ctrl_SanPhamAnUong;
 use App\Controllers\Ctrl_ThongKeToanRap;
+use App\Controllers\Ctrl_Ghe;
+use App\Controllers\Ctrl_GanNgay;
+use App\Controllers\Ctrl_Banner;
+use App\Controllers\Ctrl_TaiKhoanInternal;
+use App\Controllers\Ctrl_PhongChieu;
+use App\Controllers\Ctrl_NhanVien;
+use App\Controllers\Ctrl_PhanCong;
+use App\Controllers\Ctrl_ThongKe;
 use function App\Core\view;
 
 // Vai trò: Quản trị viên, Nhân viên, Khách hàng
@@ -14,10 +22,18 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/dang-xuat', [Ctrl_XacThucInternal::class, 'dangXuat']);
     $r->addRoute('GET', '/bang-dieu-khien', [Ctrl_XacThucInternal::class, 'pageBangDieuKhien']);
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'index', ['Quản lý chuỗi rạp']]);
-    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'index', ['Admin']]);
     $r->addRoute('GET', '/gia-ve', [Ctrl_GiaVe::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/san-pham-an-uong', [Ctrl_SanPhamAnUong::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/thong-ke-toan-rap', [Ctrl_ThongKeToanRap::class, 'index', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/ghe', [Ctrl_Ghe::class, 'index', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/gan-ngay', [Ctrl_GanNgay::class, 'index', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/banner', [Ctrl_Banner::class, 'index', ['Admin']]);
+    $r->addRoute('GET', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'index', ['Admin']]);
+    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'index', ['Admin']]);
+    $r->addRoute('GET', '/phong-chieu', [Ctrl_PhongChieu::class, 'index', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/nhan-vien', [Ctrl_NhanVien::class, 'index', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'index', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/thong-ke', [Ctrl_ThongKe::class, 'index', ['Quản lý rạp']]);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

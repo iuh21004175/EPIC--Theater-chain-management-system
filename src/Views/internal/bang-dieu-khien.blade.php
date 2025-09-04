@@ -68,22 +68,22 @@
                 <span class="text-xs text-center font-medium text-gray-700">Rạp phim</span>
             </a>
             <!-- Quản lý banner -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-banner" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý banner">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/banner" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý banner">
                 <div class="w-12 h-12 flex items-center justify-center bg-sky-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <span class="text-xs text-center font-medium text-gray-700">Quản lý banner</span>
+                <span class="text-xs text-center font-medium text-gray-700">Banner</span>
             </a>
             <!-- Quản lý tài khoản -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-tai-khoan" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý tài khoản">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/tai-khoan" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý tài khoản">
                 <div class="w-12 h-12 flex items-center justify-center bg-fuchsia-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-fuchsia-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <span class="text-xs text-center font-medium text-gray-700">Quản lý tài khoản</span>
+                <span class="text-xs text-center font-medium text-gray-700">Tài khoản</span>
             </a>
             @elseif($_SESSION['UserInternal']['VaiTro'] == 'Quản lý chuỗi rạp')
              
@@ -95,6 +95,15 @@
                     </svg>
                 </div>
                 <span class="text-xs text-center font-medium text-gray-700">Phim</span>
+            </a>
+            <!-- Quản lý loại ghế -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/ghe" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý loại ghế">
+                <div class="w-12 h-12 flex items-center justify-center bg-amber-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Loại ghế</span>
             </a>
             <!-- Quản lý giá vé -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/gia-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý giá vé">
@@ -114,6 +123,15 @@
                 </div>
                 <span class="text-xs text-center font-medium text-gray-700">Sản phẩm ăn uống</span>
             </a>
+            <!-- Gán ngày -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/gan-ngay" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Gán nhãn cho ngày">
+                <div class="w-12 h-12 flex items-center justify-center bg-orange-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Ngày</span>
+            </a>
             <!-- Thống kê toàn rạp -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/thong-ke-toan-rap" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Thống kê toàn rạp">
                 <div class="w-12 h-12 flex items-center justify-center bg-violet-100 rounded-full mb-3">
@@ -126,7 +144,7 @@
             </a>
             @elseif($_SESSION['UserInternal']['VaiTro'] == 'Quản lý rạp')
             <!-- Quản lý phòng chiếu -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-phong-chieu" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý phòng chiếu">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/phong-chieu" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý phòng chiếu">
                 <div class="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
@@ -144,7 +162,7 @@
                 <span class="text-xs text-center font-medium text-gray-700">Suất chiếu</span>
             </a>
             <!-- Quản lý nhân viên -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-nhan-vien" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý nhân viên">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/nhan-vien" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý nhân viên">
                 <div class="w-12 h-12 flex items-center justify-center bg-yellow-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -152,14 +170,14 @@
                 </div>
                 <span class="text-xs text-center font-medium text-gray-700">Nhân viên</span>
             </a>
-            <!-- Quản lý lịch làm việc -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quan-ly-lich-lam-viec" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý lịch làm việc">
+            <!-- Phân công nhân viên -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/phan-cong" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Phân công nhân viên">
                 <div class="w-12 h-12 flex items-center justify-center bg-teal-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                 </div>
-                <span class="text-xs text-center font-medium text-gray-700">Lịch làm việc</span>
+                <span class="text-xs text-center font-medium text-gray-700">Phân công</span>
             </a>
             <!-- Thống kê -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/thong-ke" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Thống kê">
