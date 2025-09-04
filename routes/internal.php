@@ -13,6 +13,7 @@ use App\Controllers\Ctrl_PhongChieu;
 use App\Controllers\Ctrl_NhanVien;
 use App\Controllers\Ctrl_PhanCong;
 use App\Controllers\Ctrl_ThongKe;
+use App\Controllers\Ctrl_SuatChieu;
 use function App\Core\view;
 
 // Vai trò: Quản trị viên, Nhân viên, Khách hàng
@@ -34,6 +35,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/nhan-vien', [Ctrl_NhanVien::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/thong-ke', [Ctrl_ThongKe::class, 'index', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/suat-chieu', [Ctrl_SuatChieu::class, 'index', ['Quản lý rạp']]);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
