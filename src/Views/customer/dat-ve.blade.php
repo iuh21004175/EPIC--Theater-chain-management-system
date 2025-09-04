@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Đặt vé - EPIC CINEMAS</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
+    <script src="{{$_ENV['URL_WEB_BASE']}}/customer/js/dat-ve.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 @include('customer.layout.header')
@@ -15,9 +16,20 @@
              class="w-full h-full object-cover opacity-70">
         <div class="absolute inset-0 poster-overlay"></div>
         <div class="absolute inset-0 flex items-center justify-center">
-            <button class="flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-white/30 backdrop-blur-sm text-white text-2xl md:text-3xl transition-transform duration-300 hover:scale-110">
-                <i class="fas fa-play"></i>
-            </button>
+            <button type="button" 
+                        data-url="https://www.youtube.com/embed/-Ir9rPvqwuw?si=WMWP6j-Z5XtVVKs6"
+                        class="trailer-btn flex items-center justify-center w-[320px] h-[100px]  rounded-lg text-white font-semibold px-4 py-2 text-sm transition-all duration-300">
+                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" 
+                            class="w-12 h-12 mr-3" role="img" xmlns="http://www.w3.org/2000/svg" 
+                            viewBox="0 0 512 512">
+                            <path fill="currentColor" 
+                                d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 
+                                147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 
+                                4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 
+                                11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5 
+                                -16.7-4.7-24.3-.5z"></path>
+                        </svg>
+                    </button>
         </div>
         </div>
 
@@ -122,7 +134,7 @@
                 </select>
             </div>
         </div>
-
+        <hr class="border-t-2 border-red-500 w-full mx-auto mb-10">
         <!-- Rạp chiếu -->
         <div class="space-y-6">
             <!-- Card rạp -->
@@ -138,6 +150,8 @@
                     <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors">14:30</button>
                 </div>
             </div>
+
+            <hr class="border-t-2 border-grey-500 w-full mx-auto mb-10">
 
             <div class="bg-gray-50 p-4 rounded-xl shadow-sm">
                 <h4 class="text-lg font-semibold mb-2">Galaxy Tân Bình</h4>
@@ -233,110 +247,22 @@
 
 </main>
 @include('customer.layout.footer')
+<!-- Modal Trailer -->
+<div id="trailerModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-black rounded-xl shadow-lg w-[90%] max-w-3xl relative">
+    <!-- Nút đóng -->
+    <button id="closeModal" 
+      class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-red-500">&times;</button>
 
-<script>
-const stars = document.querySelectorAll('#starRating button');
-const ratingValue = document.getElementById('ratingValue');
-let currentRating = 5; // mặc định 5 sao
-
-// Cập nhật màu sao
-function updateStars(rating) {
-    stars.forEach(star => {
-        if(star.dataset.value <= rating){
-            star.classList.add('text-yellow-400');
-            star.classList.remove('text-gray-300');
-        } else {
-            star.classList.add('text-gray-300');
-            star.classList.remove('text-yellow-400');
-        }
-    });
-}
-
-// Click vào sao
-stars.forEach(star => {
-    star.addEventListener('click', () => {
-        currentRating = star.dataset.value;
-        ratingValue.textContent = currentRating;
-        updateStars(currentRating);
-    });
-});
-
-// Khi load trang, tô 5 sao
-updateStars(currentRating);
-
-
-const dayTabs = document.getElementById('dayTabs');
-const nextBtn = document.getElementById('nextDay');
-const prevBtn = document.getElementById('prevDay');
-
-let startDate = new Date(); // Hôm nay
-let visibleDays = 7; // số ngày hiển thị
-let currentStartIndex = 0; // chỉ số ngày đầu tiên đang hiển thị
-let allDays = [];
-let activeIndex = 0; // chỉ số ngày đang được chọn trong allDays
-
-// Tạo danh sách ngày (30 ngày từ hôm nay)
-for (let i = 0; i < 30; i++) {
-    let d = new Date(startDate);
-    d.setDate(d.getDate() + i);
-    allDays.push(d);
-}
-
-// Hàm format
-function formatDate(d) { 
-    return ("0"+d.getDate()).slice(-2) + "/" + ("0"+(d.getMonth()+1)).slice(-2); 
-}
-
-function formatWeekday(d) { 
-    const weekdays = ["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"];
-    return weekdays[d.getDay()];
-}
-
-// Render ngày
-function renderDays() {
-    dayTabs.innerHTML = '';
-    for (let i = currentStartIndex; i < currentStartIndex + visibleDays; i++) {
-        if(!allDays[i]) continue;
-
-        const btn = document.createElement('button');
-        btn.className = 'flex-shrink-0 text-center px-4 py-2 rounded-lg border border-gray-300 font-semibold text-gray-700 hover:bg-red-500 hover:text-white transition-colors';
-        btn.innerHTML = `${formatWeekday(allDays[i])}<br>${formatDate(allDays[i])}`;
-
-        // Tô màu nếu là active
-        if(i === activeIndex) {
-            btn.classList.add('bg-red-600','text-white');
-            btn.classList.remove('text-gray-700','border-gray-300');
-        }
-
-        // Click vào ngày
-        btn.addEventListener('click', () => {
-            activeIndex = i;
-            renderDays(); // re-render để cập nhật màu
-        });
-
-        dayTabs.appendChild(btn);
-    }
-}
-
-// Nút ">"
-nextBtn.addEventListener('click', () => {
-    if(currentStartIndex + visibleDays < allDays.length){
-        currentStartIndex++;
-        renderDays();
-    }
-});
-
-// Nút "<"
-prevBtn.addEventListener('click', () => {
-    if(currentStartIndex > 0){
-        currentStartIndex--;
-        renderDays();
-    }
-});
-
-// Render lần đầu
-renderDays();
-
-</script>
+    <!-- Video -->
+    <div class="aspect-video">
+      <iframe id="trailerIframe" class="w-full h-full rounded-xl"
+        src="" title="Trailer" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+</div>
 </body>
 </html>
