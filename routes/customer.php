@@ -1,6 +1,7 @@
 <?php
 use App\Controllers\Ctrl_XacThucCustomer;
 use App\Controllers\Ctrl_Phim;
+use App\Controllers\Ctrl_RapPhim;
 use function App\Core\view;
 
 // Vai trò: Khách hàng thành viên, Khách hàng vãng lại
@@ -9,6 +10,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'indexKhachHang']);
     $r->addRoute('GET', '/lich-chieu', [Ctrl_Phim::class, 'lichChieu']);
     $r->addRoute('GET', '/dat-ve', [Ctrl_Phim::class, 'datVe']);
+    $r->addRoute('GET', '/rap', [Ctrl_RapPhim::class, 'rapKhachHang']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
