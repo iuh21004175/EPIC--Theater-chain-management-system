@@ -1,8 +1,15 @@
 <?php
 use App\Controllers\Ctrl_XacThucInternal;
+use App\Controllers\Ctrl_TaiKhoanInternal;
+use App\Controllers\Ctrl_RapPhim;
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
-
+    $r->addRoute('POST', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'themTaiKhoan', ['Admin']]);
+    $r->addRoute('GET', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'docTaiKhoan', ['Admin']]);
+    $r->addRoute('POST', '/rap-phim', [Ctrl_RapPhim::class, 'themRapPhim', ['Admin']]);
+    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'docRapPhim', ['Admin', 'QuanLyRap']]);
+    $r->addRoute('GET', '/rap-phim/{id:\d+}/trang-thai', [Ctrl_RapPhim::class, 'thayDoiTrangThai', ['Admin']]);
+    $r->addRoute('POST', '/rap-phim/{id:\d+}', [Ctrl_RapPhim::class, 'suaRapPhim', ['Admin']]);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -20,7 +27,6 @@ switch ($routeInfo[0]) {
         echo json_encode([
             'success' => false,
             'message' => '404 Not Found',
-            'uri' => $uri
         ]);
         break;
     case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
@@ -36,7 +42,42 @@ switch ($routeInfo[0]) {
         $vars = $routeInfo[2];
         header("Content-Type: application/json");
         if (is_array($handler)) {
-            [$class, $method] = $handler;
+            if(count($handler) == 3){
+                $headers = getallheaders();
+
+                // Kiểm tra xác thực người dùng nội bộ
+                if (!isset($_SESSION['UserInternal']) && !isset($headers['Token-Dev'])) {
+                    header('Content-Type: application/json', true, 403);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => '403 Bạn chưa đăng nhập để truy cập api này'
+                    ]);
+                    exit();
+                }
+                if (isset($headers['Token-Dev']) && !hash_equals($headers['Token-Dev'], $_ENV['TOKEN_DEV_KEY'])) {
+                    header('Content-Type: application/json', true, 401);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => '401 Token-Dev không hợp lệ'
+                    ]);
+                    exit();
+                }
+                $requiredRoles = $handler[2]; // Lấy vai trò yêu cầu từ định tuyến
+                if(isset($_SESSION['UserInternal']) && !in_array($_SESSION['UserInternal']['VaiTro'], $requiredRoles)) {
+                    header('Content-Type: application/json', true, 403);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => '403 Bạn không có quyền truy cập api này'
+                    ]);
+                    exit();
+
+                }
+                // Kiểm tra xác thực khách hàng
+                // bổ sung logic sau
+            }
+            // Sửa lại: lấy class và method từ array $handler
+            $class = $handler[0];  // Ctrl_XacThuc::class
+            $method = $handler[1]; // 'indexDangNhap' hoặc 'index'
             $controller = new $class();
             echo json_encode(call_user_func([$controller, $method], $vars));
         } else {

@@ -86,25 +86,12 @@
         </div>
     </div>
 
-    <!-- Search bar -->
-    <div class="relative flex-1 group my-4">
-        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-400 group-hover:text-red-500 transition-colors duration-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-        </div>
-        <input type="text" name="search" id="search" class="focus:ring-red-500 focus:border-red-500 block w-full pl-10 py-2.5 sm:text-sm border-gray-300 rounded-lg shadow-sm transition-all duration-200 hover:border-red-300" placeholder="Tìm kiếm rạp phim theo tên hoặc địa chỉ...">
-        <div class="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
-            <kbd class="inline-flex items-center rounded border border-gray-200 px-2 font-sans text-sm font-medium text-gray-400 group-hover:border-red-300 group-hover:text-red-500 transition-colors duration-200">⌘K</kbd>
-        </div>
-    </div>
-
     <!-- Cinema list -->
     <div class="flex flex-col">
         <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
                 <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200" >
                         <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -114,14 +101,11 @@
                                     Địa chỉ
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Người quản lý
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Trạng thái
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-200" data-url="{{$_ENV['URL_WEB_BASE']}}">
                             <tr class="cinema-item cursor-pointer hover:bg-gray-50" data-id="1" data-status="active">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="text-sm font-medium text-gray-900">EPIC Cinema - Quận 1</div>
@@ -202,7 +186,7 @@
                 </div>
             </div>
 
-            <form id="add-cinema-form" class="space-y-4">
+            <form action="{{$_ENV['URL_WEB_BASE']}}/api/rap-phim" id="add-cinema-form" class="space-y-4">
                 <!-- Modal Body -->
                 <div class="modal-body px-6 py-2">
                     <div class="grid grid-cols-1 gap-4">
@@ -222,13 +206,6 @@
                             <p class="text-red-500 text-xs italic hidden" id="cinema-address-error">Vui lòng nhập địa chỉ rạp phim.</p>
                         </div>
                         
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="cinema-manager">
-                                Người quản lý <span class="text-red-500">*</span>
-                            </label>
-                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-red-500" id="cinema-manager" type="text" placeholder="Nhập tên người quản lý">
-                            <p class="text-red-500 text-xs italic hidden" id="cinema-manager-error">Vui lòng nhập tên người quản lý.</p>
-                        </div>
                     </div>
                 </div>
                 
@@ -283,13 +260,6 @@
                             <p class="text-red-500 text-xs italic hidden" id="edit-cinema-address-error">Vui lòng nhập địa chỉ rạp phim.</p>
                         </div>
                         
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-cinema-manager">
-                                Người quản lý <span class="text-red-500">*</span>
-                            </label>
-                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-red-500" id="edit-cinema-manager" type="text" placeholder="Nhập tên người quản lý">
-                            <p class="text-red-500 text-xs italic hidden" id="edit-cinema-manager-error">Vui lòng nhập tên người quản lý.</p>
-                        </div>
                         
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2">Trạng thái hiện tại</label>

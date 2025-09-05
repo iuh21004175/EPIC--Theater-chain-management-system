@@ -126,11 +126,17 @@
                                 Tạo tài khoản quản lý rạp mới
                             </h3>
                             <div class="mt-4">
-                                <form id="form-add-account">
+                                <form action="{{$_ENV['URL_WEB_BASE']}}/api/tai-khoan" id="form-add-account">
                                     <div class="mb-4">
                                         <label for="account-fullname" class="block text-sm font-medium text-gray-700">Họ và tên</label>
                                         <input type="text" name="fullname" id="account-fullname" class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" required>
                                         <p class="mt-1 text-sm text-red-600 hidden" id="fullname-error"></p>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="account-username" class="block text-sm font-medium text-gray-700">Tên đăng nhập</label>
+                                        <input type="text" name="username" id="account-username" class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" required>
+                                        <p class="mt-1 text-sm text-gray-500">Tên đăng nhập không được chứa dấu cách và ký tự đặc biệt</p>
+                                        <p class="mt-1 text-sm text-red-600 hidden" id="username-error"></p>
                                     </div>
                                     <div class="mb-4">
                                         <label for="account-email" class="block text-sm font-medium text-gray-700">Email</label>

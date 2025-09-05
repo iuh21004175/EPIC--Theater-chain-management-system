@@ -1,3 +1,5 @@
+import Spinner from './util/spinner.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
     const accountsList = document.getElementById('accounts-list');
@@ -188,6 +190,17 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
+        // Validate username for new accounts
+        if (isAdd) {
+            if (!formData.username || formData.username.trim() === '') {
+                errors.username = 'Tên đăng nhập không được để trống';
+                isValid = false;
+            } else if (/\s/.test(formData.username) || !/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+                errors.username = 'Tên đăng nhập không được chứa dấu cách và ký tự đặc biệt';
+                isValid = false;
+            }
+        }
+        
         // Validate email for new accounts
         if (isAdd) {
             if (!formData.email || formData.email.trim() === '') {
@@ -224,24 +237,47 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Show errors if any
+        // Clear all error messages first
         const prefix = isAdd ? '' : 'edit-';
-        Object.keys(errors).forEach(field => {
-            const errorElement = document.getElementById(`${prefix}${field}-error`);
+        ['fullname', 'username', 'email', 'password', 'password_confirm', 'phone'].forEach(field => {
+            const errorElement = document.getElementById(`${field}-error`);
             if (errorElement) {
-                errorElement.textContent = errors[field];
-                errorElement.classList.remove('hidden');
+                errorElement.textContent = '';
+                errorElement.classList.add('hidden');
+            }
+            
+            // Also clear edit form errors
+            if (isAdd) {
+                const editErrorElement = document.getElementById(`edit-${field}-error`);
+                if (editErrorElement) {
+                    editErrorElement.textContent = '';
+                    editErrorElement.classList.add('hidden');
+                }
             }
         });
         
-        // Clear previous error messages for valid fields
-        ['fullname', 'email', 'password', 'password_confirm', 'phone'].forEach(field => {
-            if (!errors[field]) {
-                const errorElement = document.getElementById(`${prefix}${field}-error`);
-                if (errorElement) {
-                    errorElement.textContent = '';
-                    errorElement.classList.add('hidden');
+        // Display new errors
+        Object.keys(errors).forEach(field => {
+            const errorElement = document.getElementById(`${prefix}${field}-error`);
+            if (errorElement) {
+                // Set error message
+                errorElement.textContent = errors[field];
+                
+                // Make it visible
+                errorElement.classList.remove('hidden');
+                
+                // Highlight the input field with error
+                const inputField = document.getElementById(`${prefix}account-${field}`);
+                if (inputField) {
+                    inputField.classList.add('border-red-500');
+                    inputField.classList.add('focus:ring-red-500');
+                    inputField.classList.add('focus:border-red-500');
                 }
+                
+                // Log the error for debugging
+                console.log(`Validation error for ${field}: ${errors[field]}`);
+            } else {
+                console.warn(`Error element for ${prefix}${field}-error not found`);
             }
         });
         
@@ -347,8 +383,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add new account
     function addAccount() {
+        // Show spinner
+        const spinner = Spinner.show({
+            target: modalAddAccount,
+            text: 'Đang xử lý...'
+        });
         const formData = {
             fullname: document.getElementById('account-fullname').value.trim(),
+            username: document.getElementById('account-username').value.trim(),
             email: document.getElementById('account-email').value.trim(),
             password: document.getElementById('account-password').value,
             password_confirm: document.getElementById('account-password-confirm').value,
@@ -357,31 +399,71 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Validate form
         if (!validateForm(formData, true)) {
+            Spinner.hide(spinner);
             return;
         }
-        
-        // In a real app, this would be an API call
-        // For demo, we'll just add it to our sample data
-        const newAccount = {
-            id: sampleAccounts.length + 1,
-            fullname: formData.fullname,
+
+        // Create payload for API
+        const payload = {
+            tendangnhap: formData.username,
+            matkhau: formData.password,
+            ten: formData.fullname,
             email: formData.email,
-            phone: formData.phone,
-            active: true,
-            cinema_id: null,
-            cinema_name: null
+            dien_thoai: formData.phone || ''
         };
+
+        // Disable submit button
+        btnSubmitAdd.disabled = true;
         
-        sampleAccounts.push(newAccount);
         
-        // Close modal
-        closeModals();
+
+        // Make API call
+        // Get the form action URL
+        const formAction = formAddAccount.getAttribute('action');
         
-        // Show success message
-        showToast('Tạo tài khoản mới thành công');
-        
-        // Refresh the list
-        loadAccounts();
+        fetch(formAction, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        })
+        // .then(response => response.text())
+        // .then(text => console.log('Response Text:', text)) Log raw response text for debugging
+        .then(response => response.json()) // Changed from text() to json()
+        .then(data => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            // Re-enable button
+            btnSubmitAdd.disabled = false;
+
+            if (data.success) {
+                // Close modal
+                closeModals();
+                
+                // Show success message
+                showToast(data.message || 'Tạo tài khoản mới thành công');
+                
+                // Refresh the list
+                loadAccounts();
+            } else {
+            // Show error message
+                showToast(data.message || 'Tạo tài khoản thất bại', true);
+            }
+            
+        })
+        .catch(error => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            // Re-enable button
+            btnSubmitAdd.disabled = false;
+            
+            // Show error message
+            showToast('Lỗi kết nối: ' + error.message, true);
+            console.error('Error:', error);
+        });
     }
 
     // Update account
@@ -525,4 +607,31 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize
     loadAccounts();
+});
+
+// Add this to your JavaScript to ensure error messages stand out
+document.addEventListener('DOMContentLoaded', function() {
+    // Enhance error message styling
+    const errorMessages = document.querySelectorAll('.text-red-600');
+    errorMessages.forEach(error => {
+        error.classList.add('font-medium');
+        error.style.display = 'block';
+        error.style.marginTop = '0.25rem';
+    });
+    
+    // Make form fields show red border immediately when they get validation errors
+    const formInputs = document.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            // Remove error styling when user starts typing
+            this.classList.remove('border-red-500');
+            
+            // Hide corresponding error message
+            const fieldName = this.name;
+            const errorElement = document.getElementById(`${fieldName}-error`);
+            if (errorElement) {
+                errorElement.classList.add('hidden');
+            }
+        });
+    });
 });
