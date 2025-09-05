@@ -46,7 +46,7 @@
                 <h1 class="text-xl font-bold text-gray-900">EPIC CINEMA</h1>
             </div>
             <div class="flex items-center">
-                <span class="mr-4 text-gray-600">Xin chào, {{$_SESSION['UserInternal']['VaiTro']}}</span>
+                <span class="mr-4 text-gray-600">Xin chào, {{$_SESSION['UserInternal']['Ten'] ? $_SESSION['UserInternal']['Ten'] : $_SESSION['UserInternal']['VaiTro']}}</span>
                 <a href="{{$_ENV['URL_INTERNAL_BASE']}}/dang-xuat" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm">Đăng xuất</a>
             </div>
         </div>

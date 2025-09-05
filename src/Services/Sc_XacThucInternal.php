@@ -1,5 +1,6 @@
 <?php
     namespace App\Services;
+    use App\Models\TaiKhoanInternal;
     class Sc_XacThucInternal {
         public function scDangNhap(){
             $userInternal = [
@@ -12,9 +13,16 @@
             $tenDangNhap = $_POST['TenDangNhap'] ?? '';
             $matKhau = $_POST['MatKhau'] ?? '';
 
-            foreach ($userInternal as $user) {
-                if ($user['TenDangNhap'] === $tenDangNhap && password_verify($matKhau, $user['MatKhau'])) {
-                    $_SESSION['UserInternal'] = $user;
+            $taiKhoan = TaiKhoanInternal::where('tendangnhap', $tenDangNhap)->first();
+            if ($taiKhoan) {
+                if (password_verify($matKhau, $taiKhoan->matkhau_bam)) {
+                    $_SESSION['UserInternal'] = [
+                        'Ten' => $taiKhoan->nguoiDungInternals->ten ?? '',
+                        'Email' => $taiKhoan->nguoiDungInternals->email ?? '',
+                        'DienThoai' => $taiKhoan->nguoiDungInternals->dien_thoai ?? '',
+                        'TenDangNhap' => $taiKhoan->tendangnhap,
+                        'VaiTro' => $taiKhoan->vaiTro->ten
+                    ];
                     return true;
                 }
             }

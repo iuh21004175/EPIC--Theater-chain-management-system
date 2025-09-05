@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(response => response.json())
         .then(data => {
+            // Ẩn spinner sau khi nhận kết quả từ server
+            Spinner.hide(spinner);
+            
             if (data.status === 'success') {
                 window.location.href = data.redirect;
             } else {
@@ -23,6 +26,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(error => {
+            // Ẩn spinner khi xảy ra lỗi
+            Spinner.hide(spinner);
             console.error('Error:', error);
         });
     });

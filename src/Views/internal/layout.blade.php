@@ -39,7 +39,7 @@
                     <div class="relative ml-3">
                         <div>
                             <button type="button" class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:shadow-outline" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                                <span class="mr-2 text-gray-700">{{$_SESSION['UserInternal']['HoTen'] ?? 'Admin'}}</span>
+                                <span class="mr-2 text-gray-700">{{$_SESSION['UserInternal']['Ten'] ? $_SESSION['UserInternal']['Ten'] : $_SESSION['UserInternal']['VaiTro']}}</span>
                                 <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />

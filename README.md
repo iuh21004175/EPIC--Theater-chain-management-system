@@ -5,3 +5,5 @@
   npm run build:css:internal --> Dành cho các giao diện trong nội bộ.
   npm run build:css:customer --> Dành cho các giao diện phục vụ cho khách hàng.
   * Để xem chi tiết lệnh thì mở file package.json
+3. Lệnh để kết nối database vps (lưu ý là tắt mysql của xampp)
+ssh -L 3306:127.0.0.1:3306 root@103.130.213.112
