@@ -15,5 +15,14 @@
         public function datVe(){
             return view('customer.dat-ve');
         }
+        public function tinTuc(){
+            return view('customer.tin-tuc');
+        }
+        public function chiTietTinTuc(){
+            return view('customer.chi-tiet-tin-tuc');
+        }
+        public function banVe(){
+            return view('internal.ban-ve');
+        }
     }
 ?>

@@ -190,7 +190,7 @@
             </a>
             @else
             <!-- Xem lịch làm việc -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/xem-lich-lam-viec" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Xem lịch làm việc">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/lich-lam-viec" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Xem lịch làm việc">
                 <div class="w-12 h-12 flex items-center justify-center bg-cyan-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -199,7 +199,7 @@
                 <span class="text-xs text-center font-medium text-gray-700">Xem lịch làm việc</span>
             </a>
             <!-- Xem lương -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/xem-luong" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Xem lương">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/luong" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Xem lương">
                 <div class="w-12 h-12 flex items-center justify-center bg-emerald-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -224,6 +224,37 @@
                     </svg>
                 </div>
                 <span class="text-xs text-center font-medium text-gray-700">Bán vé</span>
+            </a>
+            <!-- Gửi yêu cầu -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/yeu-cau" 
+                class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" 
+                data-tooltip="Yêu cầu">
+                    <div class="w-12 h-12 flex items-center justify-center bg-teal-100 rounded-full mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                            class="h-6 w-6 text-teal-600" 
+                            fill="none" viewBox="0 0 24 24" 
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M9 12h6m2 0a2 2 0 002-2V7a2 2 0 00-2-2h-2l-2-2H9L7 5H5a2 2 0 00-2 2v3a2 2 0 002 2m14 0v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7h14z" />
+                        </svg>
+                    </div>
+                    <span class="text-xs text-center font-medium text-gray-700">Gửi yêu cầu</span>
+            </a>
+            <!-- Chat -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/chat" 
+                class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" 
+                data-tooltip="Chat">
+                    <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 rounded-full mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                            class="h-6 w-6 text-indigo-600" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8-1.486 0-2.882-.324-4.057-.889L3 20l1.356-3.215C3.486 15.62 3 13.865 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
+                    <span class="text-xs text-center font-medium text-gray-700">Chat</span>
             </a>
             @endif    
             
