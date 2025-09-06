@@ -2,11 +2,15 @@
 use App\Controllers\Ctrl_XacThucCustomer;
 use App\Controllers\Ctrl_Phim;
 use App\Controllers\Ctrl_RapPhim;
+use App\Controllers\Ctrl_KhachHang;
 use function App\Core\view;
 
 // Vai trò: Khách hàng thành viên, Khách hàng vãng lại
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/', [Ctrl_XacThucCustomer::class, 'index']);
+    $r->addRoute('GET', '/dang-xuat', [Ctrl_XacThucCustomer::class, 'dangXuat']);
+    $r->addRoute('GET', '/doi-mat-khau', [Ctrl_XacThucCustomer::class, 'doiMatKhau']);
+    $r->addRoute('GET', '/thong-tin-ca-nhan', [Ctrl_KhachHang::class, 'index']);
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'indexKhachHang']);
     $r->addRoute('GET', '/lich-chieu', [Ctrl_Phim::class, 'lichChieu']);
     $r->addRoute('GET', '/dat-ve', [Ctrl_Phim::class, 'datVe']);
@@ -50,7 +54,12 @@ switch ($routeInfo[0]) {
             $method = $handler[1]; // 'indexDangNhap' hoặc 'index'
                 
             $controller = new $class();
-            echo call_user_func([$controller, $method], $vars);
+            $result = call_user_func([$controller, $method], $vars);
+            if (is_array($result)) {
+                echo json_encode($result);
+            } else {
+                echo $result;
+            }
             } else {
                 echo call_user_func($handler, $vars);
             }        

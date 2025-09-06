@@ -15,7 +15,7 @@
 
     <!-- Bài viết 1 -->
     <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc/final-destination-bloodlines-he-lo-bi-mat-ve-vong-lap-tu-than" class="bg-white rounded-lg shadow-md flex mb-6 block no-underline">
-        <img src="https://i.imgur.com/c9F8VdC.jpeg" alt="Final Destination" class="w-48 h-32 object-cover rounded-l-lg">
+        <img src="" alt="Final Destination" class="w-48 h-32 object-cover rounded-l-lg">
         <div class="p-4 flex flex-col justify-between">
             <div>
             <h2 class="text-lg font-semibold text-gray-800">
@@ -34,7 +34,7 @@
 
     <!-- Bài viết 2 -->
     <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc/top-phim-hay-dip-cuoi-nam-2025" class="bg-white rounded-lg shadow-md flex mb-6 block no-underline">
-      <img src="https://i.imgur.com/c9F8VdC.jpeg" alt="Final Destination" class="w-48 h-32 object-cover rounded-l-lg">
+      <img src="" alt="Final Destination" class="w-48 h-32 object-cover rounded-l-lg">
       <div class="p-4 flex flex-col justify-between">
         <div>
           <h2 class="text-lg font-semibold text-gray-800">
