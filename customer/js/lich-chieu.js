@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevBtn = document.getElementById('prevDay');
 
     let startDate = new Date(); // Hôm nay
-    let visibleDays = 6; // số ngày hiển thị
+    let visibleDays = 7; // số ngày hiển thị
     let currentStartIndex = 0;
     let allDays = [];
 

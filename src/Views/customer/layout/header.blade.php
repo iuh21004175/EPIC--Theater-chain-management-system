@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Epic Cinema</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
     <style>
         .btn-outline-primary-custom {
             color: #007bff;
@@ -100,6 +100,17 @@
             border-top: 1px solid #e5e5e5;
             padding-top: 15px;
         }
+        /* Toast animation */
+    @keyframes slideIn {
+      0% { transform: translateX(100%); opacity: 0; }
+      100% { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      0% { transform: translateX(0); opacity: 1; }
+      100% { transform: translateX(100%); opacity: 0; }
+    }
+    .toast { animation: slideIn 0.5s forwards; }
+    .toast-hide { animation: slideOut 0.5s forwards; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -130,15 +141,43 @@
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Tin tức</a>
         </nav>
-        <div>
-            <button id="btn-login" class="bg-red-600 text-white font-bold py-2 px-5 rounded-md hover:bg-red-700 transition duration-300 text-sm">Đăng nhập</button>
+        <div id="user-area">
+            <?php if (isset($_SESSION['user'])): 
+                $user = $_SESSION['user']; 
+            ?>
+                <!-- Dropdown user -->
+                <div id="user-dropdown" class="relative group">
+                    <button id="btn-user" class="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                        <span id="user-name"><?= htmlspecialchars($user['ho_ten']) ?></span>
+                        <svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div id="dropdown-menu" class="absolute right-0 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 opacity-0 invisible transition-opacity duration-300 group-hover:opacity-100 group-hover:visible">
+                        <div class="px-4 py-2 text-gray-500 border-b border-gray-200">
+                            Xin chào, <?= htmlspecialchars($user['ho_ten']) ?>
+                        </div>
+                        <a href="{{ $_ENV['URL_WEB_BASE'] }}/thong-tin-ca-nhan" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Thông tin cá nhân</a>
+                        <a href="{{ $_ENV['URL_WEB_BASE'] }}/doi-mat-khau" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đổi mật khẩu</a>
+                        <a href="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đăng xuất</a>
+                        <!-- <form method="POST" action="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat">
+                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đăng xuất</button>
+                        </form> -->
+                    </div>
+                </div>
+            <?php else: ?>
+                <!-- Nút đăng nhập -->
+                <button id="btn-login" class="bg-red-600 text-white font-bold py-2 px-5 rounded-md hover:bg-red-700 transition duration-300 text-sm">
+                    Đăng nhập
+                </button>
+            <?php endif; ?>
         </div>
     </div>
 </header>
 
 <div id="modalLogin" class="modal">
     <div class="modal-content">
-        <form name='formDangNhap' method="POST" action="">
+        <form action="{{ $_ENV['URL_WEB_BASE'] }}/api/dang-nhap-khach-hang" id="loginForm" name='formDangNhap' method="POST">
             <div class="modal-header">
                 <img src="https://res.cloudinary.com/dtkm5uyx1/image/upload/v1756390333/icon-login.fbbf1b2d_qfrlwb.svg" alt="Login Icon" class="mb-2" style="width:190px; height:120px;">
                 <h5 class="modal-title w-100 text-lg font-bold">Đăng Nhập Tài Khoản</h5>
@@ -177,7 +216,7 @@
 
 <div id="modalRegister" class="modal">
     <div class="modal-content">
-        <form id="registerForm" name="formDangKy" method="POST" action="">
+        <form action="{{ $_ENV['URL_WEB_BASE'] }}/api/dang-ky" id="registerForm" name="formDangKy" method="POST">
             <div class="modal-header">
                 
                 <h5 class="modal-title w-100 text-lg font-bold">Đăng Ký Tài Khoản</h5>
@@ -201,9 +240,8 @@
                         <label for="sexSelect" class="block text-gray-700 font-medium">Giới tính</label>
                         <select id="sexSelect" name="sex" class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500">
                             <option value="">-- Chọn --</option>
-                            <option value="Nam">Nam</option>
-                            <option value="Nữ">Nữ</option>
-                            <option value="Khác">Khác</option>
+                            <option value="1">Nam</option>
+                            <option value="0">Nữ</option>
                         </select>
                         <span id="tbSex" class="text-red-500 text-sm mt-1 block"></span>
                     </div>
@@ -233,8 +271,7 @@
                         <a href="#" id="btnTerms" class="text-blue-600 hover:underline">Điều khoản dịch vụ</a>
                     </label>
                 </div>
-                
-                <button type="submit" class="w-full bg-blue-400 text-white font-semibold py-2 rounded-md transition duration-300 cursor-not-allowed" id="btnSave" disabled>
+                <button type="button" class="w-full bg-blue-400 text-white font-semibold py-2 rounded-md transition duration-300 cursor-not-allowed" id="btnSave" disabled>
                     Đăng Ký
                 </button>
             </div>
@@ -246,7 +283,7 @@
         </div>
     </div>
 </div>
-    
+
 
 <div id="modalForgotPassword" class="modal">
     <div class="modal-content">
@@ -290,271 +327,9 @@
     </div>
 </div>
 
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const modalLogin = document.getElementById('modalLogin');
-        const modalRegister = document.getElementById('modalRegister');
-        const modalForgotPassword = document.getElementById('modalForgotPassword');
-        const body = document.body;
-        const btnSave = document.getElementById('btnSave');
-        const termsCheckbox = document.getElementById('termsCheckbox');
-
-        function openModal(modal) {
-            modal.classList.add('is-open');
-            body.classList.add('modal-open');
-        }
-
-        function closeModal(modal) {
-            modal.classList.remove('is-open');
-            body.classList.remove('modal-open');
-        }
-
-        function switchModal(fromModal, toModal) {
-            closeModal(fromModal);
-            openModal(toModal);
-        }
-        
-        // Cập nhật trạng thái nút Đăng Ký dựa trên checkbox
-        function toggleSubmitButton() {
-            if (termsCheckbox.checked) {
-                btnSave.disabled = false;
-                btnSave.classList.remove('bg-blue-400', 'cursor-not-allowed');
-                btnSave.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            } else {
-                btnSave.disabled = true;
-                btnSave.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                btnSave.classList.add('bg-blue-400', 'cursor-not-allowed');
-            }
-        }
-
-        // Event listeners for opening and closing modals
-        document.getElementById('btn-login').addEventListener('click', () => openModal(modalLogin));
-
-        document.querySelectorAll('.modal .close').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const modal = event.target.closest('.modal');
-                if (modal) closeModal(modal);
-            });
-        });
-
-        modalLogin.addEventListener('click', (event) => {
-            if (event.target === modalLogin) {
-                closeModal(modalLogin);
-            }
-        });
-        modalRegister.addEventListener('click', (event) => {
-            if (event.target === modalRegister) {
-                closeModal(modalRegister);
-            }
-        });
-        modalForgotPassword.addEventListener('click', (event) => {
-            if (event.target === modalForgotPassword) {
-                closeModal(modalForgotPassword);
-            }
-        });
-
-        // Event listeners for switching modals
-        document.getElementById('btnRegister').addEventListener('click', (e) => {
-            e.preventDefault();
-            switchModal(modalLogin, modalRegister);
-        });
-
-        document.getElementById('btnBackToLogin').addEventListener('click', (e) => {
-            e.preventDefault();
-            switchModal(modalRegister, modalLogin);
-        });
-
-        document.getElementById('btnForgotPassword').addEventListener('click', (e) => {
-            e.preventDefault();
-            switchModal(modalLogin, modalForgotPassword);
-        });
-
-        // Event listener cho checkbox
-        termsCheckbox.addEventListener('change', toggleSubmitButton);
-        
-        // Kiểm tra trạng thái ban đầu của nút khi trang tải
-        toggleSubmitButton();
-
-        // --- Form Validation Functions ---
-        function checkEmail(inputElement, errorElement) {
-            const kt = /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+-]{0,62}[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z]{2,})+$/;
-            const value = inputElement.value.trim();
-            if (value === "") {
-                errorElement.textContent = "Email không được để trống!";
-                return false;
-            }
-            if (!kt.test(value)) {
-                errorElement.textContent = "Email không hợp lệ!";
-                return false;
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-
-        function checkPassword(inputElement, errorElement) {
-            const kt = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{}|;:',.<>?/]).{8,}$/;
-            const value = inputElement.value;
-            if (value === "") {
-                errorElement.textContent = "Mật khẩu không được để trống!";
-                return false;
-            }
-            if (value.length < 8) {
-                errorElement.textContent = "Mật khẩu phải có ít nhất 8 ký tự!";
-                return false;
-            }
-            if (!kt.test(value)) {
-                errorElement.textContent = "Mật khẩu phải có chữ hoa, chữ thường, số, ký tự đặc biệt";
-                return false;
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-
-        function checkPasswordConfirm() {
-            const pw = document.getElementById('registerPassword').value;
-            const value = document.getElementById('registerPasswordConfirm').value;
-            const errorElement = document.getElementById('tbRegisterPasswordConfirm');
-            if (value === "") {
-                errorElement.textContent = "Nhập lại mật khẩu không được để trống!";
-                return false;
-            }
-            if (pw === "") {
-                errorElement.textContent = "Bạn chưa nhập mật khẩu chính!";
-                return false;
-            }
-            if (value !== pw) {
-                errorElement.textContent = "Mật khẩu nhập lại không khớp";
-                return false;
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-
-        function checkName() {
-            const inputElement = document.getElementById('registerName');
-            const errorElement = document.getElementById('tbRegisterName');
-            const kt = /^(([A-Z]{1})([a-z]+))(\s([A-Z]{1})([a-z]+)){1,}$/;
-            if (inputElement.value.trim() === "") {
-                errorElement.textContent = "Họ tên không được để trống!";
-                return false;
-            }
-            if (!kt.test(inputElement.value)) {
-                errorElement.textContent = "Ký tự đầu viết hoa, ít nhất có 2 từ!";
-                return false;
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-
-        function checkNgaySinh() {
-            const inputElement = document.getElementById('txtNgaySinh');
-            const errorElement = document.getElementById('tbNgaySinh');
-            const value = inputElement.value;
-            if (!value) {
-                errorElement.textContent = "Ngày sinh không được để trống!";
-                return false;
-            }
-            const today = new Date();
-            const todayStr = today.toISOString().split("T")[0];
-            if (value > todayStr) {
-                errorElement.textContent = "Ngày sinh không được sau hiện tại!";
-                return false;
-            }
-            const ngaySinh = new Date(value);
-            let tuoi = today.getFullYear() - ngaySinh.getFullYear();
-            const m = today.getMonth() - ngaySinh.getMonth();
-            if (m < 0 || (m === 0 && today.getDate() < ngaySinh.getDate())) {
-                tuoi--;
-            }
-            if (tuoi < 13) {
-                errorElement.textContent = "Bạn phải từ 13 tuổi trở lên!";
-                return false;
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-
-        function checkGender() {
-            const selectElement = document.getElementById('sexSelect');
-            const errorElement = document.getElementById('tbSex');
-            if (selectElement.value === "") {
-                errorElement.textContent = "Giới tính không được để trống!";
-                return false;
-            }
-            errorElement.textContent = "";
-            return true;
-        }
-
-        // --- Event Listeners for validation on blur/change ---
-        document.getElementById('loginEmail').addEventListener('blur', (e) => checkEmail(e.target, document.getElementById('tbLoginEmail')));
-        document.getElementById('registerEmail').addEventListener('blur', (e) => checkEmail(e.target, document.getElementById('tbRegisterEmail')));
-        document.getElementById('forgotEmail').addEventListener('blur', (e) => checkEmail(e.target, document.getElementById('tbForgotEmail')));
-        document.getElementById('loginPassword').addEventListener('blur', (e) => checkPassword(e.target, document.getElementById('tbLoginPassword')));
-        document.getElementById('registerPassword').addEventListener('blur', (e) => {
-            checkPassword(e.target, document.getElementById('tbRegisterPassword'));
-            checkPasswordConfirm();
-        });
-        document.getElementById('registerPasswordConfirm').addEventListener('blur', checkPasswordConfirm);
-        document.getElementById('registerName').addEventListener('blur', checkName);
-        document.getElementById('txtNgaySinh').addEventListener('blur', checkNgaySinh);
-        document.getElementById('sexSelect').addEventListener('change', checkGender);
-
-        // --- Form Submission Validation ---
-        document.getElementById('btnLogin').addEventListener('click', function(e) {
-            let isEmailValid = checkEmail(document.getElementById('loginEmail'), document.getElementById('tbLoginEmail'));
-            let isPasswordValid = checkPassword(document.getElementById('loginPassword'), document.getElementById('tbLoginPassword'));
-            if (!isEmailValid || !isPasswordValid) {
-                e.preventDefault();
-            }
-        });
-
-        document.getElementById('btnSave').addEventListener('click', function(e) {
-            let isNameValid = checkName();
-            let isEmailValid = checkEmail(document.getElementById('registerEmail'), document.getElementById('tbRegisterEmail'));
-            let isGenderValid = checkGender();
-            let isDateValid = checkNgaySinh();
-            let isPasswordValid = checkPassword(document.getElementById('registerPassword'), document.getElementById('tbRegisterPassword'));
-            let isPasswordConfirmValid = checkPasswordConfirm();
-            let isTermsAccepted = termsCheckbox.checked;
-
-            if (!(isNameValid && isEmailValid && isGenderValid && isDateValid && isPasswordValid && isPasswordConfirmValid && isTermsAccepted)) {
-                e.preventDefault();
-                if (!isTermsAccepted) {
-                    alert('Vui lòng đồng ý với Điều khoản dịch vụ để tiếp tục.');
-                }
-            }
-        });
-
-        document.getElementById('btnSendReset').addEventListener('click', function(e) {
-            let isEmailValid = checkEmail(document.getElementById('forgotEmail'), document.getElementById('tbForgotEmail'));
-            if (!isEmailValid) {
-                e.preventDefault();
-            }
-        });
-
-        const modalTerms = document.getElementById('modalTerms');
-        const btnTerms = document.getElementById('btnTerms');
-        const btnCloseTerms = document.getElementById('btnCloseTerms');
-
-        // Mở modal điều khoản
-        btnTerms.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(modalTerms);
-        });
-
-        // Đóng modal khi bấm nút Đã hiểu
-        btnCloseTerms.addEventListener('click', () => closeModal(modalTerms));
-
-        // Đóng modal khi click ra ngoài
-        modalTerms.addEventListener('click', (event) => {
-            if (event.target === modalTerms) {
-                closeModal(modalTerms);
-            }
-        });
-    });
-
-</script>
-
 </body>
+<script>
+    const baseUrl = "<?= $_ENV['URL_WEB_BASE'] ?>";
+</script>
+<script src="<?= $_ENV['URL_WEB_BASE'] ?>/customer/js/auth.js"></script>
 </html>
