@@ -38,5 +38,49 @@
                 'data' => $taiKhoans
             ];
         }
+        public function phanCongTaiKhoan($argc){
+            $service = new Sc_TaiKhoanInternal();
+            try {
+                $result = $service->phanCong($argc['id']);
+                if($result){
+                    return [
+                        'success' => true,
+                        'message' => 'Phân công tài khoản quản lý rạp thành công'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Phân công tài khoản quản lý rạp thất bại'
+                    ];
+                }
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function suaTaiKhoan($argc){
+            $service = new Sc_TaiKhoanInternal();
+            try {
+                $result = $service->sua($argc['id']);
+                if($result){
+                    return [
+                        'success' => true,
+                        'message' => 'Cập nhật thông tin tài khoản quản lý rạp thành công'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Cập nhật thông tin tài khoản quản lý rạp thất bại'
+                    ];
+                }
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi: ' . $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

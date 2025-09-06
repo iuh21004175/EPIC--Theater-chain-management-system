@@ -1,3 +1,5 @@
+import Spinner from './util/spinner.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Elements
     const addEmployeeBtn = document.getElementById('add-employee-btn');
@@ -11,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const employeeEmailInput = document.getElementById('employee-email');
     const employeeUsernameInput = document.getElementById('employee-username');
     const employeePasswordInput = document.getElementById('employee-password');
-    const employeeRoleInput = document.getElementById('employee-role');
     const passwordContainer = document.getElementById('password-container');
     const saveEmployeeBtn = document.getElementById('save-employee');
     const cancelEmployeeBtn = document.getElementById('cancel-employee');
@@ -25,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const confirmStatusChangeBtn = document.getElementById('confirm-status-change');
     const toastNotification = document.getElementById('toast-notification');
     const statusFilter = document.getElementById('status-filter');
-    const roleFilter = document.getElementById('role-filter');
     const searchInput = document.getElementById('search');
     
     // Error message elements
@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const emailError = document.getElementById('email-error');
     const usernameError = document.getElementById('username-error');
     const passwordError = document.getElementById('password-error');
-    const roleError = document.getElementById('role-error');
     
     // Sample data for testing (would be fetched from server in production)
     let employees = [
@@ -44,7 +43,6 @@ document.addEventListener('DOMContentLoaded', function() {
             phone: '0123456789',
             email: 'nguyenvana@example.com',
             username: 'nguyenvana',
-            role: 'ticket-seller',
             status: 'active'
         },
         {
@@ -53,7 +51,6 @@ document.addEventListener('DOMContentLoaded', function() {
             phone: '0987654321',
             email: 'tranthib@example.com',
             username: 'tranthib',
-            role: 'food-service',
             status: 'active'
         },
         {
@@ -62,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
             phone: '0369852147',
             email: 'levanc@example.com',
             username: 'levanc',
-            role: 'ticket-checker',
             status: 'inactive'
         }
     ];
@@ -70,14 +66,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Variables for status change
     let changingEmployeeId = null;
     let newStatus = null;
-    
-    // Role display mapping
-    const roleDisplayNames = {
-        'ticket-seller': 'Nhân viên bán vé',
-        'food-service': 'Nhân viên bán thức ăn',
-        'ticket-checker': 'Nhân viên soát vé',
-        'cleaner': 'Nhân viên vệ sinh'
-    };
     
     // Load initial data
     loadEmployees();
@@ -92,9 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
     confirmStatusChangeBtn.addEventListener('click', changeEmployeeStatus);
     
     // Filters
-    statusFilter.addEventListener('change', applyFilters);
-    roleFilter.addEventListener('change', applyFilters);
-    searchInput.addEventListener('input', applyFilters);
+    if (statusFilter) {
+        statusFilter.addEventListener('change', applyFilters);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+    }
     
     // Phone number validation
     employeePhoneInput.addEventListener('input', function() {
@@ -104,7 +96,53 @@ document.addEventListener('DOMContentLoaded', function() {
     // Functions
     
     function loadEmployees() {
-        // In a real app, you would fetch employees from the server
+        // Show spinner while loading
+        const container = employeeList.closest('.overflow-x-auto');
+        const spinner = Spinner.show({
+            target: container,
+            text: 'Đang tải danh sách nhân viên...'
+        });
+        
+        // Fetch from API
+        fetch(`${employeeList.dataset.url}/api/nhan-vien`)
+            // .then(response => response.text())
+            // .then(text => console.log(text) || text) // Log raw response text for debugging
+            .then(response => response.json())
+            .then(data => {
+                // Hide spinner
+                Spinner.hide(spinner);
+                
+                if (data.success && data.data) {
+                    // Map API data to our employee format
+                    employees = data.data.map(item => ({
+                        id: item.id,
+                        name: item.ten,
+                        phone: item.dien_thoai,
+                        email: item.email,
+                        username: item.tai_khoan?.tendangnhap || 'N/A',
+                        status: item.trang_thai !== 0 ? 'active' : 'inactive'
+                    }));
+                    
+                    // Continue with rendering employees
+                    renderEmployees();
+                } else {
+                    showToast('Không thể tải danh sách nhân viên', true);
+                    noEmployees.classList.remove('hidden');
+                }
+            })
+            .catch(error => {
+                // Hide spinner
+                Spinner.hide(spinner);
+                
+                // Show error message
+                showToast('Lỗi kết nối: ' + error.message, true);
+                console.error('Error:', error);
+                noEmployees.classList.remove('hidden');
+            });
+    }
+
+    // Separate render function for cleaner code
+    function renderEmployees() {
         if (employees.length === 0) {
             noEmployees.classList.remove('hidden');
             return;
@@ -142,24 +180,21 @@ document.addEventListener('DOMContentLoaded', function() {
         let filtered = [...employees];
         
         // Apply status filter
-        if (statusFilter.value !== 'all') {
+        if (statusFilter && statusFilter.value !== 'all') {
             filtered = filtered.filter(employee => employee.status === statusFilter.value);
         }
         
-        // Apply role filter
-        if (roleFilter.value !== 'all') {
-            filtered = filtered.filter(employee => employee.role === roleFilter.value);
-        }
-        
         // Apply search filter
-        const searchTerm = searchInput.value.toLowerCase().trim();
-        if (searchTerm) {
-            filtered = filtered.filter(employee => 
-                employee.name.toLowerCase().includes(searchTerm) ||
-                employee.email.toLowerCase().includes(searchTerm) ||
-                employee.phone.includes(searchTerm) ||
-                employee.username.toLowerCase().includes(searchTerm)
-            );
+        if (searchInput) {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            if (searchTerm) {
+                filtered = filtered.filter(employee => 
+                    employee.name.toLowerCase().includes(searchTerm) ||
+                    employee.email.toLowerCase().includes(searchTerm) ||
+                    employee.phone.includes(searchTerm) ||
+                    employee.username.toLowerCase().includes(searchTerm)
+                );
+            }
         }
         
         return filtered;
@@ -170,54 +205,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function createEmployeeTableRow(employee) {
-        const row = document.createElement('tr');
-        
-        // Create status badge
-        const statusBadge = document.createElement('span');
-        statusBadge.classList.add('px-2', 'inline-flex', 'text-xs', 'leading-5', 'font-semibold', 'rounded-full');
-        
-        if (employee.status === 'active') {
-            statusBadge.classList.add('bg-green-100', 'text-green-800');
-            statusBadge.textContent = 'Đang làm việc';
-        } else {
-            statusBadge.classList.add('bg-red-100', 'text-red-800');
-            statusBadge.textContent = 'Đã nghỉ việc';
-        }
-        
-        row.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
-                        <span class="text-lg font-medium text-gray-600">${employee.name.charAt(0)}</span>
-                    </div>
-                    <div class="ml-4">
-                        <div class="text-sm font-medium text-gray-900">${employee.name}</div>
-                    </div>
-                </div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">${employee.phone}</div>
-                <div class="text-sm text-gray-500">${employee.email}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">${roleDisplayNames[employee.role] || employee.role}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">${employee.username}</div>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-                ${statusBadge.outerHTML}
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="text-blue-600 hover:text-blue-900 mr-3 edit-employee" data-id="${employee.id}">Sửa</button>
-            </td>
-        `;
-        
-        // Add event listener to edit button
-        row.querySelector('.edit-employee').addEventListener('click', () => openEditModal(employee.id));
-        
-        return row;
+    const row = document.createElement('tr');
+    
+    // Add cursor-pointer and hover effect to indicate clickable row
+    row.classList.add('cursor-pointer', 'hover:bg-gray-50', 'transition', 'duration-150');
+    
+    // Create status badge
+    const statusBadge = document.createElement('span');
+    statusBadge.classList.add('px-2', 'inline-flex', 'text-xs', 'leading-5', 'font-semibold', 'rounded-full');
+    
+    if (employee.status === 'active') {
+        statusBadge.classList.add('bg-green-100', 'text-green-800');
+        statusBadge.textContent = 'Đang làm việc';
+    } else {
+        statusBadge.classList.add('bg-red-100', 'text-red-800');
+        statusBadge.textContent = 'Đã nghỉ việc';
     }
+    
+    row.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center">
+                    <span class="text-lg font-medium text-gray-600">${employee.name.charAt(0)}</span>
+                </div>
+                <div class="ml-4">
+                    <div class="text-sm font-medium text-gray-900">${employee.name}</div>
+                </div>
+            </div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${employee.phone}</div>
+            <div class="text-sm text-gray-500">${employee.email}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm text-gray-900">${employee.username}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            ${statusBadge.outerHTML}
+        </td>
+        <!-- Removed "Thao tác" cell with edit button -->
+    `;
+    
+    // Add event listener to the entire row
+    row.addEventListener('click', () => openEditModal(employee.id));
+    
+    return row;
+}
     
     function openAddModal() {
         // Reset form
@@ -253,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
         employeePhoneInput.value = employee.phone;
         employeeEmailInput.value = employee.email;
         employeeUsernameInput.value = employee.username;
-        employeeRoleInput.value = employee.role;
         
         // Hide password field for editing
         passwordContainer.classList.add('hidden');
@@ -358,10 +390,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const email = employeeEmailInput.value.trim();
         const username = employeeUsernameInput.value.trim();
         const password = employeePasswordInput.value;
-        const role = employeeRoleInput.value;
+        
+        // Show spinner
+        const spinner = Spinner.show({
+            target: employeeModal,
+            text: employeeId ? 'Đang cập nhật nhân viên...' : 'Đang thêm nhân viên mới...'
+        });
         
         if (employeeId) {
-            // Update existing employee
+            // Update existing employee (keeping local update for now)
             const index = employees.findIndex(e => e.id === employeeId);
             if (index !== -1) {
                 employees[index] = {
@@ -369,46 +406,68 @@ document.addEventListener('DOMContentLoaded', function() {
                     name,
                     phone,
                     email,
-                    username,
-                    role
+                    username
                 };
+                
+                // Hide spinner and show success
+                Spinner.hide(spinner);
+                closeModal();
+                showToast('Cập nhật thông tin thành công');
+                loadEmployees();
             }
-            
-            showToast('Cập nhật thông tin thành công');
         } else {
-            // Check if username or email already exists
-            if (employees.some(e => e.username === username)) {
-                usernameError.textContent = 'Tên đăng nhập đã tồn tại';
-                usernameError.classList.remove('hidden');
-                return;
-            }
+            // Create FormData object instead of JSON
+            const formData = new FormData();
+            formData.append('ten', name);
+            formData.append('dien_thoai', phone);
+            formData.append('email', email);
+            formData.append('ten_dang_nhap', username);
+            formData.append('mat_khau', password);
             
-            if (employees.some(e => e.email === email)) {
-                emailError.textContent = 'Email đã được sử dụng';
-                emailError.classList.remove('hidden');
-                return;
-            }
-            
-            // Add new employee
-            const newEmployee = {
-                id: Date.now(), // Generate unique ID
-                name,
-                phone,
-                email,
-                username,
-                role,
-                status: 'active'
-            };
-            
-            employees.push(newEmployee);
-            showToast('Thêm nhân viên mới thành công');
+            // Make API call with FormData
+            fetch(`${employeeList.dataset.url}/api/nhan-vien`, {
+                method: 'POST',
+                // No Content-Type header needed - browser sets it automatically
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide spinner
+                Spinner.hide(spinner);
+                
+                if (data.success) {
+                    // Close modal
+                    closeModal();
+                    
+                    // Show success message
+                    showToast(data.message || 'Thêm nhân viên mới thành công');
+                    
+                    // Add the new employee to our local array for UI update
+                    const newEmployee = {
+                        id: data.data?.id || Date.now(), // Use returned ID if available
+                        name,
+                        phone,
+                        email,
+                        username,
+                        status: 'active'
+                    };
+                    
+                    employees.push(newEmployee);
+                    loadEmployees();
+                } else {
+                    // Show error message
+                    showToast(data.message || 'Thêm nhân viên thất bại', true);
+                }
+            })
+            .catch(error => {
+                // Hide spinner
+                Spinner.hide(spinner);
+                
+                // Show error message
+                showToast('Lỗi kết nối: ' + error.message, true);
+                console.error('Error:', error);
+            });
         }
-        
-        // Close modal
-        closeModal();
-        
-        // Reload employees
-        loadEmployees();
     }
     
     function validateForm() {
@@ -447,12 +506,6 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
         
-        // Validate role
-        if (!employeeRoleInput.value) {
-            roleError.classList.remove('hidden');
-            isValid = false;
-        }
-        
         return isValid;
     }
     
@@ -462,11 +515,20 @@ document.addEventListener('DOMContentLoaded', function() {
         emailError.classList.add('hidden');
         usernameError.classList.add('hidden');
         passwordError.classList.add('hidden');
-        roleError.classList.add('hidden');
     }
     
-    function showToast(message) {
+    function showToast(message, isError = false) {
         toastNotification.textContent = message;
+        
+        // Set color based on message type
+        if (isError) {
+            toastNotification.classList.remove('bg-green-500');
+            toastNotification.classList.add('bg-red-500');
+        } else {
+            toastNotification.classList.remove('bg-red-500');
+            toastNotification.classList.add('bg-green-500');
+        }
+        
         toastNotification.classList.remove('translate-y-20', 'opacity-0');
         
         setTimeout(() => {

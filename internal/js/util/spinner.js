@@ -55,10 +55,20 @@ const Spinner = {
         spinnerContainer.style.justifyContent = 'center';
         spinnerContainer.style.zIndex = '9999';
         
+        // FIX: Add pointer events none to prevent blocking clicks
+        spinnerContainer.style.pointerEvents = 'none';
+        
         if (config.overlay) {
             spinnerContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            // FIX: Re-enable pointer events for overlay
+            spinnerContainer.style.pointerEvents = 'auto';
         }
 
+        // FIX: Create an inner container for the spinner to ensure proper display
+        const spinnerInner = document.createElement('div');
+        spinnerInner.style.position = 'relative';
+        spinnerInner.style.display = 'inline-block';
+        
         // Tạo spinner
         const spinner = document.createElement('div');
         spinner.className = 'epic-spinner';
@@ -69,8 +79,11 @@ const Spinner = {
         spinner.style.borderTop = `${borderWidth} solid ${config.color}`;
         spinner.style.animation = 'epic-spin 1s linear infinite';
         
-        // Thêm spinner vào container
-        spinnerContainer.appendChild(spinner);
+        // FIX: Add the spinner to the inner container first
+        spinnerInner.appendChild(spinner);
+        
+        // Thêm inner container vào container chính
+        spinnerContainer.appendChild(spinnerInner);
         
         // Thêm văn bản nếu có
         if (config.text) {

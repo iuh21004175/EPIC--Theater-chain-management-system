@@ -1,6 +1,54 @@
 import Spinner from './util/spinner.js';
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Add spinner CSS if not already present
+    if (!document.getElementById('epic-spinner-styles')) {
+        const spinnerStyles = document.createElement('style');
+        spinnerStyles.id = 'epic-spinner-styles';
+        spinnerStyles.textContent = `
+            @keyframes epic-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .epic-spinner-container {
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 9999 !important;
+                background-color: rgba(255, 255, 255, 0.8) !important;
+            }
+            
+            .epic-spinner {
+                display: inline-block !important;
+                width: 50px !important;
+                height: 50px !important;
+                border: 4px solid rgba(0, 0, 0, 0.1) !important;
+                border-radius: 50% !important;
+                border-top-color: #E11D48 !important;
+                animation: epic-spin 1s ease-in-out infinite !important;
+                margin-bottom: 15px !important;
+            }
+            
+            .epic-spinner-text {
+                font-size: 16px !important;
+                font-weight: 500 !important;
+                color: #374151 !important;
+                text-align: center !important;
+                padding: 0 20px !important;
+            }
+        `;
+        document.head.appendChild(spinnerStyles);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
     const accountsList = document.getElementById('accounts-list');
     const btnAddAccount = document.getElementById('btn-add-account');
@@ -27,71 +75,53 @@ document.addEventListener('DOMContentLoaded', function() {
     const resetPasswordCheckbox = document.getElementById('edit-account-reset-password');
     const resetPasswordFields = document.getElementById('reset-password-fields');
 
-    // Event for reset password checkbox
-    resetPasswordCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            resetPasswordFields.classList.remove('hidden');
-        } else {
-            resetPasswordFields.classList.add('hidden');
-        }
-    });
-
-    // Sample data for demonstration
-    const sampleAccounts = [
-        { id: 1, fullname: 'Nguyễn Văn A', email: 'nguyenvana@epiccinema.vn', phone: '0912345678', active: true, cinema_id: 1, cinema_name: 'EPIC Hà Nội' },
-        { id: 2, fullname: 'Trần Thị B', email: 'tranthib@epiccinema.vn', phone: '0923456789', active: true, cinema_id: 2, cinema_name: 'EPIC Hồ Chí Minh' },
-        { id: 3, fullname: 'Lê Văn C', email: 'levanc@epiccinema.vn', phone: '0934567890', active: false, cinema_id: null, cinema_name: null },
-        { id: 4, fullname: 'Phạm Thị D', email: 'phamthid@epiccinema.vn', phone: '0945678901', active: true, cinema_id: null, cinema_name: null },
-        { id: 5, fullname: 'Hoàng Văn E', email: 'hoangvane@epiccinema.vn', phone: '0956789012', active: true, cinema_id: 3, cinema_name: 'EPIC Đà Nẵng' }
-    ];
-
-    const sampleCinemas = [
-        { id: 1, name: 'EPIC Hà Nội', assigned: true },
-        { id: 2, name: 'EPIC Hồ Chí Minh', assigned: true },
-        { id: 3, name: 'EPIC Đà Nẵng', assigned: true },
-        { id: 4, name: 'EPIC Cần Thơ', assigned: false },
-        { id: 5, name: 'EPIC Hải Phòng', assigned: false },
-        { id: 6, name: 'EPIC Nha Trang', assigned: false }
-    ];
-
     // Load accounts list
     function loadAccounts() {
-        // In a real app, this would be an API call with filters
-        const statusFilter = filterStatus.value;
-        const assignmentFilter = filterAssignment.value;
-        const searchTerm = filterSearch.value.toLowerCase();
+        // Clear the list completely before showing spinner
+        accountsList.innerHTML = '';
+        
+        // Show spinner
+        const spinnerTarget = accountsList.closest('.bg-white');
+        // Ensure the target has position relative for proper spinner positioning
+        spinnerTarget.style.position = 'relative';
 
-        // Filter the accounts based on the selected filters
-        const filteredAccounts = sampleAccounts.filter(account => {
-            // Status filter
-            if (statusFilter !== 'all') {
-                if (statusFilter === 'active' && !account.active) return false;
-                if (statusFilter === 'inactive' && account.active) return false;
-            }
-
-            // Assignment filter
-            if (assignmentFilter !== 'all') {
-                if (assignmentFilter === 'assigned' && !account.cinema_id) return false;
-                if (assignmentFilter === 'unassigned' && account.cinema_id) return false;
-            }
-
-            // Search term
-            if (searchTerm) {
-                const searchFields = [
-                    account.fullname.toLowerCase(),
-                    account.email.toLowerCase(),
-                    account.phone.toLowerCase(),
-                    account.cinema_name ? account.cinema_name.toLowerCase() : ''
-                ];
-                return searchFields.some(field => field.includes(searchTerm));
-            }
-
-            return true;
+        const spinner = Spinner.show({
+            target: spinnerTarget,
+            text: 'Đang tải dữ liệu tài khoản...'
         });
-
-        setTimeout(() => {
-            renderAccounts(filteredAccounts);
-        }, 300);
+        
+        // Fetch accounts from API
+        fetch(`${accountsList.dataset.url}/api/tai-khoan`)
+            .then(response => response.json())
+            .then(data => {
+                // Hide spinner
+                Spinner.hide(spinner);
+                
+                if (data.success && data.data) {
+                    // Render accounts
+                    renderAccounts(data.data);
+                } else {
+                    // Show error message
+                    accountsList.innerHTML = `
+                        <li class="px-6 py-4 flex items-center">
+                            <div class="w-full text-center text-red-500">Không thể tải dữ liệu tài khoản</div>
+                        </li>
+                    `;
+                    console.error('API Error:', data.message);
+                }
+            })
+            .catch(error => {
+                // Hide spinner
+                Spinner.hide(spinner);
+                
+                // Show error message
+                accountsList.innerHTML = `
+                    <li class="px-6 py-4 flex items-center">
+                        <div class="w-full text-center text-red-500">Lỗi kết nối: ${error.message}</div>
+                    </li>
+                `;
+                console.error('Fetch Error:', error);
+            });
     }
 
     // Render accounts list
@@ -110,19 +140,27 @@ document.addEventListener('DOMContentLoaded', function() {
             const listItem = document.createElement('li');
             listItem.className = 'px-6 py-4 flex items-center justify-between hover:bg-gray-50';
             
-            const statusBadge = account.active 
+            // Get user info from nested object
+            const userInfo = account.nguoi_dung_internals || {};
+            const isActive = userInfo.trang_thai !== 0; // Assuming 0 means inactive
+            
+            // Cinema assignment info
+            const cinemaInfo = userInfo.rap_phim || {};
+            const isAssigned = userInfo.id_rapphim != null;
+            
+            const statusBadge = isActive 
                 ? '<span class="status-badge active">Đang hoạt động</span>' 
                 : '<span class="status-badge inactive">Đã khóa</span>';
             
-            const assignmentBadge = account.cinema_id 
-                ? `<span class="status-badge assigned">Quản lý: ${account.cinema_name}</span>` 
+            const assignmentBadge = isAssigned 
+                ? `<span class="status-badge assigned">Quản lý: ${cinemaInfo.ten || 'N/A'}</span>` 
                 : '<span class="status-badge unassigned">Chưa phân công</span>';
             
             listItem.innerHTML = `
                 <div>
-                    <h3 class="text-lg font-medium text-gray-900">${account.fullname}</h3>
-                    <p class="text-sm text-gray-500">${account.email}</p>
-                    <p class="text-sm text-gray-500">SĐT: ${account.phone || 'Chưa cập nhật'}</p>
+                    <h3 class="text-lg font-medium text-gray-900">${userInfo.ten || 'Chưa cập nhật'}</h3>
+                    <p class="text-sm text-gray-500">${userInfo.email || 'Không có email'}</p>
+                    <p class="text-sm text-gray-500">SĐT: ${userInfo.dien_thoai || 'Chưa cập nhật'}</p>
                     <div class="mt-2 flex items-center space-x-2">
                         ${statusBadge}
                         ${assignmentBadge}
@@ -149,14 +187,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add event listeners to buttons
         document.querySelectorAll('.btn-edit').forEach(button => {
             button.addEventListener('click', function() {
-                const accountId = parseInt(this.getAttribute('data-id'));
+                const accountId = this.getAttribute('data-id');
                 openEditModal(accountId);
             });
         });
 
         document.querySelectorAll('.btn-assign').forEach(button => {
             button.addEventListener('click', function() {
-                const accountId = parseInt(this.getAttribute('data-id'));
+                const accountId = this.getAttribute('data-id');
                 openAssignModal(accountId);
             });
         });
@@ -208,9 +246,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 isValid = false;
             } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
                 errors.email = 'Email không hợp lệ';
-                isValid = false;
-            } else if (sampleAccounts.some(account => account.email === formData.email)) {
-                errors.email = 'Email đã được sử dụng';
                 isValid = false;
             }
         }
@@ -301,77 +336,108 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open Edit Modal
     function openEditModal(accountId) {
-        // Get account data
-        const account = sampleAccounts.find(acc => acc.id === accountId);
-        if (!account) return;
-        
-        // Populate form
-        document.getElementById('edit-account-id').value = account.id;
-        document.getElementById('edit-account-fullname').value = account.fullname;
-        document.getElementById('edit-account-email').value = account.email;
-        document.getElementById('edit-account-phone').value = account.phone || '';
-        document.getElementById('edit-account-active').checked = account.active;
-        
-        // Reset password fields
-        document.getElementById('edit-account-reset-password').checked = false;
-        resetPasswordFields.classList.add('hidden');
-        document.getElementById('edit-account-password').value = '';
-        document.getElementById('edit-account-password-confirm').value = '';
-        
-        // Clear error messages
-        document.querySelectorAll('#form-edit-account .text-red-600').forEach(el => {
-            el.textContent = '';
-            el.classList.add('hidden');
-        });
-        
-        // Show modal
-        modalEditAccount.classList.remove('hidden');
+        // Fetch account data from API
+        fetch(`${accountsList.dataset.url}/api/tai-khoan/${accountId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    // Fix: Check if data.data is an array and access the first element if it is
+                    const account = Array.isArray(data.data) ? data.data[0] : data.data;
+                    const userInfo = account.nguoi_dung_internals || {};
+                    
+                    // Populate form
+                    document.getElementById('edit-account-id').value = account.id;
+                    document.getElementById('edit-account-fullname').value = userInfo.ten || '';
+                    document.getElementById('edit-account-username').value = account.tendangnhap || ''; // Add this line
+                    document.getElementById('edit-account-email').value = userInfo.email || '';
+                    document.getElementById('edit-account-phone').value = userInfo.dien_thoai || '';
+                    document.getElementById('edit-account-active').checked = userInfo.trang_thai !== 0;
+                    
+                    // Reset password fields
+                    document.getElementById('edit-account-reset-password').checked = false;
+                    resetPasswordFields.classList.add('hidden');
+                    document.getElementById('edit-account-password').value = '';
+                    document.getElementById('edit-account-password-confirm').value = '';
+                    
+                    // Clear error messages
+                    document.querySelectorAll('#form-edit-account .text-red-600').forEach(el => {
+                        el.textContent = '';
+                        el.classList.add('hidden');
+                    });
+                    
+                    // Show modal
+                    modalEditAccount.classList.remove('hidden');
+                } else {
+                    showToast('Không thể tải thông tin tài khoản', true);
+                }
+            })
+            .catch(error => {
+                showToast('Lỗi kết nối: ' + error.message, true);
+            });
     }
 
     // Open Assign Modal
     function openAssignModal(accountId) {
-        // Get account data
-        const account = sampleAccounts.find(acc => acc.id === accountId);
-        if (!account) return;
-        
-        // Populate form
-        document.getElementById('assign-account-id').value = account.id;
-        document.getElementById('assign-account-name').textContent = `Tài khoản: ${account.fullname} (${account.email})`;
-        
-        // Get cinema dropdown
-        const cinemaDropdown = document.getElementById('assign-cinema-id');
-        cinemaDropdown.innerHTML = '<option value="">-- Chọn rạp phim --</option>';
-        
-        // Add cinema options
-        sampleCinemas.forEach(cinema => {
-            // Only show unassigned cinemas or the cinema already assigned to this account
-            if (!cinema.assigned || (account.cinema_id && cinema.id === account.cinema_id)) {
-                const option = document.createElement('option');
-                option.value = cinema.id;
-                option.textContent = cinema.name;
+        // Fetch both account and cinema data
+        Promise.all([
+            fetch(`${accountsList.dataset.url}/api/tai-khoan/${accountId}`).then(res => res.json()),
+            fetch(`${accountsList.dataset.url}/api/rap-phim`).then(res => res.json())
+        ])
+        .then(([accountData, cinemasData]) => {
+            if (accountData.success && accountData.data && cinemasData.success && cinemasData.data) {
+                // The data structure has the account as the first element in an array
+                const account = Array.isArray(accountData.data) ? accountData.data[0] : accountData.data;
+                const userInfo = account.nguoi_dung_internals || {};
+                const cinemas = cinemasData.data;
                 
-                // Select current cinema if assigned
-                if (account.cinema_id && cinema.id === account.cinema_id) {
-                    option.selected = true;
+                // Populate form
+                document.getElementById('assign-account-id').value = account.id;
+                
+                // Fix email display by using the correct property access
+                document.getElementById('assign-account-name').textContent = 
+                    `Tài khoản: ${userInfo.ten || account.tendangnhap} (${userInfo.email || 'Không có email'})`;
+                
+                // Get cinema dropdown
+                const cinemaDropdown = document.getElementById('assign-cinema-id');
+                cinemaDropdown.innerHTML = '<option value="">-- Chọn rạp phim --</option>';
+                
+                // Add cinema options
+                cinemas.forEach(cinema => {
+                    // Skip cinemas that are already assigned to other accounts
+                    if (!cinema.nguoi_dung_id || cinema.nguoi_dung_id == userInfo.id) {
+                        const option = document.createElement('option');
+                        option.value = cinema.id;
+                        option.textContent = cinema.ten;
+                        
+                        // Select current cinema if assigned
+                        if (userInfo.id_rapphim && cinema.id == userInfo.id_rapphim) {
+                            option.selected = true;
+                        }
+                        
+                        cinemaDropdown.appendChild(option);
+                    }
+                });
+                
+                // Show/hide unassign button
+                if (userInfo.id_rapphim) {
+                    btnUnassign.classList.remove('hidden');
+                } else {
+                    btnUnassign.classList.add('hidden');
                 }
                 
-                cinemaDropdown.appendChild(option);
+                // Clear error messages
+                document.getElementById('assign-cinema-error').textContent = '';
+                document.getElementById('assign-cinema-error').classList.add('hidden');
+                
+                // Show modal
+                modalAssignCinema.classList.remove('hidden');
+            } else {
+                showToast('Không thể tải thông tin', true);
             }
+        })
+        .catch(error => {
+            showToast('Lỗi kết nối: ' + error.message, true);
         });
-        
-        // Show/hide unassign button
-        if (account.cinema_id) {
-            btnUnassign.classList.remove('hidden');
-        } else {
-            btnUnassign.classList.add('hidden');
-        }
-        
-        // Clear error messages
-        document.getElementById('assign-cinema-error').textContent = '';
-        document.getElementById('assign-cinema-error').classList.add('hidden');
-        
-        // Show modal
-        modalAssignCinema.classList.remove('hidden');
     }
 
     // Close modals
@@ -384,9 +450,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add new account
     function addAccount() {
         // Show spinner
+        modalAddAccount.style.position = 'relative';
         const spinner = Spinner.show({
             target: modalAddAccount,
-            text: 'Đang xử lý...'
+            text: 'Đang xử lý yêu cầu...'
         });
         const formData = {
             fullname: document.getElementById('account-fullname').value.trim(),
@@ -468,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update account
     function updateAccount() {
-        const accountId = parseInt(document.getElementById('edit-account-id').value);
+        const accountId = document.getElementById('edit-account-id').value;
         const resetPassword = document.getElementById('edit-account-reset-password').checked;
         
         const formData = {
@@ -488,32 +555,66 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // In a real app, this would be an API call
-        // For demo, we'll just update our sample data
-        const index = sampleAccounts.findIndex(acc => acc.id === accountId);
-        if (index !== -1) {
-            sampleAccounts[index] = {
-                ...sampleAccounts[index],
-                fullname: formData.fullname,
-                phone: formData.phone,
-                active: formData.active
-            };
+        // Show spinner
+        const spinner = Spinner.show({
+            target: modalEditAccount,
+            text: 'Đang cập nhật thông tin...'
+        });
+        
+        // Create API payload with correct field names matching the backend
+        const payload = {
+            ten: formData.fullname,
+            email: document.getElementById('edit-account-email').value.trim(), // Include email even though it's readonly
+            dien_thoai: formData.phone,
+            khoa_tai_khoan: !formData.active, // Note: Backend expects khoa_tai_khoan (true = locked)
+            dat_lai_mat_khau: resetPassword,
+        };
+        
+        // Add password if resetting
+        if (resetPassword) {
+            payload.mat_khau_moi = formData.password;
         }
         
-        // Close modal
-        closeModals();
-        
-        // Show success message
-        showToast('Cập nhật thông tin tài khoản thành công');
-        
-        // Refresh the list
-        loadAccounts();
+        // Make API call
+        fetch(`${accountsList.dataset.url}/api/tai-khoan/${accountId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            if (data.success) {
+                // Close modal
+                closeModals();
+                
+                // Show success message
+                showToast(data.message || 'Cập nhật thông tin tài khoản thành công');
+                
+                // Refresh the list
+                loadAccounts();
+            } else {
+                showToast(data.message || 'Cập nhật thông tin thất bại', true);
+            }
+        })
+        .catch(error => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            // Show error message
+            showToast('Lỗi kết nối: ' + error.message, true);
+            console.error('Error:', error);
+        });
     }
 
     // Assign cinema to account
     function assignCinema() {
-        const accountId = parseInt(document.getElementById('assign-account-id').value);
-        const cinemaId = parseInt(document.getElementById('assign-cinema-id').value);
+        const accountId = document.getElementById('assign-account-id').value;
+        const cinemaId = document.getElementById('assign-cinema-id').value;
         
         if (!cinemaId) {
             document.getElementById('assign-cinema-error').textContent = 'Vui lòng chọn rạp phim';
@@ -521,34 +622,52 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Get account and cinema
-        const account = sampleAccounts.find(acc => acc.id === accountId);
-        const cinema = sampleCinemas.find(cin => cin.id === cinemaId);
+        // Show spinner
+        const spinner = Spinner.show({
+            target: modalAssignCinema,
+            text: 'Đang phân công rạp phim...'
+        });
         
-        if (!account || !cinema) return;
+        // Create payload for API
+        const payload = {
+            id_rapphim: parseInt(cinemaId)
+        };
         
-        // Check if account already has a cinema
-        if (account.cinema_id && account.cinema_id !== cinemaId) {
-            // Unassign from previous cinema
-            const prevCinema = sampleCinemas.find(cin => cin.id === account.cinema_id);
-            if (prevCinema) {
-                prevCinema.assigned = false;
+        // Make API call
+        fetch(`${accountsList.dataset.url}/api/tai-khoan/${accountId}/phan-cong`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then (data => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            if (data.success) {
+                // Close modal
+                closeModals();
+                
+                // Show success message
+                showToast(data.message || 'Phân công rạp phim thành công');
+                
+                // Refresh the list
+                loadAccounts();
+            } else {
+                // Show error message
+                showToast(data.message || 'Phân công rạp phim thất bại', true);
             }
-        }
-        
-        // Assign cinema to account
-        account.cinema_id = cinemaId;
-        account.cinema_name = cinema.name;
-        cinema.assigned = true;
-        
-        // Close modal
-        closeModals();
-        
-        // Show success message
-        showToast(`Đã phân công ${account.fullname} quản lý rạp ${cinema.name}`);
-        
-        // Refresh the list
-        loadAccounts();
+        })
+        .catch(error => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            // Show error message
+            showToast('Lỗi kết nối: ' + error.message, true);
+            console.error('Error:', error);
+        });
     }
 
     // Unassign cinema from account
@@ -595,8 +714,6 @@ document.addEventListener('DOMContentLoaded', function() {
     btnSubmitAssign.addEventListener('click', assignCinema);
     
     btnUnassign.addEventListener('click', unassignCinema);
-    
-    btnApplyFilters.addEventListener('click', loadAccounts);
     
     // When clicking outside the modal content, close the modal
     window.addEventListener('click', function(event) {

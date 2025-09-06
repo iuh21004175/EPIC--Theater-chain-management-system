@@ -46,61 +46,9 @@
         </button>
     </div>
 
-    <!-- Bộ lọc -->
-    <div class="bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6 mb-6">
-        <div class="md:flex md:items-center md:justify-between">
-            <div class="flex-1 min-w-0">
-                <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Bộ lọc</h2>
-            </div>
-        </div>
-        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-            <div class="sm:col-span-2">
-                <label for="filter-status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
-                <div class="relative rounded-md shadow-sm">
-                    <select id="filter-status" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md appearance-none">
-                        <option value="all">Tất cả trạng thái</option>
-                        <option value="active">Đang hoạt động</option>
-                        <option value="inactive">Đã khóa</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="sm:col-span-2">
-                <label for="filter-assignment" class="block text-sm font-medium text-gray-700 mb-1">Phân công</label>
-                <div class="relative rounded-md shadow-sm">
-                    <select id="filter-assignment" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md appearance-none">
-                        <option value="all">Tất cả</option>
-                        <option value="assigned">Đã phân công</option>
-                        <option value="unassigned">Chưa phân công</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <div class="sm:col-span-2">
-                <label for="filter-search" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
-                <div class="relative rounded-md shadow-sm">
-                    <input type="text" id="filter-search" class="block w-full pl-3 pr-3 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md" placeholder="Tên, email, hoặc rạp phim...">
-                </div>
-            </div>
-        </div>
-        <div class="flex justify-end mt-6">
-            <button type="button" id="btn-apply-filters" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                Áp dụng bộ lọc
-            </button>
-        </div>
-    </div>
-
     <!-- Danh sách tài khoản -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul class="divide-y divide-gray-200" id="accounts-list">
+    <div class="bg-white shadow overflow-hidden sm:rounded-md" style="min-height: 300px;">
+        <ul class="divide-y divide-gray-200" id="accounts-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
             <!-- Dữ liệu sẽ được load bằng JavaScript -->
             <li class="px-6 py-4 flex items-center">
                 <div class="w-full text-center text-gray-500">Đang tải dữ liệu...</div>
@@ -200,6 +148,12 @@
                                         <label for="edit-account-fullname" class="block text-sm font-medium text-gray-700">Họ và tên</label>
                                         <input type="text" name="fullname" id="edit-account-fullname" class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" required>
                                         <p class="mt-1 text-sm text-red-600 hidden" id="edit-fullname-error"></p>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="edit-account-username" class="block text-sm font-medium text-gray-700">Tên đăng nhập</label>
+                                        <input type="text" name="username" id="edit-account-username" class="mt-1 focus:ring-red-500 focus:border-red-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                        <p class="mt-1 text-sm text-gray-500">Tên đăng nhập không được chứa dấu cách và ký tự đặc biệt</p>
+                                        <p class="mt-1 text-sm text-red-600 hidden" id="edit-username-error"></p>
                                     </div>
                                     <div class="mb-4">
                                         <label for="edit-account-email" class="block text-sm font-medium text-gray-700">Email</label>

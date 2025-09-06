@@ -3,7 +3,7 @@
 @section('title', 'Quản lý nhân viên')
 
 @section('head')
-<script src="{{$_ENV['URL_INTERNAL_BASE']}}/js/nhan-vien.js" defer></script>
+<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/nhan-vien.js" defer></script>
 @endsection
 
 @section('breadcrumbs')
@@ -32,36 +32,17 @@
     <!-- Filters -->
     <div class="mb-6">
         <div class="flex flex-wrap gap-4">
-            <div class="flex-1 min-w-[200px]">
+            <div>
                 <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
                 <select id="status-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                    <option value="all">Tất cả</option>
+                    <option value="all">Tất cả trạng thái</option>
                     <option value="active">Đang làm việc</option>
                     <option value="inactive">Đã nghỉ việc</option>
                 </select>
             </div>
-            
-            <div class="flex-1 min-w-[200px]">
-                <label for="role-filter" class="block text-sm font-medium text-gray-700 mb-1">Vai trò</label>
-                <select id="role-filter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
-                    <option value="all">Tất cả vai trò</option>
-                    <option value="ticket-seller">Nhân viên bán vé</option>
-                    <option value="food-service">Nhân viên bán thức ăn</option>
-                    <option value="ticket-checker">Nhân viên soát vé</option>
-                    <option value="cleaner">Nhân viên vệ sinh</option>
-                </select>
-            </div>
-            
-            <div class="flex-1 min-w-[200px]">
+            <div class="flex-1">
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
-                <div class="mt-1 relative rounded-md shadow-sm">
-                    <input type="text" id="search" class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-3 pr-10 py-2 sm:text-sm border-gray-300 rounded-md" placeholder="Tên, email, số điện thoại...">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
+                <input id="search" type="text" placeholder="Tên, email, SĐT..." class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
             </div>
         </div>
     </div>
@@ -78,20 +59,14 @@
                         Liên hệ
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Vai trò
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Tên đăng nhập
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Trạng thái
                     </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Thao tác
-                    </th>
                 </tr>
             </thead>
-            <tbody id="employee-list" class="bg-white divide-y divide-gray-200">
+            <tbody id="employee-list" class="bg-white divide-y divide-gray-200" data-url="{{$_ENV['URL_WEB_BASE']}}">
                 <!-- Employee list will be populated here -->
                 <tr id="no-employees" class="text-center">
                     <td colspan="6" class="px-6 py-8 text-gray-500">
@@ -210,21 +185,6 @@
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                        placeholder="********">
                 <p id="password-error" class="text-red-500 text-xs italic mt-1 hidden">Mật khẩu phải có ít nhất 8 ký tự</p>
-            </div>
-            
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="employee-role">
-                    Vai trò <span class="text-red-500">*</span>
-                </label>
-                <select id="employee-role" name="employee-role" 
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                    <option value="">-- Chọn vai trò --</option>
-                    <option value="ticket-seller">Nhân viên bán vé</option>
-                    <option value="food-service">Nhân viên bán thức ăn</option>
-                    <option value="ticket-checker">Nhân viên soát vé</option>
-                    <option value="cleaner">Nhân viên vệ sinh</option>
-                </select>
-                <p id="role-error" class="text-red-500 text-xs italic mt-1 hidden">Vui lòng chọn vai trò</p>
             </div>
             
             <div class="flex justify-between mt-6">

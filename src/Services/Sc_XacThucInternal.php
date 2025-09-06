@@ -17,11 +17,13 @@
             if ($taiKhoan) {
                 if (password_verify($matKhau, $taiKhoan->matkhau_bam)) {
                     $_SESSION['UserInternal'] = [
+                        'ID' => $taiKhoan->nguoiDungInternals->id ?? null,
                         'Ten' => $taiKhoan->nguoiDungInternals->ten ?? '',
                         'Email' => $taiKhoan->nguoiDungInternals->email ?? '',
                         'DienThoai' => $taiKhoan->nguoiDungInternals->dien_thoai ?? '',
                         'TenDangNhap' => $taiKhoan->tendangnhap,
-                        'VaiTro' => $taiKhoan->vaiTro->ten
+                        'VaiTro' => $taiKhoan->vaiTro->ten,
+                        'ID_RapPhim' => $taiKhoan->rapPhim->id ?? null,
                     ];
                     return true;
                 }

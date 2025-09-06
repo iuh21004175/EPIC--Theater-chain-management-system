@@ -12,5 +12,8 @@
             'created_at',
             'updated_at'
         ];
+        public function nguoiDungs() {
+            return $this->hasMany(NguoiDungInternal::class, 'id_rapphim', 'id');
+        }
     }
 ?>
