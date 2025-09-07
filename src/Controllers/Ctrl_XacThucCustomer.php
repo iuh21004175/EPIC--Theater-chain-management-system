@@ -133,5 +133,10 @@ class Ctrl_XacThucCustomer
         exit;
     }
 
+    public function quenMatKhau()
+    {
+        return view('customer.quen-mat-khau');
+    }
+
 }
 

@@ -40,6 +40,14 @@
                 'data' => $rapPhims
             ];
         }
+        public function docRapPhimTheoID($id) {
+            $service = new Sc_RapPhim();
+            $rapPhim = $service->docTheoID($id);
+            return [
+                'success' => true,
+                'data' => $rapPhim
+            ];
+        }
         public function thayDoiTrangThai($argc) {
             $service = new Sc_RapPhim();
             $result = $service->trangThai($argc['id']);
