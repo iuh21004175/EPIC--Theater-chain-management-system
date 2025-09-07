@@ -23,4 +23,8 @@ class Phim extends Model
         'trailer_url',
         'trang_thai'
     ];
+
+    public function TheLoai() {
+         return $this->hasMany(TheLoai::class, 'phim_id', 'id');
+    }
 }

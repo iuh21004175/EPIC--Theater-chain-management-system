@@ -13,4 +13,8 @@ class TheLoai extends Model
         'id',
         'ten'
     ];
+
+    public function Phim() {
+         return $this->hasMany(Phim::class, 'theloai_id', 'id');
+    }
 }
