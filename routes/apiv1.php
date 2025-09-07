@@ -5,6 +5,7 @@ use App\Controllers\Ctrl_RapPhim;
 use App\Controllers\Ctrl_NhanVien;
 use App\Controllers\Ctrl_XacThucCustomer;
 use App\Controllers\Ctrl_KhachHang;
+use App\Controllers\Ctrl_Phim;
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
     $r->addRoute('POST', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'themTaiKhoan', ['Admin']]);
@@ -20,6 +21,10 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/nhan-vien', [Ctrl_NhanVien::class, 'docNhanVien', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/nhan-vien/{id:\d+}', [Ctrl_NhanVien::class, 'suaNhanVien', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/nhan-vien/{id:\d+}/trang-thai', [Ctrl_NhanVien::class, 'thayDoiTrangThai', ['Quản lý rạp']]);
+    $r->addRoute('POST', '/the-loai-phim', [Ctrl_Phim::class, 'themTheLoaiPhim', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/the-loai-phim', [Ctrl_Phim::class, 'docTheLoaiPhim', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('PUT', '/the-loai-phim/{id:\d+}', [Ctrl_Phim::class, 'suaTenTheLoaiPhim', ['Quản lý chuỗi rạp']]);
+ 
     //Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('POST', '/dang-nhap-khach-hang', [Ctrl_XacThucCustomer::class, 'dangNhap']);

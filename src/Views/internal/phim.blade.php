@@ -4,6 +4,7 @@
 
 @section('head')
 <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/phim.js"></script>
+<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/the-loai-phim.js"></script>
 <style>
     /* Giữ nguyên CSS cũ */
     .movie-poster {
@@ -245,6 +246,44 @@
                 </div>
 
                 <!-- Pagination -->
+                <!-- Xóa toàn bộ phần phân trang này -->
+                <!-- 
+                <div class="mt-4 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
+                    <div class="flex flex-1 justify-between sm:hidden">
+                        <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+                        <a href="#" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+                    </div>
+                    <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing
+                                <span class="font-medium">1</span>
+                                to
+                                <span class="font-medium">2</span>
+                                of
+                                <span class="font-medium">2</span>
+                                results
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+                                <a href="#" class="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                </a>
+                                <a href="#" aria-current="page" class="relative z-10 inline-flex items-center bg-red-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">1</a>
+                                <a href="#" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                -->
+                <!-- Pagination cho tab Phim - cần khôi phục lại -->
                 <div class="mt-4 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                     <div class="flex flex-1 justify-between sm:hidden">
                         <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
@@ -309,55 +348,33 @@
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên thể loại</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mô tả</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số phim</th>
-                                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
+                                    <tbody class="bg-white divide-y divide-gray-200" data-url="{{$_ENV['URL_WEB_BASE']}}">
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">Hành động</div>
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">Thể loại phim về các pha hành động, đánh đấm, rượt đuổi</div>
-                                            </td>
+                                            <!-- Xóa phần mô tả -->
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900">12</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button data-id="1" class="btn-edit-genre text-indigo-600 hover:text-indigo-900 mr-4">Sửa</button>
-                                                <button data-id="1" class="btn-delete-genre text-red-600 hover:text-red-900">Xóa</button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">Kinh dị</div>
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">Phim với những tình tiết đáng sợ, gây sợ hãi cho người xem</div>
-                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900">8</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button data-id="2" class="btn-edit-genre text-indigo-600 hover:text-indigo-900 mr-4">Sửa</button>
-                                                <button data-id="2" class="btn-delete-genre text-red-600 hover:text-red-900">Xóa</button>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm font-medium text-gray-900">Hài</div>
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900">Phim mang tính chất hài hước, vui vẻ</div>
-                                            </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-sm text-gray-900">15</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <button data-id="3" class="btn-edit-genre text-indigo-600 hover:text-indigo-900 mr-4">Sửa</button>
-                                                <button data-id="3" class="btn-delete-genre text-red-600 hover:text-red-900">Xóa</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -368,6 +385,8 @@
                 </div>
 
                 <!-- Pagination -->
+                <!-- Xóa hoàn toàn phần phân trang trong tab Thể loại này -->
+                <!-- 
                 <div class="mt-4 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
                     <div class="flex flex-1 justify-between sm:hidden">
                         <a href="#" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
@@ -402,6 +421,7 @@
                         </div>
                     </div>
                 </div>
+                -->
             </div>
         </div>
     </div>
@@ -692,12 +712,6 @@
                     <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="genre-name" type="text" placeholder="Nhập tên thể loại">
                     <p class="text-red-500 text-xs italic hidden" id="genre-name-error">Vui lòng nhập tên thể loại.</p>
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="genre-description">
-                        Mô tả
-                    </label>
-                    <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="genre-description" placeholder="Nhập mô tả thể loại" rows="3"></textarea>
-                </div>
                 <div class="flex items-center justify-end pt-2">
                     <button type="button" class="modal-close-btn px-4 bg-gray-200 p-3 rounded-lg text-black hover:bg-gray-300 mr-2">Hủy</button>
                     <button type="submit" class="px-4 bg-red-600 p-3 rounded-lg text-white hover:bg-red-700">Thêm</button>
@@ -730,12 +744,6 @@
                     </label>
                     <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-genre-name" type="text" placeholder="Nhập tên thể loại">
                     <p class="text-red-500 text-xs italic hidden" id="edit-genre-name-error">Vui lòng nhập tên thể loại.</p>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-genre-description">
-                        Mô tả
-                    </label>
-                    <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-genre-description" placeholder="Nhập mô tả thể loại" rows="3"></textarea>
                 </div>
                 <div class="flex items-center justify-end pt-2">
                     <button type="button" class="modal-close-btn px-4 bg-gray-200 p-3 rounded-lg text-black hover:bg-gray-300 mr-2">Hủy</button>

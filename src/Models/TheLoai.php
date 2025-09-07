@@ -11,10 +11,17 @@ class TheLoai extends Model
 
     protected $fillable = [
         'id',
-        'ten'
+        'ten',
+        'so_phim',
+        'created_at',
+        'updated_at'
     ];
 
     public function Phim() {
-         return $this->hasMany(Phim::class, 'theloai_id', 'id');
+         return $this->hasMany(Phim_TheLoai::class, 'theloai_id', 'id');
+    }
+    public function capNhatSoPhim() {
+        $this->so_phim = $this->Phim()->count();
+        $this->save();
     }
 }

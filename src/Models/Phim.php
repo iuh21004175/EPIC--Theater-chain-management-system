@@ -25,6 +25,6 @@ class Phim extends Model
     ];
 
     public function TheLoai() {
-         return $this->hasMany(TheLoai::class, 'phim_id', 'id');
+         return $this->hasMany(Phim_TheLoai::class, 'phim_id', 'id');
     }
 }
