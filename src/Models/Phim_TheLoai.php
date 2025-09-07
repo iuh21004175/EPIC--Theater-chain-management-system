@@ -10,6 +10,7 @@ class Phim_TheLoai extends Model
     public $timestamps = true; 
 
     protected $fillable = [
+        'id',
         'phim_id',
         'theloai_id'
     ];
