@@ -128,9 +128,7 @@
             <div class="w-48">
                 <label for="rapSelect" class="block text-gray-700 font-semibold mb-1 text-sm">Chọn Rạp</label>
                 <select id="rapSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm">
-                    <option value="0">Tất cả rạp</option>
-                    <option value="1">Galaxy Nguyễn Du</option>
-                    <option value="2">Galaxy Tân Bình</option>
+                    <option value="">Tất cả rạp</option>
                 </select>
             </div>
         </div>
@@ -264,5 +262,42 @@
     </div>
   </div>
 </div>
+
+<script>
+    const rapSelect = document.getElementById('rapSelect');
+    if (rapSelect) {
+        fetch(baseUrl + "/api/rap-phim-khach")
+            .then(res => res.json())
+            .then(data => {
+                console.log("Dữ liệu rạp:", data);
+
+                // Check if rapMenu exists before trying to access its properties
+                if (rapSelect) {
+                    rapSelect.innerHTML = `<option value="">Chọn rạp</option>`;
+                }
+
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(rap => {
+                        const option = document.createElement("option");
+                        option.value = rap.ten;
+                        option.textContent = rap.ten;
+                        if (rapSelect) {
+                            rapSelect.appendChild(option);
+                        }
+                    });
+                } else {
+                    if (rapSelect) {
+                        rapSelect.innerHTML = `<option value="">Không có rạp nào</option>`;
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi load rạp:", err);
+                if (rapSelect) {
+                    rapSelect.innerHTML = `<option value="">Lỗi tải rạp</option>`;
+                }
+            });
+    }
+    </script>
 </body>
 </html>

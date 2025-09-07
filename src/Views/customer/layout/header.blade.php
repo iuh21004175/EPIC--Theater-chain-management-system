@@ -124,19 +124,14 @@
             <a href="{{$_ENV['URL_WEB_BASE']}}/" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Trang chủ</a>
             <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Đặt vé</a>
             <a href="{{$_ENV['URL_WEB_BASE']}}/phim" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Phim</a>
-            <div class="relative group">
+            <div class="relative group" id="rap-dropdown">
                 <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
                     Rạp
                     <svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-                <div class="absolute left-0 top-full bg-white border border-gray-200 rounded-md shadow-lg min-w-[250px] max-w-[400px] w-auto z-50 transition duration-300 ease-in-out opacity-0 group-hover:opacity-100 invisible group-hover:visible">
-                    <a href="{{$_ENV['URL_WEB_BASE']}}/rap" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap">Galaxy Nguyễn Du</a>
-                    <a href="/rap/galaxy-sala" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap">Galaxy Sala</a>
-                    <a href="/rap/galaxy-tan-binh" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap">Galaxy Tân Bình</a>
-                    <a href="/rap/galaxy-kinh-duong-vuong" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap">Galaxy Kinh Dương Vương</a>
-                    <a href="/rap/galaxy-quang-trung" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap">Galaxy Quang Trung</a>
+                <div id="rap-menu" class="absolute left-0 top-full bg-white border border-gray-200 rounded-md shadow-lg min-w-[250px] max-w-[400px] w-auto z-50 transition duration-300 ease-in-out opacity-0 group-hover:opacity-100 invisible group-hover:visible">
                 </div>
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Tin tức</a>
@@ -329,7 +324,26 @@
 
 </body>
 <script>
-    const baseUrl = "<?= $_ENV['URL_WEB_BASE'] ?>";
+const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
+const rapMenu = document.getElementById('rap-menu');
+if (rapMenu) {
+    fetch(baseUrl + "/api/rap-phim-khach")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                data.data.forEach(rap => {
+                    const a = document.createElement('a');
+                    a.href = `${baseUrl}/rap/${rap.id}`;
+                    a.textContent = rap.ten;
+                    a.className = "block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap";
+                    rapMenu.appendChild(a);
+                });
+            } else {
+                rapMenu.innerHTML = `<div class="px-4 py-2 text-gray-500">Không có rạp nào</div>`;
+            }
+        })
+        .catch(err => console.error('Lỗi load rạp:', err));
+}
 </script>
-<script src="<?= $_ENV['URL_WEB_BASE'] ?>/customer/js/auth.js"></script>
+<script src="{{ $_ENV['URL_WEB_BASE'] }}/customer/js/auth.js"></script>
 </html>

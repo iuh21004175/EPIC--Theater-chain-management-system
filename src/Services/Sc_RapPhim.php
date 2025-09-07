@@ -22,6 +22,9 @@
         public function doc(){
             return RapPhim::all();
         }
+        public function docTheoID($id){
+            return RapPhim::find($id);
+        }
         public function trangThai($id){
             $rapPhim = RapPhim::find($id);
             if(!$rapPhim){

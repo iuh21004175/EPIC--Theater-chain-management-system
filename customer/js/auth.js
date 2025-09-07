@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-
         const modalLogin = document.getElementById('modalLogin');
         const modalRegister = document.getElementById('modalRegister');
         const modalForgotPassword = document.getElementById('modalForgotPassword');
@@ -209,36 +208,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // --- Form Submission Validation ---
         document.getElementById('btnLogin').addEventListener('click', function(e) {
-        e.preventDefault(); // ngăn form submit mặc định
+            e.preventDefault(); // ngăn form submit mặc định
 
-        let isEmailValid = checkEmail(document.getElementById('loginEmail'), document.getElementById('tbLoginEmail'));
-        let isPasswordValid = checkPassword(document.getElementById('loginPassword'), document.getElementById('tbLoginPassword'));
+            let isEmailValid = checkEmail(document.getElementById('loginEmail'), document.getElementById('tbLoginEmail'));
+            let isPasswordValid = checkPassword(document.getElementById('loginPassword'), document.getElementById('tbLoginPassword'));
 
-        if (isEmailValid && isPasswordValid) {
-            const form = document.getElementById('loginForm');
-            const formData = new FormData(form);
+            if (isEmailValid && isPasswordValid) {
+                const form = document.getElementById('loginForm');
+                const formData = new FormData(form);
 
-            fetch(baseUrl + "/api/dang-nhap-khach-hang", {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert(data.message || 'Đăng nhập thành công!');
-                    window.location.reload(); 
-                } else {
-                    alert(data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Đã xảy ra lỗi khi kết nối với máy chủ. Vui lòng thử lại sau!');
-            });
-        } else {
-            alert("Vui lòng kiểm tra lại thông tin đăng nhập!");
-        }
-    });
+                fetch(baseUrl + "/api/dang-nhap-khach-hang", {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert(data.message || 'Đăng nhập thành công!');
+                        window.location.reload(); 
+                    } else {
+                        alert(data.message || 'Đăng nhập thất bại. Vui lòng thử lại.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Đã xảy ra lỗi khi kết nối với máy chủ. Vui lòng thử lại sau!');
+                });
+            } else {
+                alert("Vui lòng kiểm tra lại thông tin đăng nhập!");
+            }   
+        });
 
 
         document.getElementById('btnSave').addEventListener('click', function(e) {
