@@ -1,6 +1,6 @@
 <?php
     namespace App\Controllers;
-    use App\Services\Sc_phim;
+    use App\Services\Sc_Phim;
     use function App\Core\view;
 
     class Ctrl_Phim{
@@ -28,7 +28,7 @@
 
 
         public function themTheLoaiPhim(){
-            $service = new Sc_phim();
+            $service = new Sc_Phim();
             try {
                 $result = $service->themTheLoai();
                 if ($result) {
@@ -50,7 +50,7 @@
             }
         }
         public function docTheLoaiPhim(){
-            $service = new Sc_phim();
+            $service = new Sc_Phim();
             try {
                 $result = $service->docTheLoai();
                 return [
@@ -65,7 +65,7 @@
             }
         }
         public function suaTenTheLoaiPhim($argc){
-            $service = new Sc_phim();
+            $service = new Sc_Phim();
             try {
                 $result = $service->suaTheLoai($argc['id']);
                 if ($result) {

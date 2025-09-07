@@ -3,7 +3,7 @@
     use App\Models\Phim_TheLoai;
     use App\Models\Phim;
     use App\Models\TheLoai;
-    class Sc_phim {
+    class Sc_Phim {
         public function themTheLoai(){
             $ten = $_POST['ten'] ?? '';
             $theLoai = TheLoai::create([
