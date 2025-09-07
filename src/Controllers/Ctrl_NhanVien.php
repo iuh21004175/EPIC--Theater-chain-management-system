@@ -31,18 +31,59 @@
                 ];
             }
         }
-        public function docNhanVien(){
+        public function docNhanVien() {
             $service = new Sc_NhanVien();
+            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+            $perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 10;
+            
             try {
-                $result = $service->doc();
+                $result = $service->doc($page, $perPage);
                 return [
                     'success' => true,
-                    'data' => $result
+                    'data' => $result['data'],
+                    'pagination' => $result['pagination']
                 ];
             } catch (\Exception $e) {
                 return [
                     'success' => false,
-                    'message' => 'Lỗi khi đọc nhân viên: ' . $e->getMessage()
+                    'message' => 'Lỗi khi tải danh sách nhân viên: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function suaNhanVien($argc){
+            $service = new Sc_NhanVien();
+            try {
+                $result = $service->sua($argc['id']);
+                if ($result) {
+                    return [
+                        'success' => true,
+                        'message' => 'Cập nhật nhân viên thành công'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Cập nhật nhân viên thất bại'
+                    ];
+                }
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi cập nhật nhân viên: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function thayDoiTrangThai($argc){
+            $id = $argc['id'] ?? 0;
+            $service = new Sc_NhanVien();
+            if($service->trangThai($id)){
+                return [
+                    'success' => true,
+                    'message' => 'Đã thay đổi trạng thái nhân viên thành công'
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'message' => 'Không thể thay đổi trạng thái nhân viên'
                 ];
             }
         }

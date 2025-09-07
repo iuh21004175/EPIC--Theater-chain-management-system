@@ -67,6 +67,17 @@ document.addEventListener('DOMContentLoaded', function() {
     let changingEmployeeId = null;
     let newStatus = null;
     
+    // Add these variables at the top of your DOMContentLoaded function
+    let currentPage = 1;
+    let totalPages = 1;
+    let perPage = 10;
+    
+    // Get pagination elements
+    const prevPageBtn = document.querySelector('[aria-label="Pagination"] button:first-child');
+    const nextPageBtn = document.querySelector('[aria-label="Pagination"] button:last-child');
+    const paginationInfo = document.querySelector('.text-sm.text-gray-700');
+    const paginationButtons = document.querySelector('nav[aria-label="Pagination"]');
+    
     // Load initial data
     loadEmployees();
     
@@ -103,14 +114,19 @@ document.addEventListener('DOMContentLoaded', function() {
             text: 'Đang tải danh sách nhân viên...'
         });
         
-        // Fetch from API
-        fetch(`${employeeList.dataset.url}/api/nhan-vien`)
-            // .then(response => response.text())
-            // .then(text => console.log(text) || text) // Log raw response text for debugging
+        // Get filter values
+        const status = statusFilter?.value || 'all';
+        const search = searchInput?.value || '';
+        
+        // Fetch from API with pagination parameters
+        fetch(`${employeeList.dataset.url}/api/nhan-vien?page=${currentPage}&per_page=${perPage}&status=${status}&search=${encodeURIComponent(search)}`)
             .then(response => response.json())
             .then(data => {
                 // Hide spinner
                 Spinner.hide(spinner);
+                
+                // Debug information
+                // console.log("API Response:", data);
                 
                 if (data.success && data.data) {
                     // Map API data to our employee format
@@ -120,10 +136,21 @@ document.addEventListener('DOMContentLoaded', function() {
                         phone: item.dien_thoai,
                         email: item.email,
                         username: item.tai_khoan?.tendangnhap || 'N/A',
-                        status: item.trang_thai !== 0 ? 'active' : 'inactive'
+                        status: item.trang_thai === 1 ? 'active' : 'inactive'
                     }));
                     
-                    // Continue with rendering employees
+                    // console.log("Employee count:", employees.length);
+                    // console.log("Pagination data:", data.pagination);
+                    
+                    // Update pagination information
+                    if (data.pagination) {
+                        currentPage = data.pagination.current_page;
+                        totalPages = data.pagination.total_pages;
+                        perPage = data.pagination.per_page;
+                        updatePaginationUI(data.pagination);
+                    }
+                    
+                    // Render employees
                     renderEmployees();
                 } else {
                     showToast('Không thể tải danh sách nhân viên', true);
@@ -153,24 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear existing content
         employeeList.innerHTML = '';
         
-        // Apply filters
-        const filteredEmployees = filterEmployees();
-        
-        // If no employees match filters
-        if (filteredEmployees.length === 0) {
-            const noResultsRow = document.createElement('tr');
-            noResultsRow.classList.add('text-center');
-            noResultsRow.innerHTML = `
-                <td colspan="6" class="px-6 py-8 text-gray-500">
-                    Không tìm thấy nhân viên phù hợp với bộ lọc
-                </td>
-            `;
-            employeeList.appendChild(noResultsRow);
-            return;
-        }
-        
         // Populate employee list
-        filteredEmployees.forEach(employee => {
+        employees.forEach(employee => {
             const row = createEmployeeTableRow(employee);
             employeeList.appendChild(row);
         });
@@ -201,6 +212,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function applyFilters() {
+        // Reset to page 1 when filters change
+        currentPage = 1;
         loadEmployees();
     }
     
@@ -294,14 +307,16 @@ document.addEventListener('DOMContentLoaded', function() {
         modalTitle.textContent = 'Cập nhật thông tin nhân viên';
         saveEmployeeBtn.textContent = 'Lưu';
         
-        // Update status toggle button
+        // Update status toggle button - phần này được sửa
         statusToggleBtn.classList.remove('hidden');
+        
+        // -1 là nghỉ việc, 1 là đang hoạt động
         if (employee.status === 'active') {
             statusToggleBtn.textContent = 'Nghỉ việc';
             statusToggleBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
             statusToggleBtn.classList.add('bg-red-600', 'hover:bg-red-700');
         } else {
-            statusToggleBtn.textContent = 'Kích hoạt';
+            statusToggleBtn.textContent = 'Đang hoạt động';
             statusToggleBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
             statusToggleBtn.classList.add('bg-green-600', 'hover:bg-green-700');
         }
@@ -326,6 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
         changingEmployeeId = employeeId;
         
         if (employee.status === 'active') {
+            // Đang hoạt động -> chuyển sang nghỉ việc
             statusModalTitle.textContent = 'Xác nhận nghỉ việc';
             statusMessage.textContent = `Bạn có chắc chắn muốn chuyển nhân viên "${employee.name}" sang trạng thái nghỉ việc không?`;
             confirmStatusChangeBtn.textContent = 'Nghỉ việc';
@@ -333,8 +349,9 @@ document.addEventListener('DOMContentLoaded', function() {
             confirmStatusChangeBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
             newStatus = 'inactive';
         } else {
+            // Nghỉ việc -> chuyển sang đang hoạt động
             statusModalTitle.textContent = 'Xác nhận kích hoạt';
-            statusMessage.textContent = `Bạn có chắc chắn muốn kích hoạt lại nhân viên "${employee.name}" không?`;
+            statusMessage.textContent = `Bạn có chắc chắn muốn chuyển nhân viên "${employee.name}" sang trạng thái đang hoạt động không?`;
             confirmStatusChangeBtn.textContent = 'Kích hoạt';
             confirmStatusChangeBtn.classList.add('bg-green-600', 'hover:bg-green-700');
             confirmStatusChangeBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
@@ -357,26 +374,58 @@ document.addEventListener('DOMContentLoaded', function() {
     function changeEmployeeStatus() {
         if (changingEmployeeId === null || newStatus === null) return;
         
-        // Find employee
-        const employeeIndex = employees.findIndex(e => e.id === changingEmployeeId);
-        if (employeeIndex === -1) return;
+        // Hiển thị spinner
+        const spinner = Spinner.show({
+            target: statusModal,
+            text: newStatus === 'active' ? 'Đang kích hoạt nhân viên...' : 'Đang chuyển trạng thái nghỉ việc...'
+        });
         
-        // Update status
-        employees[employeeIndex].status = newStatus;
+        // Xác định giá trị trạng thái dựa trên newStatus
+        const statusValue = newStatus === 'active' ? 1 : -1; // 1: Đang hoạt động, -1: Nghỉ việc
         
-        // Close modals
-        statusModal.classList.add('hidden');
-        employeeModal.classList.add('hidden');
-        
-        // Reset variables
-        changingEmployeeId = null;
-        newStatus = null;
-        
-        // Reload employees
-        loadEmployees();
-        
-        // Show success message
-        showToast('Thay đổi trạng thái thành công');
+        // Gọi API thay đổi trạng thái
+        fetch(`${employeeList.dataset.url}/api/nhan-vien/${changingEmployeeId}/trang-thai`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ trang_thai: statusValue })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Ẩn spinner
+            Spinner.hide(spinner);
+            
+            if (data.success) {
+                // Đóng modal
+                statusModal.classList.add('hidden');
+                employeeModal.classList.add('hidden');
+                
+                // Hiển thị thông báo thành công
+                const message = newStatus === 'active' 
+                    ? 'Đã kích hoạt nhân viên thành công' 
+                    : 'Đã chuyển trạng thái nhân viên thành nghỉ việc';
+                showToast(data.message || message);
+                
+                // Tải lại danh sách nhân viên
+                loadEmployees();
+                
+                // Reset biến
+                changingEmployeeId = null;
+                newStatus = null;
+            } else {
+                // Hiển thị thông báo lỗi
+                showToast(data.message || 'Không thể thay đổi trạng thái nhân viên', true);
+            }
+        })
+        .catch(error => {
+            // Ẩn spinner
+            Spinner.hide(spinner);
+            
+            // Hiển thị thông báo lỗi
+            showToast('Lỗi kết nối: ' + error.message, true);
+            console.error('Error:', error);
+        });
     }
     
     function handleSaveEmployee() {
@@ -398,25 +447,52 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         if (employeeId) {
-            // Update existing employee (keeping local update for now)
-            const index = employees.findIndex(e => e.id === employeeId);
-            if (index !== -1) {
-                employees[index] = {
-                    ...employees[index],
-                    name,
-                    phone,
-                    email,
-                    username
-                };
-                
-                // Hide spinner and show success
+            // UPDATE: Sử dụng API để cập nhật nhân viên
+            // Tạo dữ liệu gửi lên API
+            const data = {
+                ten: name,
+                dien_thoai: phone,
+                email: email,
+                ten_dang_nhap: username
+            };
+            
+            // Gọi API cập nhật
+            fetch(`${employeeList.dataset.url}/api/nhan-vien/${employeeId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Ẩn spinner
                 Spinner.hide(spinner);
-                closeModal();
-                showToast('Cập nhật thông tin thành công');
-                loadEmployees();
-            }
+                
+                if (data.success) {
+                    // Đóng modal
+                    closeModal();
+                    
+                    // Hiển thị thông báo thành công
+                    showToast(data.message || 'Cập nhật thông tin thành công');
+                    
+                    // Tải lại danh sách nhân viên
+                    loadEmployees();
+                } else {
+                    // Hiển thị thông báo lỗi
+                    showToast(data.message || 'Cập nhật thông tin thất bại', true);
+                }
+            })
+            .catch(error => {
+                // Ẩn spinner
+                Spinner.hide(spinner);
+                
+                // Hiển thị thông báo lỗi
+                showToast('Lỗi kết nối: ' + error.message, true);
+                console.error('Error:', error);
+            });
         } else {
-            // Create FormData object instead of JSON
+            // Thêm mới nhân viên - Giữ nguyên code hiện có
             const formData = new FormData();
             formData.append('ten', name);
             formData.append('dien_thoai', phone);
@@ -430,6 +506,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // No Content-Type header needed - browser sets it automatically
                 body: formData
             })
+            // .then(response => response.text())
+            // .then(text => {
+            //     // Hide spinner
+            //     Spinner.hide(spinner);
+            //     console.log("API Response Text:", text);
+            // })
             .then(response => response.json())
             .then(data => {
                 // Hide spinner
@@ -534,5 +616,106 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             toastNotification.classList.add('translate-y-20', 'opacity-0');
         }, 3000);
+    }
+    
+    function updatePagination(totalEmployees) {
+        // Calculate total pages
+        totalPages = Math.ceil(totalEmployees / perPage);
+        
+        // Update pagination info text
+        if (paginationInfo) {
+            paginationInfo.textContent = `Trang ${currentPage} của ${totalPages}`;
+        }
+        
+        // Hide pagination if there's only one page
+        if (totalPages <= 1) {
+            paginationButtons.classList.add('hidden');
+        } else {
+            paginationButtons.classList.remove('hidden');
+        }
+        
+        // Disable/enable prev/next buttons
+        if (prevPageBtn && nextPageBtn) {
+            prevPageBtn.disabled = currentPage === 1;
+            nextPageBtn.disabled = currentPage === totalPages;
+        }
+    }
+    
+    function updatePaginationUI(pagination) {
+        // Update text showing pagination info
+        const paginationInfo = document.getElementById('pagination-info');
+        if (paginationInfo) {
+            const start = pagination.total > 0 ? ((pagination.current_page - 1) * pagination.per_page) + 1 : 0;
+            const end = Math.min(pagination.current_page * pagination.per_page, pagination.total);
+            paginationInfo.innerHTML = `
+                Hiển thị <span class="font-medium">${start}</span> đến 
+                <span class="font-medium">${end}</span> trong số 
+                <span class="font-medium">${pagination.total}</span> nhân viên
+            `;
+        }
+        
+        // Generate page buttons
+        const pageButtons = document.querySelector('nav[aria-label="Pagination"] .inline-flex');
+        if (pageButtons) {
+            // Clear existing buttons
+            pageButtons.innerHTML = '';
+            
+            // Don't show pagination if there's only one page
+            if (pagination.total_pages <= 1) {
+                document.querySelector('nav[aria-label="Pagination"]').closest('.sm\\:flex').classList.add('hidden');
+                return;
+            } else {
+                document.querySelector('nav[aria-label="Pagination"]').closest('.sm\\:flex').classList.remove('hidden');
+            }
+            
+            // Previous button
+            const prevButton = document.createElement('button');
+            prevButton.classList.add('px-4', 'py-2', 'mr-2', 'text-sm', 'font-medium', 'text-gray-700', 'bg-white', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'hover:bg-gray-50', 'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2', 'focus:ring-indigo-500');
+            prevButton.setAttribute('aria-label', 'Trang trước');
+            prevButton.disabled = currentPage === 1;
+            prevButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M15 19l-7-7 7-7" />
+                </svg>
+            `;
+            prevButton.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    loadEmployees();
+                }
+            });
+            pageButtons.appendChild(prevButton);
+            
+            // Numbered buttons
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.classList.add('px-4', 'py-2', 'mr-2', 'text-sm', 'font-medium', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2', 'focus:ring-indigo-500');
+                pageButton.textContent = i;
+                pageButton.disabled = i === currentPage;
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    loadEmployees();
+                });
+                pageButtons.appendChild(pageButton);
+            }
+            
+            // Next button
+            const nextButton = document.createElement('button');
+            nextButton.classList.add('px-4', 'py-2', 'text-sm', 'font-medium', 'text-gray-700', 'bg-white', 'border', 'border-gray-300', 'rounded-md', 'shadow-sm', 'hover:bg-gray-50', 'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2', 'focus:ring-indigo-500');
+            nextButton.setAttribute('aria-label', 'Trang tiếp theo');
+            nextButton.disabled = currentPage === totalPages;
+            nextButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width={2} d="M9 5l7 7-7 7" />
+                </svg>
+            `;
+            nextButton.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    loadEmployees();
+                }
+            });
+            pageButtons.appendChild(nextButton);
+        }
     }
 });

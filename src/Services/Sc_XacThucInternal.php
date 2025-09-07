@@ -23,7 +23,7 @@
                         'DienThoai' => $taiKhoan->nguoiDungInternals->dien_thoai ?? '',
                         'TenDangNhap' => $taiKhoan->tendangnhap,
                         'VaiTro' => $taiKhoan->vaiTro->ten,
-                        'ID_RapPhim' => $taiKhoan->rapPhim->id ?? null,
+                        'ID_RapPhim' => $taiKhoan->nguoiDungInternals->id ?? null,
                     ];
                     return true;
                 }
