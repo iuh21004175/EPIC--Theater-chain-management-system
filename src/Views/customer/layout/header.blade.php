@@ -344,6 +344,42 @@ if (rapMenu) {
         })
         .catch(err => console.error('Lỗi load rạp:', err));
 }
+
+document.getElementById('btnSendReset').addEventListener('click', function() {
+    const btn = this; // nút
+    const email = document.getElementById('forgotEmail').value.trim();
+    const tbForgotEmail = document.getElementById('tbForgotEmail');
+
+    if(email === '') {
+        tbForgotEmail.textContent = 'Vui lòng nhập email.';
+        return;
+    }
+
+    // đổi chữ nút
+    const originalText = btn.textContent;
+    btn.textContent = 'Đang gửi...';
+    btn.disabled = true;
+
+    fetch(baseUrl + "/api/reset-password", {  
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email })
+    })
+    .then(res => res.json())
+    .then(data => {
+        tbForgotEmail.textContent = data.message; 
+    })
+    .catch(err => {
+        console.error('Lỗi kiểm tra email / gửi mail:', err);
+        tbForgotEmail.textContent = 'Có lỗi xảy ra, vui lòng thử lại.';
+    })
+    .finally(() => {
+        // trả lại chữ nút
+        btn.textContent = originalText;
+        btn.disabled = false;
+    });
+});
+
 </script>
 <script src="{{ $_ENV['URL_WEB_BASE'] }}/customer/js/auth.js"></script>
 </html>

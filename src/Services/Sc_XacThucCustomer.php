@@ -1,6 +1,7 @@
 <?php
     namespace App\Services;
     use App\Models\KhachHang;
+    use App\Models\ResetToken;
     class Sc_XacThucCustomer {
         public function scDangKy() {
             $hoTen    = $_POST['registerName'];  
@@ -64,5 +65,67 @@
             }
             return false;
         }
+
+        public function scCheckEmail($email) {
+            return KhachHang::where('email', $email)->exists();
+        }
+        public function getCustomerByEmail($email) {
+            return KhachHang::where('email', $email)->first(); 
+        }
+
+        public function scResetPass()
+        {
+            header('Content-Type: application/json; charset=utf-8');
+
+            // Lấy JSON từ fetch
+            $data = json_decode(file_get_contents('php://input'), true);
+            $token = $data['token'] ?? '';
+            $password = $data['password'] ?? '';
+
+            if (!$token || !$password) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Dữ liệu không hợp lệ'
+                ]);
+                exit;
+            }
+
+            // Tìm token hợp lệ
+            $reset = ResetToken::where('token', $token)
+                ->where('expire_at', '>', date('Y-m-d H:i:s'))
+                ->first();
+
+            if (!$reset) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Token không hợp lệ hoặc đã hết hạn'
+                ]);
+                exit;
+            }
+
+            // Cập nhật mật khẩu
+            $khachHang = KhachHang::find($reset->khach_hang_id);
+            if (!$khachHang) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Không tìm thấy khách hàng.'
+                ]);
+                exit;
+            }
+
+            $khachHang->mat_khau = password_hash($password, PASSWORD_DEFAULT);
+            $khachHang->save();
+
+            // Xóa token sau khi dùng
+            $reset->delete();
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Đặt lại mật khẩu thành công!',
+                'redirect' => '/'
+            ]);
+            exit;
+        }
+
     }
 ?>

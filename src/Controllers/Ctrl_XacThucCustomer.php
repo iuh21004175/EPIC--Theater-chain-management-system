@@ -3,6 +3,14 @@ namespace App\Controllers;
 
 use function App\Core\view;
 use App\Services\Sc_XacThucCustomer;
+use App\Services\Sc_ResetToken;
+
+require __DIR__ . '/../../api/PHPMailer/src/Exception.php';
+require __DIR__ . '/../../api/PHPMailer/src/PHPMailer.php';
+require __DIR__ . '/../../api/PHPMailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class Ctrl_XacThucCustomer
 {
@@ -133,9 +141,125 @@ class Ctrl_XacThucCustomer
         exit;
     }
 
-    public function quenMatKhau()
+    public function checkEmail()
     {
-        return view('customer.quen-mat-khau');
+        ini_set('display_errors', 0);
+        error_reporting(0);
+        header('Content-Type: application/json; charset=utf-8');
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = trim($data['email'] ?? '');
+
+        if (empty($email)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Vui lòng nhập email.'
+            ]);
+            exit;
+        }
+
+        try {
+            $scXacThuc = new Sc_XacThucCustomer();
+            $exists = $scXacThuc->scCheckEmail($email);
+
+            if ($exists) {
+                // Email đã tồn tại → trả về false
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Email đã tồn tại.'
+                ]);
+            } else {
+                // Email không tồn tại → trả về true
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Email không tồn tại.'
+                ]);
+            }
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Lỗi server'
+            ]);
+        }
+        exit;
+    }
+
+
+   public function sendResetPassword()
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        ini_set('display_errors', 0); // tránh output lỗi ra JSON
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Truy cập không hợp lệ!']);
+            exit;
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $email = trim($data['email'] ?? '');
+
+        if (empty($email)) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng nhập email.']);
+            exit;
+        }
+
+        try {
+            $scXacThuc = new Sc_XacThucCustomer();
+            $khachHang = $scXacThuc->getCustomerByEmail($email);
+
+            if (!$khachHang) {
+                echo json_encode(['success' => false, 'message' => 'Email không tồn tại.']);
+                exit;
+            }
+
+            // Tạo token và lưu vào DB
+            $scReset = new Sc_ResetToken();
+            $resetToken = $scReset->createToken($khachHang->id);
+
+            $url = $_ENV['URL_WEB_BASE'];
+            $linkPassword = "{$url}/reset-password?token={$resetToken->token}";
+
+            // Gửi mail
+            $mail = new PHPMailer(true);
+            $mail->SMTPDebug = 0;
+            $mail->CharSet = "utf-8";
+            $mail->isSMTP();
+            $mail->Host       = 'smtp.gmail.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'tuandungnguyen800@gmail.com';
+            $mail->Password   = 'oeke ldzf ssso avls';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = 587;
+
+            $mail->setFrom('tuandungnguyen800@gmail.com', 'EPIC CINEMAS');
+            $mail->addAddress($email);
+            $mail->isHTML(true);
+            $mail->Subject = "Yêu cầu lấy lại mật khẩu - EPIC CINEMAS";
+            $mail->Body = "
+                <p>Xin chào,</p>
+                <p>Bạn vừa gửi yêu cầu <b>lấy lại mật khẩu</b>.</p>
+                <p>Vui lòng truy cập: <b>{$linkPassword}</b> để thực hiện cập nhật mật khẩu mới</p>
+            ";
+
+            $mail->send();
+
+            echo json_encode(['success' => true, 'message' => "Đã được gửi về email $email"]);
+        } catch (\Exception $e) {
+            echo json_encode(['success' => false, 'message' => "Không thể gửi mail. Lỗi: {$e->getMessage()}"]);
+        }
+
+        exit;
+    }
+
+    public function resetPassword()
+    {
+        return view('customer.reset-password');
+    }
+
+    public function ResetPass()
+    {
+        $scXacThuc = new Sc_XacThucCustomer();
+        $scXacThuc->scResetPass();
     }
 
 }
