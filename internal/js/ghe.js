@@ -1,3 +1,5 @@
+import Spinner from "./util/spinner.js";
+
 document.addEventListener('DOMContentLoaded', function() {
     // DOM Elements
     const seatTypesList = document.getElementById('seat-types-list');
@@ -9,24 +11,51 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelButtons = document.querySelectorAll('.btn-cancel');
     const toast = document.getElementById('toast-notification');
 
-    // Form elements
-    const formAddSeatType = document.getElementById('form-add-seat-type');
-    const formEditSeatType = document.getElementById('form-edit-seat-type');
-
-    // Sample data for demonstration
-    const sampleSeatTypes = [
-        { id: 1, name: 'VIP', description: 'Ghế cao cấp với thiết kế thoải mái hơn', color: '#EF4444', price: 50000 },
-        { id: 2, name: 'Đôi', description: 'Ghế đôi dành cho cặp đôi', color: '#F59E0B', price: 100000 },
-        { id: 3, name: 'Thường', description: 'Ghế tiêu chuẩn', color: '#3B82F6', price: 0 },
-        { id: 4, name: 'Premium', description: 'Ghế cao cấp với không gian rộng hơn', color: '#8B5CF6', price: 70000 }
-    ];
+    // Store seat types data
+    let seatTypesData = [];
 
     // Load seat types list
     function loadSeatTypes() {
-        // In a real app, this would be an API call
-        setTimeout(() => {
-            renderSeatTypes(sampleSeatTypes);
-        }, 500);
+        // Show loading message
+        seatTypesList.innerHTML = `
+            <li class="px-6 py-4 flex items-center">
+                <div class="w-full text-center text-gray-500">Đang tải dữ liệu...</div>
+            </li>
+        `;
+        
+        // Call API to get seat types
+        fetch(`${seatTypesList.dataset.url}/api/ghe`, {
+            method: 'GET'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Map API data to UI format
+                seatTypesData = data.data.map(item => ({
+                    id: item.id,
+                    name: item.ten,
+                    description: item.mo_ta,
+                    color: item.ma_mau,
+                    price: item.phu_thu
+                }));
+                renderSeatTypes(seatTypesData);
+            } else {
+                // Show error message
+                seatTypesList.innerHTML = `
+                    <li class="px-6 py-4 flex items-center">
+                        <div class="w-full text-center text-red-500">Lỗi khi tải dữ liệu: ${data.message || 'Không xác định'}</div>
+                    </li>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            seatTypesList.innerHTML = `
+                <li class="px-6 py-4 flex items-center">
+                    <div class="w-full text-center text-red-500">Đã xảy ra lỗi khi tải dữ liệu</div>
+                </li>
+            `;
+        });
     }
 
     // Render seat types list
@@ -156,9 +185,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open Edit Modal
     function openEditModal(seatTypeId) {
-        // In a real app, this would be an API call to get the seat type details
-        const seatType = sampleSeatTypes.find(st => st.id === seatTypeId);
-        if (!seatType) return;
+        // Get seat type data from our stored array
+        const seatType = seatTypesData.find(st => st.id === seatTypeId);
+        if (!seatType) {
+            showToast('Không tìm thấy thông tin loại ghế', true);
+            return;
+        }
         
         // Populate form
         document.getElementById('edit-seat-type-id').value = seatType.id;
@@ -185,70 +217,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add new seat type
     function addSeatType() {
-        const formData = {
-            name: document.getElementById('seat-type-name').value.trim(),
-            description: document.getElementById('seat-type-description').value.trim(),
-            color: document.getElementById('seat-type-color').value,
-            price: parseInt(document.getElementById('seat-type-price').value) || 0
-        };
+        const formData = new FormData();
+        formData.append('ten', document.getElementById('seat-type-name').value.trim());
+        formData.append('ma_mau', document.getElementById('seat-type-color').value);
+        formData.append('phu_thu', parseInt(document.getElementById('seat-type-price').value) || 0);
+        
+        // Also add the description if it exists
+        const description = document.getElementById('seat-type-description').value.trim();
+        if (description) {
+            formData.append('mo_ta', description);
+        }
         
         // Validate form
-        if (!validateForm(formData)) {
+        if (!validateForm({
+            name: document.getElementById('seat-type-name').value.trim(),
+            price: parseInt(document.getElementById('seat-type-price').value) || 0
+        })) {
             return;
         }
         
-        // In a real app, this would be an API call
-        // For demo, we'll just add it to our sample data
-        const newSeatType = {
-            id: sampleSeatTypes.length + 1,
-            ...formData
-        };
+        // Show loading spinner
+        const spinner = Spinner.show({
+            text: 'Đang thêm loại ghế...',
+            color: '#E11D48',
+            overlay: true
+        });
         
-        sampleSeatTypes.push(newSeatType);
-        
-        // Close modal
-        closeModals();
-        
-        // Show success message
-        showToast('Thêm loại ghế mới thành công');
-        
-        // Refresh the list
-        renderSeatTypes(sampleSeatTypes);
+        // Call API to add new seat type
+        fetch(`${seatTypesList.dataset.url}/api/ghe`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            if (data.success) {
+                // Close modal
+                closeModals();
+                
+                // Show success message
+                showToast('Thêm loại ghế mới thành công');
+                
+                // Refresh the list
+                loadSeatTypes();
+            } else {
+                // Show error message
+                showToast(data.message || 'Thêm loại ghế thất bại', true);
+            }
+        })
+        .catch(error => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            // Show error message
+            console.error('Error:', error);
+            showToast('Đã xảy ra lỗi khi thêm loại ghế', true);
+        });
     }
 
     // Update seat type
     function updateSeatType() {
         const seatTypeId = parseInt(document.getElementById('edit-seat-type-id').value);
-        const formData = {
-            name: document.getElementById('edit-seat-type-name').value.trim(),
-            description: document.getElementById('edit-seat-type-description').value.trim(),
-            color: document.getElementById('edit-seat-type-color').value,
-            price: parseInt(document.getElementById('edit-seat-type-price').value) || 0
+        
+        // Tạo JSON data thay vì FormData vì API đang đọc từ php://input
+        const data = {
+            ten: document.getElementById('edit-seat-type-name').value.trim(),
+            ma_mau: document.getElementById('edit-seat-type-color').value,
+            phu_thu: parseInt(document.getElementById('edit-seat-type-price').value) || 0,
+            mo_ta: document.getElementById('edit-seat-type-description').value.trim() || null
         };
         
         // Validate form
-        if (!validateForm(formData, true)) {
+        if (!validateForm({
+            name: document.getElementById('edit-seat-type-name').value.trim(),
+            price: parseInt(document.getElementById('edit-seat-type-price').value) || 0
+        }, true)) {
             return;
         }
         
-        // In a real app, this would be an API call
-        // For demo, we'll just update our sample data
-        const index = sampleSeatTypes.findIndex(st => st.id === seatTypeId);
-        if (index !== -1) {
-            sampleSeatTypes[index] = {
-                ...sampleSeatTypes[index],
-                ...formData
-            };
-        }
+        // Show loading spinner
+        const spinner = Spinner.show({
+            text: 'Đang cập nhật loại ghế...',
+            color: '#E11D48',
+            overlay: true
+        });
         
-        // Close modal
-        closeModals();
-        
-        // Show success message
-        showToast('Cập nhật thông tin loại ghế thành công');
-        
-        // Refresh the list
-        renderSeatTypes(sampleSeatTypes);
+        // Call API to update seat type - Sửa URL từ /api/ghe sang /api/v1/ghe
+        fetch(`${seatTypesList.dataset.url}/api/ghe/${seatTypeId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            if (data.success) {
+                // Close modal
+                closeModals();
+                
+                // Show success message
+                showToast('Cập nhật loại ghế thành công');
+                
+                // Refresh the list
+                loadSeatTypes();
+            } else {
+                // Show error message
+                showToast(data.message || 'Cập nhật loại ghế thất bại', true);
+            }
+        })
+        .catch(error => {
+            // Hide spinner
+            Spinner.hide(spinner);
+            
+            // Show error message
+            console.error('Error:', error);
+            showToast('Đã xảy ra lỗi khi cập nhật loại ghế', true);
+        });
     }
 
     // Event Listeners

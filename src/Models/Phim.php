@@ -21,7 +21,7 @@ class Phim extends Model
         'mo_ta',
         'poster_url',
         'trailer_url',
-        'trang_thai'
+        'trang_thai' // 1: Đang chiếu, 0: Sắp chiếu, -1: Ngừng chiếu
     ];
 
     public function TheLoai() {

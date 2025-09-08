@@ -86,5 +86,27 @@
                 ];
             }
         }
+        public function themPhim(){
+            $service = new Sc_Phim();
+            try {
+                $result = $service->themPhim();
+                if ($result) {
+                    return [
+                        'success' => true,
+                        'message' => 'Thêm phim thành công'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Thêm phim thất bại'
+                    ];
+                }
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi thêm phim: ' . $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

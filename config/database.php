@@ -1,7 +1,7 @@
 <?php
     // Import lớp Capsule
 use Illuminate\Database\Capsule\Manager as Capsule;
-
+date_default_timezone_set('Asia/Ho_Chi_Minh');
 // Tạo một đối tượng Capsule mới
 $capsule = new Capsule;
 

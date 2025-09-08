@@ -45,7 +45,7 @@
 
     <!-- Danh sách loại ghế -->
     <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul class="divide-y divide-gray-200" id="seat-types-list">
+        <ul class="divide-y divide-gray-200" id="seat-types-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
             <!-- Dữ liệu sẽ được load bằng JavaScript -->
             <li class="px-6 py-4 flex items-center">
                 <div class="w-full text-center text-gray-500">Đang tải dữ liệu...</div>
