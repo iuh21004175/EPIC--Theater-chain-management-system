@@ -33,6 +33,9 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('PUT', '/doi-mat-khau', [Ctrl_XacThucCustomer::class, 'xuLyDoiMatKhau']);
     $r->addRoute('GET', '/rap-phim-khach', [Ctrl_RapPhim::class, 'docRapPhim']);
     $r->addRoute('GET', '/rap/{id}', [Ctrl_RapPhim::class, 'docRapPhimTheoID']);
+    $r->addRoute('POST', '/check-email', [Ctrl_XacThucCustomer::class, 'checkEmail']);
+    $r->addRoute('POST', '/reset-password', [Ctrl_XacThucCustomer::class, 'sendResetPassword']);
+    $r->addRoute('POST', '/reset-pass', [Ctrl_XacThucCustomer::class, 'ResetPass']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

@@ -17,6 +17,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/rap/{id}', [Ctrl_RapPhim::class, 'rapKhachHang']);
     $r->addRoute('GET', '/tin-tuc', [Ctrl_Phim::class, 'tinTuc']);
     $r->addRoute('GET', '/tin-tuc/{name}', [Ctrl_Phim::class, 'chiTietTinTuc']);
+    $r->addRoute('GET', '/reset-password', [Ctrl_XacThucCustomer::class, 'resetPassword']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
