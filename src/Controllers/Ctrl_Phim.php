@@ -129,25 +129,6 @@
                 ];
             }
         }
-        public function xuatHinhAnh($argc){
-            $service = new Sc_Phim();
-            try {
-                $result = $service->xuatPoster($argc['key']);
-                if ($result) {
-                    header("Content-Type: image/jpeg");
-                    echo $result;
-                    exit();
-                } else {
-                    header("HTTP/1.0 404 Not Found");
-                    echo "Image not found";
-                    exit();
-                }
-            } catch (\Exception $e) {
-                header("HTTP/1.0 500 Internal Server Error");
-                echo "Error retrieving image: " . $e->getMessage();
-                exit();
-            }
-        }
         public function suaPhim($argc){
             $service = new Sc_Phim();
             try {

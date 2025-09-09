@@ -25,7 +25,6 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/bang-dieu-khien', [Ctrl_XacThucInternal::class, 'pageBangDieuKhien']);
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/gia-ve', [Ctrl_GiaVe::class, 'index', ['Quản lý chuỗi rạp']]);
-    $r->addRoute('GET', '/san-pham-an-uong', [Ctrl_SanPhamAnUong::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/thong-ke-toan-rap', [Ctrl_ThongKeToanRap::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/ghe', [Ctrl_Ghe::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/gan-ngay', [Ctrl_GanNgay::class, 'index', ['Quản lý chuỗi rạp']]);
@@ -36,6 +35,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/nhan-vien', [Ctrl_NhanVien::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/thong-ke', [Ctrl_ThongKe::class, 'index', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/san-pham-an-uong', [Ctrl_SanPhamAnUong::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/suat-chieu', [Ctrl_SuatChieu::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/lich-lam-viec', [Ctrl_LichLamViec::class, 'index', ['Nhân viên']]);
     $r->addRoute('GET', '/luong', [Ctrl_LichLamViec::class, 'xemLuong', ['Nhân viên']]);

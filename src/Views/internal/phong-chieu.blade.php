@@ -4,7 +4,6 @@
 
 @section('head')
     <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/phong-chieu.js"></script>
-    <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/seat-layout-presets.js"></script>
     <style>
         /* Room type and status badges */
         .room-type-badge {
@@ -348,10 +347,10 @@
 
         /* Make sure modals fit within viewport but don't change display property */
         .modal-dialog {
-            max-height: 85vh;
-            margin: 70px auto 20px; /* Increased top margin to move it down */
+            max-height: 95vh; /* Tăng từ 85vh lên 95vh */
+            margin: 40px auto 20px;
             position: relative;
-            z-index: 10; /* Lower z-index than the background overlay */
+            z-index: 50; /* Lower z-index than the background overlay */
         }
 
         /* Ensure the background overlay covers everything including the top header */
@@ -469,9 +468,9 @@
                 <label for="filter-status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
                 <select id="filter-status" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
                     <option value="all">Tất cả trạng thái</option>
-                    <option value="active">Đang hoạt động</option>
-                    <option value="maintenance">Đang bảo trì</option>
-                    <option value="inactive">Ngưng hoạt động</option>
+                    <option value="1">Đang hoạt động</option>
+                    <option value="0">Đang bảo trì</option>
+                    <option value="-1">Ngưng hoạt động</option>
                 </select>
             </div>
             <div class="sm:col-span-2">
@@ -503,7 +502,7 @@
 
     <!-- Cinema screens list -->
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-        <ul class="divide-y divide-gray-200" id="rooms-list">
+        <ul class="divide-y divide-gray-200" id="rooms-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
             <li class="px-6 py-4 flex items-center justify-center">
                 <div class="flex items-center text-gray-500">
                     <div class="loading mr-3"></div>
@@ -573,9 +572,9 @@
                                 <div class="sm:col-span-3">
                                     <label for="room-status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái <span class="text-red-600">*</span></label>
                                     <select name="status" id="room-status" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm" required>
-                                        <option value="active">Đang hoạt động</option>
-                                        <option value="maintenance">Đang bảo trì</option>
-                                        <option value="inactive">Ngưng hoạt động</option>
+                                        <option value="1">Đang hoạt động</option>
+                                        <option value="0">Đang bảo trì</option>
+                                        <option value="-1">Ngưng hoạt động</option>
                                     </select>
                                 </div>
                                 
@@ -613,7 +612,7 @@
                                         
                                         <!-- New seat type table -->
                                         <table class="seat-type-table">
-                                            <tr>
+                                            <!-- <tr>
                                                 <th class="seat-type-cell active" data-type="regular">Ghế thường</th>
                                                 <th class="seat-type-cell" data-type="vip">Ghế VIP</th>
                                                 <th class="seat-type-cell" data-type="premium">Ghế Premium</th>
@@ -626,7 +625,7 @@
                                                 <td class="color-cell premium" data-type="premium"></td>
                                                 <td class="color-cell sweet-box" data-type="sweet-box"></td>
                                                 <td class="color-cell empty" data-type="empty"></td>
-                                            </tr>
+                                            </tr> -->
                                         </table>
                                         
                                         <!-- Keep the original buttons but hidden for JS compatibility -->
@@ -746,9 +745,9 @@
                                 <div class="sm:col-span-3">
                                     <label for="edit-room-status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái <span class="text-red-600">*</span></label>
                                     <select name="status" id="edit-room-status" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
-                                        <option value="active">Đang hoạt động</option>
-                                        <option value="maintenance">Đang bảo trì</option>
-                                        <option value="inactive">Ngưng hoạt động</option>
+                                        <option value="1">Đang hoạt động</option>
+                                        <option value="0">Đang bảo trì</option>
+                                        <option value="-1">Ngưng hoạt động</option>
                                     </select>
                                 </div>
                                 
