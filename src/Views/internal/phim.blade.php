@@ -181,7 +181,7 @@
                 <div class="flex flex-col">
                     <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                         <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg" style="min-height: 300px;">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
@@ -192,52 +192,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200" id="movie-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
-                                        <tr class="movie-item cursor-pointer hover:bg-gray-50" data-id="1">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-20 w-14">
-                                                        <img class="h-20 w-14 rounded-sm object-cover" src="https://m.media-amazon.com/images/I/71rNJQ2Y-EL._AC_UF894,1000_QL80_.jpg" alt="Poster phim">
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-gray-900">The Dark Knight</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">Hành động, Tội phạm</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">152 phút</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-now">
-                                                    Đang chiếu
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <tr class="movie-item cursor-pointer hover:bg-gray-50" data-id="2">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-20 w-14">
-                                                        <img class="h-20 w-14 rounded-sm object-cover" src="https://m.media-amazon.com/images/M/MV5BNzQzOTk3OTAtNDQ0Zi00ZTVkLWI0MTEtMDllZjNkYzNjNTc4L2ltYWdlXkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_.jpg" alt="Poster phim">
-                                                    </div>
-                                                    <div class="ml-4">
-                                                        <div class="text-sm font-medium text-gray-900">The Matrix</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">Khoa học viễn tưởng, Hành động</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="text-sm text-gray-900">136 phút</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full status-stopped">
-                                                    Ngừng chiếu
-                                                </span>
-                                            </td>
-                                        </tr>
+                                        <!-- JS sẽ render danh sách phim tại đây -->
                                     </tbody>
                                 </table>
                             </div>
@@ -478,35 +433,8 @@
                             Thể loại <span class="text-red-500">*</span>
                         </label>
                         <div class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white max-h-40 overflow-y-auto">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="flex items-center mb-2">
-                                    <input id="genre-1" type="checkbox" name="movie-genres[]" value="1" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="genre-1" class="ml-2 text-sm font-medium text-gray-700">Hành động</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="genre-2" type="checkbox" name="movie-genres[]" value="2" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="genre-2" class="ml-2 text-sm font-medium text-gray-700">Kinh dị</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="genre-3" type="checkbox" name="movie-genres[]" value="3" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="genre-3" class="ml-2 text-sm font-medium text-gray-700">Hài</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="genre-4" type="checkbox" name="movie-genres[]" value="4" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="genre-4" class="ml-2 text-sm font-medium text-gray-700">Tình cảm</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="genre-5" type="checkbox" name="movie-genres[]" value="5" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="genre-5" class="ml-2 text-sm font-medium text-gray-700">Khoa học viễn tưởng</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="genre-6" type="checkbox" name="movie-genres[]" value="6" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="genre-6" class="ml-2 text-sm font-medium text-gray-700">Phiêu lưu</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="genre-7" type="checkbox" name="movie-genres[]" value="7" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="genre-7" class="ml-2 text-sm font-medium text-gray-700">Hoạt hình</label>
-                                </div>
+                            <div class="grid grid-cols-2 gap-2" id="movie-genres-container">
+                                <!-- JS sẽ render checkbox thể loại ở đây -->
                             </div>
                         </div>
                         <p class="text-red-500 text-xs italic hidden" id="movie-genres-error">Vui lòng chọn ít nhất một thể loại.</p>
@@ -540,9 +468,8 @@
                         </label>
                         <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="movie-status">
                             <option value="">Chọn trạng thái</option>
-                            <option value="0">Sắp chiếu</option>
                             <option value="1">Đang chiếu</option>
-                            <option value="-1">Ngừng chiếu</option>
+                            <option value="0">Ngừng chiếu</option>
                         </select>
                         <p class="text-red-500 text-xs italic hidden" id="movie-status-error">Vui lòng chọn trạng thái.</p>
                     </div>
@@ -588,6 +515,29 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Thêm vào trong <form id="add-movie-form" ...> trước phần mô tả -->
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="movie-release-date">
+                            Ngày công chiếu <span class="text-red-500">*</span>
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               id="movie-release-date"
+                               type="date"
+                               required>
+                        <p class="text-red-500 text-xs italic hidden" id="movie-release-date-error">Vui lòng chọn ngày công chiếu.</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="movie-country">
+                            Quốc gia <span class="text-red-500">*</span>
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               id="movie-country"
+                               type="text"
+                               placeholder="Nhập quốc gia sản xuất"
+                               required>
+                        <p class="text-red-500 text-xs italic hidden" id="movie-country-error">Vui lòng nhập quốc gia.</p>
+                    </div>
                 </div>
                 
                 <div>
@@ -613,12 +563,11 @@
 <!-- Edit Movie Modal -->
 <div id="edit-movie-modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
     <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
-    
     <div class="modal-container bg-white w-11/12 md:max-w-3xl mx-auto rounded shadow-lg z-50">
         <!-- Modal Header -->
         <div class="modal-header px-6 py-4">
             <div class="flex justify-between items-center">
-                <p class="text-xl font-bold">Chỉnh sửa thông tin phim</p>
+                <p class="text-xl font-bold">Cập nhật thông tin phim</p>
                 <div class="modal-close cursor-pointer z-50">
                     <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
                         <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
@@ -626,57 +575,47 @@
                 </div>
             </div>
         </div>
-
         <form id="edit-movie-form" class="space-y-4">
-            <input type="hidden" id="edit-movie-id">
-            
             <!-- Modal Body -->
             <div class="modal-body px-6 py-2">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Các trường giống như modal thêm phim, chỉ đổi id thành edit-movie-* -->
+                    <input type="hidden" id="edit-movie-id">
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-title">
                             Tên phim <span class="text-red-500">*</span>
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-title" type="text" placeholder="Nhập tên phim">
-                        <p class="text-red-500 text-xs italic hidden" id="edit-movie-title-error">Vui lòng nhập tên phim.</p>
                     </div>
-                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-director">
                             Đạo diễn <span class="text-red-500">*</span>
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-director" type="text" placeholder="Nhập tên đạo diễn">
                     </div>
-                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-actors">
                             Diễn viên <span class="text-red-500">*</span>
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-actors" type="text" placeholder="Nhập tên diễn viên (cách nhau bởi dấu phẩy)">
                     </div>
-                    
+                    <!-- Thể loại -->
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-genres">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">
                             Thể loại <span class="text-red-500">*</span>
                         </label>
-                        <select multiple class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-genres">
-                            <option value="1">Hành động</option>
-                            <option value="2">Kinh dị</option>
-                            <option value="3">Hài</option>
-                            <option value="4">Tình cảm</option>
-                            <option value="5">Khoa học viễn tưởng</option>
-                            <option value="6">Phiêu lưu</option>
-                            <option value="7">Hoạt hình</option>
-                        </select>
+                        <div class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white max-h-40 overflow-y-auto">
+                            <div class="grid grid-cols-2 gap-2" id="edit-movie-genres-container">
+                                <!-- JS sẽ render checkbox thể loại ở đây -->
+                            </div>
+                        </div>
                     </div>
-                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-duration">
                             Thời lượng (phút) <span class="text-red-500">*</span>
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-duration" type="number" min="1" placeholder="Nhập thời lượng phim (phút)">
                     </div>
-                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-rating">
                             Tiêu chuẩn phân loại <span class="text-red-500">*</span>
@@ -689,94 +628,34 @@
                             <option value="C18">C18 - Phim cấm khán giả dưới 18 tuổi</option>
                         </select>
                     </div>
-                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-status">
                             Trạng thái <span class="text-red-500">*</span>
                         </label>
                         <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-status">
                             <option value="">Chọn trạng thái</option>
-                            <option value="coming">Sắp chiếu</option>
-                            <option value="now">Đang chiếu</option>
-                            <option value="stopped">Ngừng chiếu</option>
+                            <option value="1">Đang chiếu</option>
+                            <option value="0">Ngừng chiếu</option>
                         </select>
                     </div>
-                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-poster">
-                            Poster phim mới (để trống nếu không thay đổi)
+                            Poster phim <span class="text-red-500">*</span>
                         </label>
                         <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-poster" type="file" accept="image/*">
-                        <div id="current-poster" class="mt-2">
-                            <p class="text-sm text-gray-500">Poster hiện tại:</p>
-                            <img id="current-poster-img" src="" alt="Poster hiện tại" class="h-20 w-auto mt-1">
-                        </div>
+                        <img id="current-poster-img" src="" alt="Poster" class="h-20 w-14 rounded-sm object-cover mt-2">
                     </div>
-                    
-                    <!-- Thay thế phần thể loại trong edit-movie-modal -->
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2">
-                            Thể loại <span class="text-red-500">*</span>
-                        </label>
-                        <div class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white max-h-40 overflow-y-auto">
-                            <div class="grid grid-cols-2 gap-2">
-                                <div class="flex items-center mb-2">
-                                    <input id="edit-genre-1" type="checkbox" name="edit-movie-genres[]" value="1" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="edit-genre-1" class="ml-2 text-sm font-medium text-gray-700">Hành động</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="edit-genre-2" type="checkbox" name="edit-movie-genres[]" value="2" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="edit-genre-2" class="ml-2 text-sm font-medium text-gray-700">Kinh dị</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="edit-genre-3" type="checkbox" name="edit-movie-genres[]" value="3" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="edit-genre-3" class="ml-2 text-sm font-medium text-gray-700">Hài</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="edit-genre-4" type="checkbox" name="edit-movie-genres[]" value="4" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="edit-genre-4" class="ml-2 text-sm font-medium text-gray-700">Tình cảm</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="edit-genre-5" type="checkbox" name="edit-movie-genres[]" value="5" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="edit-genre-5" class="ml-2 text-sm font-medium text-gray-700">Khoa học viễn tưởng</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="edit-genre-6" type="checkbox" name="edit-movie-genres[]" value="6" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="edit-genre-6" class="ml-2 text-sm font-medium text-gray-700">Phiêu lưu</label>
-                                </div>
-                                <div class="flex items-center mb-2">
-                                    <input id="edit-genre-7" type="checkbox" name="edit-movie-genres[]" value="7" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                                    <label for="edit-genre-7" class="ml-2 text-sm font-medium text-gray-700">Hoạt hình</label>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="text-red-500 text-xs italic hidden" id="edit-movie-genres-error">Vui lòng chọn ít nhất một thể loại.</p>
-                    </div>
-                    
-                    <!-- Thay thế phần trailer trong edit-movie-modal -->
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-trailer">
                             Trailer (URL YouTube)
                         </label>
-                        <div class="flex rounded-md shadow-sm">
-                            <input class="shadow appearance-none border rounded-l-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100" 
-                                   id="edit-movie-trailer" 
-                                   type="url" 
-                                   placeholder="https://www.youtube.com/watch?v=..."
-                                   pattern="https?:\/\/(www\.)?youtube\.com\/watch\?v=.+"
-                                   title="Vui lòng nhập URL YouTube hợp lệ (https://www.youtube.com/watch?v=...)"
-                                   readonly>
-                            <button type="button" id="edit-movie-trailer-paste" class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-1 focus:ring-red-500">
-                                <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                </svg>
-                                Dán
-                            </button>
-                        </div>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                               id="edit-movie-trailer" 
+                               type="url" 
+                               placeholder="Dán URL YouTube vào đây (https://www.youtube.com/watch?v=...)"
+                               pattern="https?:\/\/(www\.)?youtube\.com\/watch\?v=.+">
                         <p class="text-xs text-gray-500 mt-1">Ví dụ: https://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
                     </div>
-
-                    <!-- Thêm phần này cho modal chỉnh sửa -->
                     <div class="mt-3 hidden" id="edit-movie-trailer-preview">
                         <div class="border rounded-md overflow-hidden">
                             <div class="relative bg-gray-100 cursor-pointer" id="edit-movie-trailer-thumbnail-container">
@@ -796,21 +675,38 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-description">
-                            Mô tả <span class="text-red-500">*</span>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-release-date">
+                            Ngày công chiếu <span class="text-red-500">*</span>
                         </label>
-                        <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-description" rows="4" placeholder="Nhập mô tả phim"></textarea>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               id="edit-movie-release-date"
+                               type="date"
+                               required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-country">
+                            Quốc gia <span class="text-red-500">*</span>
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                               id="edit-movie-country"
+                               type="text"
+                               placeholder="Nhập quốc gia sản xuất"
+                               required>
                     </div>
                 </div>
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-description">
+                        Mô tả <span class="text-red-500">*</span>
+                    </label>
+                    <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="edit-movie-description" rows="4" placeholder="Nhập mô tả phim"></textarea>
+                </div>
             </div>
-            
             <!-- Modal Footer -->
             <div class="modal-footer px-6 py-4">
                 <div class="flex items-center justify-end">
                     <button type="button" class="modal-close-btn px-4 bg-gray-200 p-3 rounded-lg text-black hover:bg-gray-300 mr-2">Hủy</button>
-                    <button type="submit" class="px-4 bg-red-600 p-3 rounded-lg text-white hover:bg-red-700">Lưu</button>
+                    <button type="submit" class="px-4 bg-red-600 p-3 rounded-lg text-white hover:bg-red-700">Cập nhật</button>
                 </div>
             </div>
         </form>

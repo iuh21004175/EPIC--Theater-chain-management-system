@@ -84,9 +84,9 @@ switch ($routeInfo[0]) {
                 
             $controller = new $class();
             echo call_user_func([$controller, $method], $vars);
-            } else {
-                echo call_user_func($handler, $vars);
-            }        
+        } else {
+            echo call_user_func($handler, $vars);
+        }        
         break;
 }
 ?>

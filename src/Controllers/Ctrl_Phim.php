@@ -108,5 +108,67 @@
                 ];
             }
         }
+        public function docPhim(){
+            $service = new Sc_Phim();
+            try {
+                $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+                $result = $service->docPhim($page, $_GET['tuKhoaTimKiem'] ?? null, $_GET['trangThai'] ?? null, $_GET['theLoaiId'] ?? null);
+                return [
+                    'success' => true,
+                    'data' => $result['data'],
+                    'pagination' => [
+                        'total' => $result['total'],
+                        'total_pages' => $result['total_pages'],
+                        'current_page' => $result['current_page']
+                    ]
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải danh sách phim: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function xuatHinhAnh($argc){
+            $service = new Sc_Phim();
+            try {
+                $result = $service->xuatPoster($argc['key']);
+                if ($result) {
+                    header("Content-Type: image/jpeg");
+                    echo $result;
+                    exit();
+                } else {
+                    header("HTTP/1.0 404 Not Found");
+                    echo "Image not found";
+                    exit();
+                }
+            } catch (\Exception $e) {
+                header("HTTP/1.0 500 Internal Server Error");
+                echo "Error retrieving image: " . $e->getMessage();
+                exit();
+            }
+        }
+        public function suaPhim($argc){
+            $service = new Sc_Phim();
+            try {
+                $result = $service->suaPhim($argc['id']);
+                if ($result) {
+                    return [
+                        'success' => true,
+                        'message' => 'Cập nhật phim thành công'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Cập nhật phim thất bại'
+                    ];
+                }
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi cập nhật phim: ' . $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

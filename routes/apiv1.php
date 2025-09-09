@@ -26,6 +26,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/the-loai-phim', [Ctrl_Phim::class, 'docTheLoaiPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('PUT', '/the-loai-phim/{id:\d+}', [Ctrl_Phim::class, 'suaTenTheLoaiPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/phim', [Ctrl_Phim::class, 'themPhim', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/phim/', [Ctrl_Phim::class, 'docPhim', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('POST', '/phim/{id:\d+}', [Ctrl_Phim::class, 'suaPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/ghe', [Ctrl_Ghe::class, 'themGhe', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/ghe', [Ctrl_Ghe::class, 'docGhe', ['Quản lý chuỗi rạp']]);
     $r->addRoute('PUT', '/ghe/{id:\d+}', [Ctrl_Ghe::class, 'suaGhe', ['Quản lý chuỗi rạp']]);

@@ -3,7 +3,10 @@
 
     use eftec\bladeone\BladeOne;
     use Aws\S3\S3Client;
+    use Dotenv\Dotenv;
 
+    $dotenv = Dotenv::createImmutable(__DIR__.'/../..');
+    $dotenv->load();
     // Define the view function using the global $blade variable
     function view($name, $data = [])
     {
@@ -25,8 +28,8 @@
                 'endpoint' => 'http://127.0.0.1:9000', // URL đến MinIO server của bạn
                 'use_path_style_endpoint' => true, // Cực kỳ quan trọng!
                 'credentials' => [
-                    'key'    => 'admin_epic',     // Access Key bạn đã tạo
-                    'secret' => 'epic2025', // Secret Key bạn đã tạo
+                    'key'    => $_ENV['MINIO_ACCESS_KEY'],     // Access Key bạn đã tạo
+                    'secret' => $_ENV['MINIO_SECRET_KEY'], // Secret Key bạn đã tạo
                 ],
             ]);
 
