@@ -1,8 +1,0 @@
-RewriteEngine On
-
-# Nếu request KHÔNG phải file hoặc thư mục thực tế
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Thì rewrite sang index.php
-RewriteRule ^(.*)$ index.php [QSA,L]

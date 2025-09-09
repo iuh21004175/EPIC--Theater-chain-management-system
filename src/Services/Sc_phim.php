@@ -74,7 +74,7 @@
                     'thoi_luong' => $thoiLuong,
                     'do_tuoi' => $doTuoi,
                     'quoc_gia' => $quocGia,
-                    'poster_url' => $keyName,
+                    'poster_url' => $bucket/$keyName,
                     'trailer_url' => $trailerUrl,
                     'trang_thai' => $trangThai,
                 ]);
@@ -99,18 +99,6 @@
                     $phim->delete();
                 }
                 throw new \Exception('Lỗi khi thêm phim: ' . $e->getMessage());
-            }
-        }
-        public function xuatPoster($key){
-            $bucket = "poster";
-            try {
-                $result = getS3Client()->getObject([
-                    'Bucket' => $bucket,
-                    'Key'    => $key,
-                ]);
-                return $result['Body'];
-            } catch (\Exception $e) {
-                throw new \Exception('Lỗi khi xuất poster: ' . $e->getMessage());
             }
         }
         public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null){
@@ -181,7 +169,7 @@
                     'thoi_luong' => $thoiLuong,
                     'do_tuoi' => $doTuoi,
                     'quoc_gia' => $quocGia,
-                    'poster_url' => empty($fileExtension) ? $phimCu->poster_url : $keyName,
+                    'poster_url' => empty($fileExtension) ? $phimCu->poster_url : $bucket/$keyName,
                     'trailer_url' => $trailerUrl,
                     'trang_thai' => $trangThai,
                 ]);

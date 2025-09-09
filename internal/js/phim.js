@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         <div class="flex-shrink-0 h-20 w-14">
-                            <img class="h-20 w-14 rounded-sm object-cover movie-poster-img" src="${movieList.dataset.url + '/public/poster/' + movie.poster_url}" alt="Poster phim">
+                            <img class="h-20 w-14 rounded-sm object-cover movie-poster-img" src="${movieList.dataset.urlminio + '/' + movie.poster_url}" alt="Poster phim">
                         </div>
                         <div class="ml-4">
                             <div class="text-sm font-medium text-gray-900">${movie.ten_phim}</div>
@@ -540,7 +540,7 @@ function openEditMovieModal(movieId) {
     document.getElementById('edit-movie-country').value = movie.quoc_gia || '';
 
     // Hiển thị poster hiện tại
-    document.getElementById('current-poster-img').src = movieList.dataset.url + '/public/poster/' + movie.poster_url;
+    document.getElementById('current-poster-img').src = movieList.dataset.urlminio + '/' + movie.poster_url;
 
     // Hiển thị preview trailer nếu có
     if (movie.trailer_url && isValidYoutubeUrl(movie.trailer_url)) {

@@ -191,7 +191,7 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200" id="movie-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                                    <tbody class="bg-white divide-y divide-gray-200" id="movie-list" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
                                         <!-- JS sẽ render danh sách phim tại đây -->
                                     </tbody>
                                 </table>
