@@ -158,6 +158,16 @@
             ];
         }
 
+        public function docChiTietPhim($id)
+        {
+            $phim = Phim::with(['TheLoai.TheLoai'])->find($id);
+            if (!$phim) {
+                throw new \Exception('Phim không tồn tại');
+            }
+            return [
+                'data' => $phim
+            ];
+        }
         public function suaPhim($id){
            
             $bucket = "poster";
