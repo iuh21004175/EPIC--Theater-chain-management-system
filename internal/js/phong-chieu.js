@@ -39,68 +39,41 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentSeatType = 'regular';
     let statusChangeData = null;
 
-    // Generate sample seat layout for demo
-    function generateSampleLayout(rows, cols, includeSpecial = false) {
-        const layout = [];
-        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        for (let i = 0; i < rows; i++) {
-            const row = [];
-            for (let j = 0; j < cols; j++) {
-                let seatTypeId = regularSeatTypeId;
-                // VIP
-                if (i >= Math.floor(rows / 4) && i < Math.floor(rows * 3 / 4) && j >= Math.floor(cols / 4) && j < Math.floor(cols * 3 / 4)) {
-                    seatTypeId = getSeatTypeId('vip');
-                }
-                // Premium
-                if (i < 3 && j >= Math.floor(cols / 3) && j < Math.floor(cols * 2 / 3)) {
-                    seatTypeId = getSeatTypeId('premium');
-                }
-                // Sweet box
-                if (includeSpecial && i % 4 === 0 && j % (cols - 1) === 0 && j > 0) {
-                    seatTypeId = getSeatTypeId('sweet-box');
-                }
-                // Empty
-                if ((i === 0 || i === rows - 1) && (j === 0 || j === cols - 1)) {
-                    seatTypeId = '';
-                }
-                row.push({ id: `${alphabet[i]}${j + 1}`, type: seatTypeId });
-            }
-            layout.push(row);
-        }
-        return layout;
-    }
-
     // Load rooms list
-    function loadRooms() {
-        // In a real app, this would be an API call with filters
-        const statusFilter = filterStatus.value;
-        const typeFilter = filterType.value;
-        const searchTerm = filterSearch.value.toLowerCase();
+    let phongChieuList = []; // Biến lưu danh sách phòng chiếu
 
-        // Filter the rooms based on the selected filters
-        const filteredRooms = window.sampleRooms.filter(room => {
-            // Status filter
-            if (statusFilter !== 'all' && room.status !== statusFilter) return false;
-            
-            // Type filter
-            if (typeFilter !== 'all' && room.type !== typeFilter) return false;
-            
-            // Search term
-            if (searchTerm) {
-                const searchFields = [
-                    room.name.toLowerCase(),
-                    room.code.toLowerCase(),
-                    room.description ? room.description.toLowerCase() : ''
-                ];
-                return searchFields.some(field => field.includes(searchTerm));
-            }
-            
-            return true;
+    function loadRooms() {
+        // Hiển thị spinner
+        const spinner = Spinner.show({
+            target: roomsList,
+            text: 'Đang tải danh sách phòng chiếu...'
         });
 
-        setTimeout(() => {
-            renderRooms(filteredRooms);
-        }, 300);
+        fetch(`${roomsList.dataset.url}/api/phong-chieu`)
+            .then(res => res.json())
+            .then(data => {
+                Spinner.hide(spinner);
+                if (data.success && Array.isArray(data.data)) {
+                    phongChieuList = data.data; // Lưu vào biến toàn cục
+                    window.sampleRooms = phongChieuList; // Nếu cần tương thích code cũ
+                    renderRooms(phongChieuList);
+                } else {
+                    roomsList.innerHTML = `
+                        <li class="px-6 py-4 flex items-center">
+                            <div class="w-full text-center text-red-500">Không thể tải danh sách phòng chiếu</div>
+                        </li>
+                    `;
+                }
+            })
+            .catch(err => {
+                Spinner.hide(spinner);
+                roomsList.innerHTML = `
+                    <li class="px-6 py-4 flex items-center">
+                        <div class="w-full text-center text-red-500">Lỗi khi tải danh sách phòng chiếu</div>
+                    </li>
+                `;
+                console.error(err);
+            });
     }
 
     // Render rooms list
@@ -118,11 +91,11 @@ document.addEventListener('DOMContentLoaded', function() {
         rooms.forEach(room => {
             const listItem = document.createElement('li');
             listItem.className = 'px-6 py-4 flex items-center justify-between hover:bg-gray-50';
-            
-            // Get room type display name
+
+            // Loại phòng chiếu
             let roomTypeName = '';
             let roomTypeClass = '';
-            switch (room.type) {
+            switch (room.loai_phongchieu) {
                 case '2d':
                     roomTypeName = '2D';
                     roomTypeClass = 'type-2d';
@@ -139,47 +112,61 @@ document.addEventListener('DOMContentLoaded', function() {
                     roomTypeName = 'IMAX 3D';
                     roomTypeClass = 'type-imax-3d';
                     break;
+                default:
+                    roomTypeName = room.loai_phongchieu;
+                    roomTypeClass = '';
             }
-            
-            // Get status display name
+
+            // Trạng thái
             let statusName = '';
             let statusClass = '';
-            switch (room.status) {
+            switch (String(room.trang_thai)) {
+                case '1':
                 case 'active':
                     statusName = 'Đang hoạt động';
                     statusClass = 'active';
                     break;
+                case '0':
                 case 'maintenance':
                     statusName = 'Đang bảo trì';
                     statusClass = 'maintenance';
                     break;
+                case '-1':
                 case 'inactive':
                     statusName = 'Ngưng hoạt động';
                     statusClass = 'inactive';
                     break;
+                default:
+                    statusName = room.trang_thai;
+                    statusClass = '';
             }
-            
-            // Count seats by type
-            const seatCounts = countSeats(room.seat_layout);
-            
+
+            // Số ghế từng loại
+            let seatTypeSummary = '';
+            if (room.so_ghe_theo_loai) {
+                seatTypeSummary = Object.entries(room.so_ghe_theo_loai)
+                    .map(([type, count]) => `${count} ${type}`)
+                    .join(', ');
+            }
+
             listItem.innerHTML = `
                 <div>
                     <div class="flex items-center">
-                        <h3 class="text-lg font-medium text-gray-900">${room.name}</h3>
-                        <span class="ml-2 text-sm text-gray-500">(${room.code})</span>
+                        <h3 class="text-lg font-medium text-gray-900">${room.ten}</h3>
+                        <span class="ml-2 text-sm text-gray-500">(${room.ma_phong})</span>
                     </div>
-                    <p class="text-sm text-gray-500">${room.description || 'Không có mô tả'}</p>
+                    <p class="text-sm text-gray-500">${room.mo_ta || 'Không có mô tả'}</p>
                     <div class="mt-2 flex items-center space-x-2">
                         <span class="room-type-badge ${roomTypeClass}">${roomTypeName}</span>
                         <span class="status-badge ${statusClass}">${statusName}</span>
                     </div>
                     <div class="mt-1 text-sm text-gray-500">
-                        <span>Sức chứa: ${seatCounts.total} ghế</span>
-                        <span class="ml-2">(${seatCounts.regular} thường, ${seatCounts.vip} VIP, ${seatCounts.premium} premium, ${seatCounts.sweetBox} ghế đôi)</span>
+                        <span>Sức chứa: ${room.so_luong_ghe} ghế</span>
+                        <span class="ml-2">(${seatTypeSummary})</span>
                     </div>
                 </div>
                 <div class="flex space-x-2">
-                    <button type="button" class="btn-change-status inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" data-id="${room.id}" data-status="${room.status}">
+                    <button type="button" class="btn-change-status inline-flex items-center px-3 py-1.5 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" data-id="${room.id}" data-status="${room.trang_thai}">
                         <svg class="-ml-1 mr-1 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                         </svg>
@@ -516,23 +503,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Similarly, update the loadSeatLayout function for consistency
     function loadSeatLayout(layout, container, layoutDataInput) {
         if (!layout || !layout.length) return;
-        
-        // Clear previous content
         container.innerHTML = '';
         const columnHeaders = document.getElementById('edit-column-headers');
         if (columnHeaders) columnHeaders.innerHTML = '';
-        
+
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        
+
         // Generate column headers
         if (columnHeaders) {
-            columnHeaders.innerHTML = ''; // Clear previous headers
-            
-            // Add empty space for row labels
+            columnHeaders.innerHTML = '';
             const emptyHeader = document.createElement('div');
             emptyHeader.className = 'w-8';
             columnHeaders.appendChild(emptyHeader);
-            
             for (let j = 0; j < layout[0].length; j++) {
                 const header = document.createElement('div');
                 header.className = 'column-header';
@@ -540,47 +522,51 @@ document.addEventListener('DOMContentLoaded', function() {
                 columnHeaders.appendChild(header);
             }
         }
-        
+
         // Load rows and seats
         for (let i = 0; i < layout.length; i++) {
             const row = layout[i];
             const rowElement = document.createElement('div');
             rowElement.className = 'seat-row';
-            
+
             // Add row label
             const rowLabel = document.createElement('div');
             rowLabel.className = 'row-label';
             rowLabel.textContent = alphabet[i];
             rowElement.appendChild(rowLabel);
-            
+
             for (let j = 0; j < row.length; j++) {
                 const seat = row[j];
-                
+
                 // Create seat element
                 const seatElement = document.createElement('div');
                 seatElement.className = `seat ${seat.type}`;
                 seatElement.setAttribute('data-seat-id', seat.id);
                 seatElement.setAttribute('data-row', i);
                 seatElement.setAttribute('data-col', j);
-                seatElement.textContent = seat.id;  // Show seat ID instead of column number
+                seatElement.textContent = seat.id;
                 seatElement.title = seat.id;
-                
-                // Important: Make sure to use the correct layout reference
-                // Create a clean copy of the layout to avoid reference issues
+
+                // Tô màu ghế: nếu type rỗng thì tô màu ghế thường
+                if (seat.loai_ghe && seat.loai_ghe.ma_mau) {
+                    seatElement.style.backgroundColor = seat.loai_ghe.ma_mau;
+                } else if (seatTypeColorMap[seat.type]) {
+                    seatElement.style.backgroundColor = seatTypeColorMap[seat.type];
+                } else if (seat.type === '') {
+                    seatElement.style.backgroundColor = 'transparent';
+                    seatElement.style.color = '#888';
+                } 
+
+                // Add click handler
                 const layoutCopy = JSON.parse(JSON.stringify(layout));
-                
-                // Add the enhanced click handler with the layout data directly
                 addSeatClickHandler(seatElement, i, j, layoutCopy, layoutDataInput);
-                
-                // Đảm bảo type là id loại ghế
-                seat.type = seat.type === '' ? '' : getSeatTypeId(seat.type);
-                
+
                 rowElement.appendChild(seatElement);
             }
-            
+
             container.appendChild(rowElement);
         }
-        
+
         // Update the hidden input with the loaded layout
         layoutDataInput.value = JSON.stringify(layout);
     }
@@ -600,7 +586,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             const previousType = currentLayoutData[row][col].type;
-            currentLayoutData[row][col].type = getSeatTypeId(currentSeatType);
+            // Luôn gán type là id loại ghế (số)
+            const seatTypeId = getSeatTypeId(currentSeatType);
+            currentLayoutData[row][col].type = seatTypeId;
 
             // Đổi màu động theo loại ghế
             if (currentSeatType === 'empty') {
@@ -609,7 +597,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.style.color = '#888';
             } else {
                 this.className = 'seat';
-                this.style.backgroundColor = seatTypeColorMap[currentSeatType] || '#B8B8B8';
+                this.style.backgroundColor = seatTypeColorMap[seatTypeId] || '#B8B8B8';
                 this.style.color = '#333';
             }
 
@@ -630,8 +618,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <span class="type-${previousType}">${getTypeName(previousType)}</span> thành 
                         <span class="type-${currentSeatType}">${getTypeName(currentSeatType)}</span>`;
                     feedbackMessage.classList.remove('hidden');
-                    
-                    // Auto-hide after a few seconds
                     clearTimeout(feedbackMessage.hideTimeout);
                     feedbackMessage.hideTimeout = setTimeout(() => {
                         feedbackMessage.classList.add('hidden');
@@ -691,26 +677,58 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Open Edit Modal - Fix the seat type selection reset
     function openEditModal(roomId) {
-        // Get room data
-        const room = window.sampleRooms.find(r => r.id === roomId);
+        // Lấy phòng chiếu từ biến phongChieuList
+        const room = phongChieuList.find(r => r.id == roomId);
         if (!room) return;
-        
-        // Populate form
+
+        // Điền dữ liệu vào form
         document.getElementById('edit-room-id').value = room.id;
-        document.getElementById('edit-room-name').value = room.name;
-        document.getElementById('edit-room-code').value = room.code;
-        document.getElementById('edit-room-description').value = room.description || '';
-        document.getElementById('edit-room-type').value = room.type;
-        document.getElementById('edit-room-status').value = room.status;
-        
-        // Set seat rows and columns
-        document.getElementById('edit-seat-rows').value = room.seat_layout.length;
-        document.getElementById('edit-seat-columns').value = room.seat_layout[0].length;
-        
-        // Load seat layout
-        loadSeatLayout(room.seat_layout, editSeatLayoutContainer, editSeatLayoutData);
-        
-        // Reset seat type selection in the table
+        document.getElementById('edit-room-name').value = room.ten;
+        document.getElementById('edit-room-code').value = room.ma_phong;
+        document.getElementById('edit-room-description').value = room.mo_ta || '';
+        document.getElementById('edit-room-type').value = room.loai_phongchieu;
+        document.getElementById('edit-room-status').value = room.trang_thai;
+
+        // Số hàng/cột ghế
+        document.getElementById('edit-seat-rows').value = room.sohang_ghe;
+        document.getElementById('edit-seat-columns').value = room.socot_ghe;
+
+        // Tạo layout từ danh sách ghế (so_do_ghe)
+        let seatLayout = [];
+        if (Array.isArray(room.so_do_ghe) && room.sohang_ghe && room.socot_ghe) {
+            // Khởi tạo mảng rỗng
+            for (let i = 0; i < room.sohang_ghe; i++) seatLayout[i] = [];
+            room.so_do_ghe.forEach(ghe => {
+                // Tính chỉ số hàng/cột từ mã ghế (ví dụ: A1 => hàng 0, cột 0)
+                const match = ghe.so_ghe.match(/^([A-Z])(\d+)$/);
+                if (match) {
+                    const rowIdx = match[1].charCodeAt(0) - 65;
+                    const colIdx = parseInt(match[2], 10) - 1;
+                    seatLayout[rowIdx][colIdx] = {
+                        id: ghe.so_ghe,
+                        type: ghe.loaighe_id ? String(ghe.loaighe_id) : ''
+                    };
+                }
+            });
+            // Nếu còn vị trí trống thì điền ghế trống
+            for (let i = 0; i < room.sohang_ghe; i++) {
+                for (let j = 0; j < room.socot_ghe; j++) {
+                    if (!seatLayout[i][j] || !seatLayout[i][j].id) {
+                        seatLayout[i][j] = { id: String.fromCharCode(65 + i) + (j + 1), type: '' };
+                    }
+                }
+            }
+        }
+
+        // Hiển thị layout lên modal
+        loadSeatLayout(seatLayout, editSeatLayoutContainer, editSeatLayoutData);
+        // Đảm bảo input ẩn luôn có giá trị JSON hợp lệ
+        if (!editSeatLayoutData.value) {
+            editSeatLayoutData.value = JSON.stringify(seatLayout);
+            console.log('edit-seat-layout-data.value (fixed):', editSeatLayoutData.value);
+        }
+
+        // Reset chọn loại ghế
         const tableCells = document.querySelectorAll('#modal-edit-room .seat-type-table th, #modal-edit-room .seat-type-table td');
         tableCells.forEach(cell => {
             if (cell.getAttribute('data-type') === 'regular') {
@@ -720,19 +738,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         currentSeatType = 'regular';
-        
-        // Update the type message to show regular seats initially
+
+        // Update type message
         const typeMessage = document.querySelector('#modal-edit-room .current-type-message');
         if (typeMessage) {
             typeMessage.innerHTML = '<strong>Loại ghế đang chọn:</strong> <span class="type-regular">Ghế thường</span>';
         }
-        
+
         // Clear error messages
         document.querySelectorAll('#form-edit-room .text-red-600').forEach(el => {
             el.textContent = '';
             el.classList.add('hidden');
         });
-        
+
         // Show modal
         modalEditRoom.classList.remove('hidden');
     }
@@ -758,7 +776,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set confirmation message
         document.getElementById('status-change-title').textContent = `Xác nhận thay đổi trạng thái`;
-        document.getElementById('status-change-message').textContent = `Bạn có chắc chắn muốn ${statusAction} phòng chiếu "${room.name}" không?`;
+        document.getElementById('status-change-message').textContent = `Bạn có chắc chắn muốn ${statusAction} phòng chiếu "${room.ten}" không?`;
         
         // Store data for the confirmation
         statusChangeData = {
@@ -791,30 +809,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (rows > 0 && rows <= 26 && columns > 0 && columns <= 20) {
                 const layout = generateSeatLayout(rows, columns, seatLayoutContainer, seatLayoutData);
-                
-                // Apply some default patterns to make the layout more visually appealing
-                for (let i = 0; i < rows; i++) {
-                    for (let j = 0; j < columns; j++) {
-                        // Add some patterns based on position
-                        if (i < 2 && j >= Math.floor(columns/3) && j < Math.floor(columns*2/3)) {
-                            // Premium seats in front center
-                            layout[i][j].type = 'premium';
-                        } else if (i >= 2 && i < rows-2 && j >= Math.floor(columns/4) && j < Math.floor(columns*3/4)) {
-                            // VIP seats in middle
-                            layout[i][j].type = 'vip';
-                        }
-                        
-                        // Update the visual appearance
-                        const seatElement = seatLayoutContainer.querySelector(`[data-row="${i}"][data-col="${j}"]`);
-                        if (seatElement) {
-                            seatElement.className = `seat ${layout[i][j].type}`;
-                        }
-                    }
-                }
-                
-                // Update the layout data
+                // KHÔNG tự động gán VIP/Premium nữa
                 seatLayoutData.value = JSON.stringify(layout);
-                
                 showToast('Đã tạo sơ đồ ghế thành công');
             } else {
                 showToast('Số hàng và số cột không hợp lệ', true);
@@ -827,30 +823,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (rows > 0 && rows <= 26 && columns > 0 && columns <= 20) {
                 const layout = generateSeatLayout(rows, columns, editSeatLayoutContainer, editSeatLayoutData);
-                
-                // Apply some default patterns to make the layout more visually appealing
-                for (let i = 0; i < rows; i++) {
-                    for (let j = 0; j < columns; j++) {
-                        // Add some patterns based on position
-                        if (i < 2 && j >= Math.floor(columns/3) && j < Math.floor(columns*2/3)) {
-                            // Premium seats in front center
-                            layout[i][j].type = 'premium';
-                        } else if (i >= 2 && i < rows-2 && j >= Math.floor(columns/4) && j < Math.floor(columns*3/4)) {
-                            // VIP seats in middle
-                            layout[i][j].type = 'vip';
-                        }
-                        
-                        // Update the visual appearance
-                        const seatElement = editSeatLayoutContainer.querySelector(`[data-row="${i}"][data-col="${j}"]`);
-                        if (seatElement) {
-                            seatElement.className = `seat ${layout[i][j].type}`;
-                        }
-                    }
-                }
-                
-                // Update the layout data
+                // KHÔNG tự động gán VIP/Premium nữa
                 editSeatLayoutData.value = JSON.stringify(layout);
-                
                 showToast('Đã tạo lại sơ đồ ghế thành công');
             } else {
                 showToast('Số hàng và số cột không hợp lệ', true);
@@ -899,7 +873,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     seatLayout.forEach(row => {
                         row.forEach(seat => {
                             formData.append(`danh_sach_ghe[${idx}][so_ghe]`, seat.id);
-                            formData.append(`danh_sach_ghe[${idx}][loaighe_id]`, getSeatTypeId(seat.type));
+                            const seatTypeId = getSeatTypeId(seat.type);
+                            formData.append(
+                                `danh_sach_ghe[${idx}][loaighe_id]`,
+                                seatTypeId === '' || seatTypeId === 0 ? '' : seatTypeId
+                            );
                             idx++;
                         });
                     });
@@ -946,27 +924,32 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Submit edit form
         btnSubmitEdit.addEventListener('click', function() {
-            const formData = new FormData();
-            formData.append('id', document.getElementById('edit-room-id').value);
-            formData.append('ten', document.getElementById('edit-room-name').value);
-            formData.append('ma_phong', document.getElementById('edit-room-code').value);
-            formData.append('mo_ta', document.getElementById('edit-room-description').value);
-            formData.append('loai_phongchieu', document.getElementById('edit-room-type').value);
-            formData.append('trang_thai', document.getElementById('edit-room-status').value);
-            formData.append('sohang_ghe', parseInt(document.getElementById('edit-seat-rows').value));
-            formData.append('socot_ghe', parseInt(document.getElementById('edit-seat-columns').value));
-
-            // Parse seat layout
+            // Thu thập dữ liệu từ form
+            const data = {
+                id: document.getElementById('edit-room-id').value,
+                ten: document.getElementById('edit-room-name').value,
+                ma_phong: document.getElementById('edit-room-code').value,
+                mo_ta: document.getElementById('edit-room-description').value,
+                loai_phongchieu: document.getElementById('edit-room-type').value,
+                trang_thai: document.getElementById('edit-room-status').value,
+                sohang_ghe: parseInt(document.getElementById('edit-seat-rows').value),
+                socot_ghe: parseInt(document.getElementById('edit-seat-columns').value),
+                seat_layout: document.getElementById('edit-seat-layout-data').value,
+                danh_sach_ghe: []
+            };
+            // Parse seat layout và append từng ghế vào danh_sach_ghe dạng JSON
             let seatLayoutRaw = document.getElementById('edit-seat-layout-data').value;
             if (seatLayoutRaw) {
                 try {
                     const seatLayout = JSON.parse(seatLayoutRaw);
-                    let idx = 0;
+                    data.danh_sach_ghe = [];
                     seatLayout.forEach(row => {
                         row.forEach(seat => {
-                            formData.append(`danh_sach_ghe[${idx}][so_ghe]`, seat.id);
-                            formData.append(`danh_sach_ghe[${idx}][loaighe_id]`, getSeatTypeId(seat.type));
-                            idx++;
+                            const seatTypeId = getSeatTypeId(seat.type);
+                            data.danh_sach_ghe.push({
+                                so_ghe: seat.id,
+                                loaighe_id: seatTypeId === '' || seatTypeId === 0 ? null : seatTypeId
+                            });
                         });
                     });
                 } catch (e) {
@@ -975,22 +958,22 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
             }
-
             // Validate form
-            if (!validateForm(Object.fromEntries(formData), false)) {
+            if (!validateForm(data, false)) {
                 return;
             }
-
             // Hiển thị spinner
             const spinner = Spinner.show({
                 target: modalEditRoom,
                 text: 'Đang lưu thay đổi...'
             });
-
-            // Gửi lên API bằng FormData
-            fetch(`${roomsList.dataset.url}/api/phong-chieu/${formData.get('id')}`, {
-                method: 'POST',
-                body: formData
+            // Gửi lên API bằng JSON
+            fetch(`${roomsList.dataset.url}/api/phong-chieu/${data.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
             })
             .then(res => res.json())
             .then (data => {
@@ -1046,12 +1029,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate name
         if (!formData.ten || formData.ten.trim() === '') {
+            console.log('validateForm: Tên phòng chiếu bị thiếu');
             errors.name = 'Tên phòng chiếu không được để trống';
             isValid = false;
         }
 
         // Validate code
         if (!formData.ma_phong || formData.ma_phong.trim() === '') {
+            console.log('validateForm: Mã phòng bị thiếu');
             errors.code = 'Mã phòng không được để trống';
             isValid = false;
         } else {
@@ -1060,6 +1045,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 (isAdd || parseInt(room.id) !== parseInt(formData.id))
             );
             if (existingRoom) {
+                console.log('validateForm: Mã phòng đã tồn tại');
                 errors.code = 'Mã phòng đã tồn tại';
                 isValid = false;
             }
@@ -1067,12 +1053,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate type
         if (!formData.loai_phongchieu || formData.loai_phongchieu === '') {
+            console.log('validateForm: Loại phòng chiếu bị thiếu');
             errors.type = 'Vui lòng chọn loại phòng chiếu';
             isValid = false;
         }
 
         // Validate seat layout
         if (!formData.seat_layout) {
+            console.log('validateForm: Sơ đồ ghế bị thiếu');
             errors.seat_layout = 'Vui lòng tạo sơ đồ ghế';
             isValid = false;
         }
@@ -1097,7 +1085,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
-
         return isValid;
     }
 
@@ -1132,44 +1119,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 setupSeatTypeSelection();
 
                 // Khởi tạo sampleRooms sau khi seatTypes đã có
-                window.sampleRooms = [
-                    {
-                        id: 1,
-                        name: 'Phòng chiếu 1',
-                        code: 'P01',
-                        description: 'Phòng chiếu tiêu chuẩn với 100 ghế',
-                        type: '2d',
-                        status: 'active',
-                        seat_layout: generateSampleLayout(10, 10)
-                    },
-                    {
-                        id: 2,
-                        name: 'Phòng chiếu 2',
-                        code: 'P02',
-                        description: 'Phòng chiếu 3D với 120 ghế',
-                        type: '3d',
-                        status: 'active',
-                        seat_layout: generateSampleLayout(10, 12)
-                    },
-                    {
-                        id: 3,
-                        name: 'Phòng chiếu IMAX',
-                        code: 'P03',
-                        description: 'Phòng chiếu IMAX với màn hình lớn và 150 ghế',
-                        type: 'imax-3d',
-                        status: 'maintenance',
-                        seat_layout: generateSampleLayout(10, 15)
-                    },
-                    {
-                        id: 4,
-                        name: 'Phòng chiếu VIP',
-                        code: 'P04',
-                        description: 'Phòng chiếu VIP với ghế đôi và dịch vụ cao cấp',
-                        type: '2d',
-                        status: 'inactive',
-                        seat_layout: generateSampleLayout(8, 10, true)
-                    }
-                ];
                 loadRooms();
             });
     }

@@ -32,5 +32,51 @@
                 ];
             }
         }
+        public function capNhatPhongChieu($argc) {
+            $id = $argc['id'] ?? null;
+            if (!$id) {
+                return [
+                    'success' => false,
+                    'message' => 'ID phòng chiếu không hợp lệ'
+                ];
+            }
+            $service = new Sc_PhongChieu();
+            try {
+                if ($service->capNhat($id)) {
+                    return [
+                        'success' => true,
+                        'message' => 'Cập nhật phòng chiếu thành công'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Cập nhật phòng chiếu thất bại'
+                    ];
+                }
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Đã xảy ra lỗi: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function docPhongChieu($vars) {
+            $tuKhoa = $vars['tu_khoa'] ?? null;
+            $loaiPhongChieu = $vars['loai_phongchieu'] ?? null;
+            $trangThai = $vars['trang_thai'] ?? null;
+            $service = new Sc_PhongChieu();
+            try {
+                $danhSachPhongChieu = $service->doc($tuKhoa, $loaiPhongChieu, $trangThai);
+                return [
+                    'success' => true,
+                    'data' => $danhSachPhongChieu
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Đã xảy ra lỗi: ' . $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

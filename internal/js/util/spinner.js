@@ -52,7 +52,8 @@ const Spinner = {
         spinnerContainer.style.display = 'flex';
         spinnerContainer.style.flexDirection = 'column';
         spinnerContainer.style.alignItems = 'center';
-        spinnerContainer.style.justifyContent = 'center';
+        spinnerContainer.style.justifyContent = 'flex-start'; // Đổi từ 'center' thành 'flex-start'
+        spinnerContainer.style.paddingTop = '120px'; // Thêm padding để đẩy spinner xuống dưới
         spinnerContainer.style.zIndex = '9999';
         
         // FIX: Add pointer events none to prevent blocking clicks

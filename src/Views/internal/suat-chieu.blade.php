@@ -55,59 +55,9 @@
                 </button>
             </div>
         </div>
-        <div class="grid grid-cols-7 gap-1">
-            <div class="date-nav-item" data-date="2025-09-01">
-                <div class="text-center p-2 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
-                    <p class="text-xs font-medium text-gray-500">T2</p>
-                    <p class="text-lg font-bold">01</p>
-                    <p class="text-xs text-gray-500">09/25</p>
-                </div>
-            </div>
-            <div class="date-nav-item" data-date="2025-09-02">
-                <div class="text-center p-2 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
-                    <p class="text-xs font-medium text-gray-500">T3</p>
-                    <p class="text-lg font-bold">02</p>
-                    <p class="text-xs text-gray-500">09/25</p>
-                </div>
-            </div>
-            <div class="date-nav-item" data-date="2025-09-03">
-                <div class="text-center p-2 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
-                    <p class="text-xs font-medium text-gray-500">T4</p>
-                    <p class="text-lg font-bold">03</p>
-                    <p class="text-xs text-gray-500">09/25</p>
-                </div>
-            </div>
-            <div class="date-nav-item selected" data-date="2025-09-04">
-                <div class="text-center p-2 rounded-lg border border-blue-500 bg-blue-50 cursor-pointer hover:bg-blue-50 transition-colors">
-                    <p class="text-xs font-medium text-blue-600">T5</p>
-                    <p class="text-lg font-bold text-blue-600">04</p>
-                    <p class="text-xs text-blue-600">09/25</p>
-                </div>
-            </div>
-            <div class="date-nav-item" data-date="2025-09-05">
-                <div class="text-center p-2 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
-                    <p class="text-xs font-medium text-gray-500">T6</p>
-                    <p class="text-lg font-bold">05</p>
-                    <p class="text-xs text-gray-500">09/25</p>
-                </div>
-            </div>
-            <div class="date-nav-item" data-date="2025-09-06">
-                <div class="text-center p-2 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
-                    <p class="text-xs font-medium text-gray-500">T7</p>
-                    <p class="text-lg font-bold">06</p>
-                    <p class="text-xs text-gray-500">09/25</p>
-                </div>
-            </div>
-            <div class="date-nav-item" data-date="2025-09-07">
-                <div class="text-center p-2 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
-                    <p class="text-xs font-medium text-gray-500">CN</p>
-                    <p class="text-lg font-bold">07</p>
-                    <p class="text-xs text-gray-500">09/25</p>
-                </div>
-            </div>
-        </div>
+        <div id="date-nav-container" class="grid grid-cols-7 gap-1"></div>
         
-        <input type="hidden" id="date-picker" value="2025-09-04">
+        <input type="hidden" id="date-picker" value="">
         
         <div class="mt-6 flex justify-end">
             <button id="btn-add-showtime" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center">
@@ -120,7 +70,7 @@
     </div>
 
     <!-- Danh sách phim và suất chiếu -->
-    <div id="showtime-listing" class="space-y-6">
+    <div id="showtime-listing" class="space-y-6" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
         <!-- Nội dung sẽ được cập nhật bằng JavaScript -->
         <div class="text-center py-8 text-gray-500">Đang tải dữ liệu...</div>
     </div>

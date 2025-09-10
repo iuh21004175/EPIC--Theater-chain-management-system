@@ -148,6 +148,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
+    let moviesData = [];
+    let roomsData = [];
+
+    function fetchMovies() {
+        return fetch(`${showtimeListing.dataset.url}/api/phim`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.data)) {
+                    moviesData = data.data;
+                } else {`${showtimeListing.dataset.url}/api/phim`
+                    moviesData = [];
+                }
+            });
+    }
+
+    function fetchRooms() {
+        return fetch(`${showtimeListing.dataset.url}/api/phong-chieu`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.data)) {
+                    roomsData = data.data;
+                } else {
+                    roomsData = [];
+                }
+            });
+    }
+
+    function fillRoomSelect() {
+        roomSelect.innerHTML = '<option value="">-- Chọn phòng chiếu --</option>';
+        roomsData.forEach(room => {
+            const option = document.createElement('option');
+            option.value = room.id;
+            option.textContent = `${room.ten} - ${room.so_luong_ghe} ghế`;
+            roomSelect.appendChild(option);
+        });
+    }
+
     // Initialize date picker
     const today = new Date();
     const flatpickrInstance = flatpickr(datePicker, {
@@ -222,11 +259,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    function openAddModal() {
+    async function openAddModal() {
         resetForm();
         modalTitle.textContent = 'Thêm suất chiếu mới';
         showtimeId.value = '';
         showtimeDate.value = formatDate(flatpickrInstance.selectedDates[0]);
+        await Promise.all([fetchMovies(), fetchRooms()]);
+        fillRoomSelect();
         showtimeModal.classList.remove('hidden');
         generateSuggestedTimes();
     }
@@ -364,65 +403,51 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function handleMovieSearch() {
         const query = movieSearch.value.trim().toLowerCase();
-        
         if (query.length < 2) {
             movieSearchResults.innerHTML = '';
             movieSearchResults.classList.add('hidden');
             return;
         }
-        
-        // Filter movies based on search query
-        const filteredMovies = demoMovies.filter(movie => 
-            movie.title.toLowerCase().includes(query)
+        const filteredMovies = moviesData.filter(movie =>
+            movie.ten_phim && movie.ten_phim.toLowerCase().includes(query)
         );
-        
         displayMovieResults(filteredMovies);
     }
     
     function displayMovieResults(movies) {
         movieSearchResults.innerHTML = '';
-        
         if (movies.length === 0) {
             movieSearchResults.innerHTML = '<div class="p-3 text-sm text-gray-500">Không tìm thấy phim</div>';
             movieSearchResults.classList.remove('hidden');
             return;
         }
-        
         movies.forEach(movie => {
+            const poster = `${showtimeListing.dataset.urlminio}/${movie.poster_url}`;
             const item = document.createElement('div');
             item.className = 'p-2 hover:bg-gray-100 cursor-pointer flex items-center';
             item.innerHTML = `
-                <img src="${movie.poster}" alt="${movie.title}" class="w-10 h-14 object-cover mr-2">
+                <img src="${poster}" alt="${movie.ten_phim}" class="w-10 h-14 object-cover mr-2">
                 <div>
-                    <div class="font-medium">${movie.title}</div>
-                    <div class="text-xs text-gray-600">${movie.duration} phút</div>
+                    <div class="font-medium">${movie.ten_phim}</div>
+                    <div class="text-xs text-gray-600">${movie.thoi_luong || ''} phút</div>
                 </div>
             `;
-            
             item.addEventListener('click', () => {
                 selectedMovieId.value = movie.id;
-                movieSearch.value = movie.title;
-                
+                movieSearch.value = movie.ten_phim;
                 selectedMovieInfo.classList.remove('hidden');
-                selectedMoviePoster.src = movie.poster;
-                selectedMovieTitle.textContent = movie.title;
-                selectedMovieDuration.textContent = `${movie.duration} phút`;
-                selectedMovieInfo.dataset.duration = movie.duration;
-                
+                selectedMoviePoster.src = poster;
+                selectedMovieTitle.textContent = movie.ten_phim;
+                selectedMovieDuration.textContent = `${movie.thoi_luong || ''} phút`;
+                selectedMovieInfo.dataset.duration = movie.thoi_luong || 0;
                 movieSearchResults.classList.add('hidden');
-                
-                // Update end time if start time is already selected
                 if (startTime.value) {
                     updateEndTime();
                 }
-                
-                // Generate suggested times
                 generateSuggestedTimes();
             });
-            
             movieSearchResults.appendChild(item);
         });
-        
         movieSearchResults.classList.remove('hidden');
     }
     
@@ -461,13 +486,8 @@ document.addEventListener('DOMContentLoaded', function() {
             showtimeListing.innerHTML = `
                 <div class="text-center py-8">
                     <p class="text-gray-500 mb-4">Chưa có suất chiếu nào vào ngày ${displayDate(date)}</p>
-                    <button class="btn-add-empty bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md">
-                        Thêm suất chiếu mới
-                    </button>
                 </div>
             `;
-            
-            document.querySelector('.btn-add-empty').addEventListener('click', openAddModal);
             return;
         }
         
@@ -643,114 +663,73 @@ document.addEventListener('DOMContentLoaded', function() {
         const prevWeekBtn = document.getElementById('prev-week');
         const nextWeekBtn = document.getElementById('next-week');
         const weekRangeDisplay = document.getElementById('week-range');
-        const dateItems = document.querySelectorAll('.date-nav-item');
-        
-        let currentWeekStart = getMonday(new Date());
-        
-        // Cập nhật hiển thị tuần hiện tại
-        updateWeekDisplay();
-        
-        prevWeekBtn.addEventListener('click', () => {
-            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
-            updateWeekDisplay();
-            updateDateNavItems();
-        });
-        
-        nextWeekBtn.addEventListener('click', () => {
-            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
-            updateWeekDisplay();
-            updateDateNavItems();
-        });
-        
-        // Thêm sự kiện click cho các mục ngày
-        dateItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const selectedDate = item.dataset.date;
-                
-                // Cập nhật trạng thái đã chọn
-                dateItems.forEach(el => {
-                    const itemDiv = el.querySelector('div');
-                    itemDiv.classList.remove('border-blue-500', 'bg-blue-50');
-                    itemDiv.querySelectorAll('p').forEach(p => p.classList.remove('text-blue-600'));
-                });
-                
-                const selectedDiv = item.querySelector('div');
-                selectedDiv.classList.add('border-blue-500', 'bg-blue-50');
-                selectedDiv.querySelectorAll('p').forEach(p => p.classList.add('text-blue-600'));
-                
-                // Cập nhật giá trị ngày đã chọn
-                document.getElementById('date-picker').value = selectedDate;
-                
-                // Tải suất chiếu cho ngày đã chọn
-                loadShowtimes(selectedDate);
-            });
-        });
-        
+        // Lấy ngày hiện tại từ date-picker hoặc hôm nay
+        let selectedDate = document.getElementById('date-picker').value;
+        if (!selectedDate) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            selectedDate = `${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getDate().toString().padStart(2,'0')}`;
+            document.getElementById('date-picker').value = selectedDate;
+        }
+        let baseDate = new Date(selectedDate);
+        baseDate.setHours(0,0,0,0);
+        let currentWeekStart = getMonday(baseDate);
         function updateWeekDisplay() {
             const weekEnd = new Date(currentWeekStart);
-            weekEnd.setDate(weekEnd.getDate() + 6);
-            
+            weekEnd.setDate(currentWeekStart.getDate() + 6);
             const formatDay = date => {
                 const day = date.getDate().toString().padStart(2, '0');
                 const month = (date.getMonth() + 1).toString().padStart(2, '0');
                 return `${day}/${month}`;
             };
-            
             weekRangeDisplay.textContent = `${formatDay(currentWeekStart)} - ${formatDay(weekEnd)}/${currentWeekStart.getFullYear()}`;
         }
-        
-        function updateDateNavItems() {
-            const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            dateItems.forEach((item, index) => {
-                const itemDate = new Date(currentWeekStart);
-                itemDate.setDate(currentWeekStart.getDate() + index);
-                
-                const day = itemDate.getDate();
-                const month = itemDate.getMonth() + 1;
-                const year = itemDate.getFullYear();
-                const dayOfWeek = days[itemDate.getDay()];
-                const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                
-                item.dataset.date = formattedDate;
-                
-                const itemDiv = item.querySelector('div');
-                const paragraphs = item.querySelectorAll('p');
-                
-                paragraphs[0].textContent = dayOfWeek;
-                paragraphs[1].textContent = day.toString().padStart(2, '0');
-                paragraphs[2].textContent = `${month.toString().padStart(2, '0')}/${year.toString().slice(-2)}`;
-                
-                // Kiểm tra nếu là ngày hiện tại
-                const isToday = itemDate.getTime() === today.getTime();
-                const isSelected = formattedDate === document.getElementById('date-picker').value;
-                
-                // Cập nhật trạng thái
-                itemDiv.classList.remove('border-blue-500', 'bg-blue-50');
-                paragraphs.forEach(p => p.classList.remove('text-blue-600'));
-                
-                if (isSelected || (isToday && !isSelected)) {
-                    itemDiv.classList.add('border-blue-500', 'bg-blue-50');
-                    paragraphs.forEach(p => p.classList.add('text-blue-600'));
-                    
-                    // Cập nhật ngày đã chọn nếu là hôm nay
-                    if (isToday && !isSelected) {
-                        document.getElementById('date-picker').value = formattedDate;
-                    }
-                }
+        updateWeekDisplay();
+        renderWeekDays(currentWeekStart, selectedDate);
+        prevWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+            updateWeekDisplay();
+            renderWeekDays(currentWeekStart, document.getElementById('date-picker').value);
+        });
+        nextWeekBtn.addEventListener('click', () => {
+            currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+            updateWeekDisplay();
+            renderWeekDays(currentWeekStart, document.getElementById('date-picker').value);
+        });
+    }
+
+    function renderWeekDays(currentWeekStart, selectedDateStr) {
+        const container = document.getElementById('date-nav-container');
+        if (!container) return;
+        container.innerHTML = '';
+        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        for (let i = 0; i < 7; i++) {
+            const itemDate = new Date(currentWeekStart);
+            itemDate.setDate(currentWeekStart.getDate() + i);
+            const day = itemDate.getDate();
+            const month = itemDate.getMonth() + 1;
+            const year = itemDate.getFullYear();
+            const dayOfWeek = days[itemDate.getDay()];
+            const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+            const isSelected = formattedDate === selectedDateStr;
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'date-nav-item';
+            itemDiv.dataset.date = formattedDate;
+            itemDiv.innerHTML = `<div class="text-center p-2 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors">
+                <p class="text-xs font-medium ${isSelected ? 'text-blue-600' : 'text-gray-500'}">${dayOfWeek}</p>
+                <p class="text-lg font-bold ${isSelected ? 'text-blue-600' : ''}">${day.toString().padStart(2, '0')}</p>
+                <p class="text-xs ${isSelected ? 'text-blue-600' : 'text-gray-500'}">${month.toString().padStart(2, '0')}/${year.toString().slice(-2)}</p>
+            </div>`;
+            if (isSelected) {
+                itemDiv.querySelector('div').classList.add('border-blue-500', 'bg-blue-50');
+            }
+            itemDiv.addEventListener('click', function() {
+                document.getElementById('date-picker').value = formattedDate;
+                renderWeekDays(currentWeekStart, formattedDate);
+                loadShowtimes(formattedDate);
+                updateAddShowtimeButtonVisibility();
             });
-        }
-        
-        // Lấy ngày thứ hai của tuần hiện tại
-        function getMonday(date) {
-            const day = date.getDay();
-            const diff = date.getDate() - day + (day === 0 ? -6 : 1); // adjust for Sunday
-            const monday = new Date(date);
-            monday.setDate(diff);
-            monday.setHours(0, 0, 0, 0);
-            return monday;
+            container.appendChild(itemDiv);
         }
     }
 
@@ -870,6 +849,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    function getMonday(date) {
+        const day = date.getDay();
+        const diff = date.getDate() - day + (day === 0 ? -6 : 1); // adjust for Sunday
+        const monday = new Date(date);
+        monday.setDate(diff);
+        monday.setHours(0, 0, 0, 0);
+        return monday;
+    }
+
     // Khởi tạo navigation theo tuần (Phương án 1)
     if (document.getElementById('prev-week')) {
         initWeekNavigation();
@@ -879,4 +867,27 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('prev-period')) {
         initSevenDayNavigation();
     }
+
+    function updateAddShowtimeButtonVisibility() {
+        const btnAddShowtime = document.getElementById('btn-add-showtime');
+        const datePicker = document.getElementById('date-picker');
+        if (!btnAddShowtime || !datePicker) return;
+        const selectedDate = new Date(datePicker.value);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        selectedDate.setHours(0,0,0,0);
+        if (selectedDate < today) {
+            btnAddShowtime.style.display = 'none';
+        } else {
+            btnAddShowtime.style.display = '';
+        }
+    }
+
+    // Gọi hàm này khi chọn ngày hoặc khi load trang
+    if (document.getElementById('date-picker')) {
+        updateAddShowtimeButtonVisibility();
+        document.getElementById('date-picker').addEventListener('change', updateAddShowtimeButtonVisibility);
+    }
+
+    // Trong các hàm điều hướng tuần/ngày, sau khi cập nhật ngày, cũng gọi updateAddShowtimeButtonVisibility();
 });

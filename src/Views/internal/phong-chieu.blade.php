@@ -501,7 +501,7 @@
     </div>
 
     <!-- Cinema screens list -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg" style="min-height: 300px;">
         <ul class="divide-y divide-gray-200" id="rooms-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
             <li class="px-6 py-4 flex items-center justify-center">
                 <div class="flex items-center text-gray-500">
