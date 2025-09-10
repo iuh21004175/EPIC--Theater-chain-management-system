@@ -9,88 +9,17 @@
 <body class="bg-gray-50 text-gray-800 font-sans">
 @include('customer.layout.header')
 <main>
-    <section class="container mx-auto max-w-screen-xl px-4">
-       <div class="relative w-full h-72 md:h-80 lg:h-96 bg-black">
-        <img src="https://cdn.galaxycine.vn/media/2025/8/14/mua-do-500_1755156035605.jpg" 
-             alt="Mưa Đỏ Poster" 
-             class="w-full h-full object-cover opacity-70">
-        <div class="absolute inset-0 poster-overlay"></div>
-        <div class="absolute inset-0 flex items-center justify-center">
-            <button type="button" 
-                        data-url="https://www.youtube.com/embed/-Ir9rPvqwuw?si=WMWP6j-Z5XtVVKs6"
-                        class="trailer-btn flex items-center justify-center w-[320px] h-[100px]  rounded-lg text-white font-semibold px-4 py-2 text-sm transition-all duration-300">
-                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" 
-                            class="w-12 h-12 mr-3" role="img" xmlns="http://www.w3.org/2000/svg" 
-                            viewBox="0 0 512 512">
-                            <path fill="currentColor" 
-                                d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 
-                                147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 
-                                4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 
-                                11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5 
-                                -16.7-4.7-24.3-.5z"></path>
-                        </svg>
-                    </button>
-        </div>
-        </div>
-
-    <div class="container mx-auto max-w-4xl px-4 mt-6 relative">
-        <div class="flex flex-col md:flex-row gap-8">
-            <div class="w-full md:w-1/3 flex-shrink-0 -mt-16 md:-mt-24">
-                <img src="https://cdn.galaxycine.vn/media/2025/8/14/mua-do-500_1755156035605.jpg" 
-                     alt="Mưa Đỏ Poster" 
-                     class="w-full rounded-xl shadow-lg">
-            </div>
-
-            <div class="w-full md:w-2/3 bg-white rounded-xl shadow-lg p-6">
-                <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
-                    <div>
-                        <h1 class="text-3xl md:text-4xl font-bold flex items-center gap-2">
-                            Mưa Đỏ
-                            <span class="text-sm px-2 py-1 bg-red-600 text-white font-bold rounded">T13</span>
-                        </h1>
-
-                        <!-- Dòng thông tin bổ sung -->
-                        <div class="text-gray-600 mt-1 text-sm md:text-base">
-                            <span class="mr-4"><strong>Thời lượng:</strong> 133 phút</span>
-                            <span><strong>Khởi chiếu:</strong> 27/08/2025</span>
-                        </div>
-
-                        <!-- Đánh giá sao -->
-                        <div class="flex items-center mt-2">
-                            <!-- Ngôi sao vàng -->
-                            <svg class="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 576 512">
-                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/>
-                            </svg>
-                            <span class="text-gray-800 font-semibold text-sm md:text-base">4.6 (300 votes)</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-sm text-gray-700 space-y-1">
-                    <p><strong>Quốc gia:</strong> Việt Nam</p>
-                    <p><strong>Nhà sản xuất:</strong> Bluebells Studios</p>
-                    <p><strong>Thể loại:</strong> Hành Động, Tâm Lý, Tình Cảm</p>
-                    <p><strong>Đạo diễn:</strong> Đặng Thái Huyền</p>
-                    <p><strong>Diễn viên:</strong> Diệp Bảo Ngọc, Vô Tấn Phát</p>
-                </div>
-            </div>
-        </div>
+    <section id="thongTinPhim" class="container mx-auto max-w-screen-xl px-4">
+        <!-- Thông tin phim sẽ load ở đây -->
     </section>
 
     <!-- Nội dung phim -->
+    <section id="noiDungPhim" class="w-full px-4 mt-8">
+        <!-- Nội dung phim sẽ load ở đây -->
+    </section>
+
     <section class="w-full px-4 mt-8">
         <div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
-            <div class="flex items-center mb-2">
-                <div class="w-1 h-6 bg-red-600 mr-2"></div>
-                <h3 class="text-xl font-bold">Nội dung phim</h3>
-            </div>
-            <p class="text-gray-700">
-                Một bộ phim về cuộc chiến đấu ác liệt của những người lính Điện ảnh Quân đội Nhân dân. Họ không chỉ cầm súng mà còn ghi lại những hình ảnh lịch sử, những khoảnh khắc bi tráng trên chiến trường. Bộ phim tái hiện chân thực sự hy sinh và lòng dũng cảm của thế hệ đi trước.
-            </p>
-        </div>
-    </section>
-   <section class="w-full px-4 mt-8">
-    <div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
         <div class="flex items-center mb-4">
             <div class="w-1 h-6 bg-red-600 mr-2"></div>
             <h3 class="text-xl font-bold">Lịch Chiếu</h3>
@@ -255,6 +184,45 @@
 </div>
 
 <script>
+    const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}"; 
+    const trailerModal = document.getElementById("trailerModal");
+  const closeModal = document.getElementById("closeModal");
+  const trailerIframe = document.getElementById("trailerIframe");
+
+  // bắt sự kiện tất cả nút Trailer
+  document.querySelectorAll(".trailer-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const url = btn.getAttribute("data-url");
+      trailerIframe.src = url + "&autoplay=1";
+      trailerModal.classList.remove("hidden");
+    });
+  });
+
+  // đóng modal
+  closeModal.addEventListener("click", () => {
+    trailerModal.classList.add("hidden");
+    trailerIframe.src = "";
+  });
+
+  // bấm ra ngoài cũng đóng
+  trailerModal.addEventListener("click", (e) => {
+    if (e.target === trailerModal) {
+      trailerModal.classList.add("hidden");
+      trailerIframe.src = "";
+    }
+  });
+
+    function youtubeEmbed(url) {
+        if (!url) return "";
+        // match dạng full youtube hoặc rút gọn
+        const regex = /(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/;
+        const match = url.match(regex);
+        if (match && match[1]) {
+            return "https://www.youtube.com/embed/" + match[1];
+        }
+        return url; // fallback nếu không khớp
+    }
+
     const rapSelect = document.getElementById('rapSelect');
     if (rapSelect) {
         fetch(baseUrl + "/api/rap-phim-khach")
@@ -311,6 +279,98 @@
         form.classList.add('hidden');
         });
     });
+
+    function loadThongTinPhim(phim) {
+    const html = `
+        <div class="relative w-full h-72 md:h-80 lg:h-96 bg-black">
+            <img src="${urlMinio}/${phim.poster_url}" alt="${phim.ten_phim}" class="w-full h-full object-cover opacity-70">
+            <div class="absolute inset-0 poster-overlay"></div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <button type="button" 
+                        data-url="${youtubeEmbed(phim.trailer_url)}"
+                        class="trailer-btn flex items-center justify-center w-[320px] h-[100px]  rounded-lg text-white font-semibold px-4 py-2 text-sm transition-all duration-300">
+                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" 
+                            class="w-12 h-12 mr-3" role="img" xmlns="http://www.w3.org/2000/svg" 
+                            viewBox="0 0 512 512">
+                            <path fill="currentColor" 
+                                d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 
+                                147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 
+                                4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 
+                                11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5 
+                                -16.7-4.7-24.3-.5z"></path>
+                        </svg>
+                </button>
+            </div>
+        </div>
+        <div class="container mx-auto max-w-4xl px-4 mt-6 relative">
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="w-full md:w-1/3 flex-shrink-0 -mt-16 md:-mt-24">
+                    <img src="${urlMinio}/${phim.poster_url}"  alt="${phim.ten_phim}" class="w-full rounded-xl shadow-lg">
+                </div>
+                <div class="w-full md:w-2/3 bg-white rounded-xl shadow-lg p-6">
+                    <h1 class="text-3xl md:text-4xl font-bold flex items-center gap-2">
+                        ${phim.ten_phim} <span class="text-sm px-2 py-1 bg-red-600 text-white font-bold rounded">${phim.do_tuoi}</span>
+                    </h1>
+                    <div class="text-gray-600 mt-1 text-sm md:text-base">
+                        <span class="mr-4"><strong>Thời lượng:</strong> ${phim.thoi_luong} phút</span>
+                        <span><strong>Khởi chiếu:</strong> ${new Date(phim.ngay_cong_chieu).toLocaleDateString("vi-VN")}</span>
+                    </div>
+                    <div class="flex items-center mt-2">
+                            
+                            <svg class="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 576 512">
+                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/>
+                            </svg>
+                            <span class="text-gray-800 font-semibold text-sm md:text-base">4.6 (300 votes)</span>
+                        </div>
+                    <div class="text-sm text-gray-700 space-y-1 mt-2">
+                        <p><strong>Quốc gia:</strong> ${phim.quoc_gia}</p>
+                        <p><strong>Thể loại:</strong> ${phim.the_loai.map(item => item.the_loai.ten).join(", ")}</p>
+                        <p><strong>Đạo diễn:</strong> ${phim.dao_dien}</p>
+                        <p><strong>Diễn viên:</strong> ${phim.dien_vien}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    document.getElementById('thongTinPhim').innerHTML = html;
+    // Gắn sự kiện trailer
+    document.querySelectorAll(".trailer-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+        const url = btn.getAttribute("data-url");
+        if (url) {
+            trailerIframe.src = url + (url.includes("?") ? "&" : "?") + "autoplay=1";
+            trailerModal.classList.remove("hidden");
+        }
+        });
+    });
+    }
+    function loadNoiDungPhim(phim) {
+        const html =`
+        <div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center mb-2">
+                <div class="w-1 h-6 bg-red-600 mr-2"></div>
+                <h3 class="text-xl font-bold">Nội dung phim</h3>
+            </div>
+            <p class="text-gray-700">
+                ${phim.mo_ta}
+            </p>
+        </div>
+        `;
+        document.getElementById('noiDungPhim').innerHTML = html;
+    }
+
+    const pathParts = window.location.pathname.split("/");
+    const idPhim = pathParts[pathParts.length - 1];
+
+        fetch(`${baseUrl}/api/dat-ve/${idPhim}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    loadThongTinPhim(data.data);
+                    loadNoiDungPhim(data.data);
+                }
+            })
+            .catch(err => console.error("Lỗi load phim:", err));
     </script>
 </body>
 </html>

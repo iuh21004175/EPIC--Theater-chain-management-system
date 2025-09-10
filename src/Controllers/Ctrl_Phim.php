@@ -151,7 +151,22 @@
             }
         }
 
-
+        public function docChiTietPhim($argc)
+        {
+            $service = new Sc_Phim();
+            try {
+                $result = $service->docChiTietPhim($argc['id']);
+                return [
+                    'success' => true,
+                    'data' => $result['data']
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải chi tiết phim: ' . $e->getMessage()
+                ];
+            }
+        }
         public function suaPhim($argc){
             $service = new Sc_Phim();
             try {

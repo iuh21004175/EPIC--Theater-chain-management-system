@@ -46,6 +46,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/reset-pass', [Ctrl_XacThucCustomer::class, 'ResetPass']);
     $r->addRoute('GET', '/loai-phim', [Ctrl_Phim::class, 'docTheLoaiPhim']);
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'docPhimKH']);
+    $r->addRoute('GET', '/dat-ve/{id}', [Ctrl_Phim::class, 'docChiTietPhim']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

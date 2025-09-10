@@ -261,7 +261,7 @@
             .then(res => res.json())
             .then(data => {
                 if (rapSelect) {
-                    rapSelect.innerHTML = `<option value="">Chọn rạp</option>`;
+                    rapSelect.innerHTML = `<option value="">--- Chọn rạp ---</option>`;
                 }
 
                 if (data.success && data.data.length > 0) {
@@ -283,6 +283,40 @@
                 console.error("Lỗi load rạp:", err);
                 if (rapSelect) {
                     rapSelect.innerHTML = `<option value="">Lỗi tải rạp</option>`;
+                }
+            });
+    }
+
+    const movieSelect = document.getElementById('movie');
+    if (movieSelect) {
+        fetch(baseUrl + "/api/phim")
+            .then(res => res.json())
+            .then(data => {
+                if (movieSelect) {
+                    movieSelect.innerHTML = `<option value="">--- Chọn phim ---</option>`;
+                }
+
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(phim => {
+                        const option = document.createElement("option");
+                        option.value = phim.ten_phim;
+                        option.textContent = phim.ten_phim;
+                        // option.setAttribute("data-age", phim.do_tuoi);
+                        // option.setAttribute("data-img", phim.hinh_anh);
+                        if (movieSelect) {
+                            movieSelect.appendChild(option);
+                        }
+                    });
+                } else {
+                    if (movieSelect) {
+                        movieSelect.innerHTML = `<option value="">Không có phim nào</option>`;
+                    }
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi load phim:", err);
+                if (movieSelect) {
+                    movieSelect.innerHTML = `<option value="">Lỗi tải phim</option>`;
                 }
             });
     }
