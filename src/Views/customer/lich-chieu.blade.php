@@ -37,7 +37,7 @@
     </div>
 
     <!-- Bước 1: Chọn phim -->
-    <div id="step-1" class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
+    <div id="step-1" class="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-md mt-10" onsubmit="return checkLogin();">
         <h2 class="text-2xl font-bold mb-6 text-red-600">Chọn phim / Rạp / Suất</h2>
 
         <div class="mb-4">
@@ -253,7 +253,8 @@
     <div class="mt-16">
         @include('customer.layout.footer')
     </div>
-    <script>
+<script>
+
     const rapSelect = document.getElementById('theater');
     if (rapSelect) {
         fetch(baseUrl + "/api/rap-phim-khach")
@@ -285,7 +286,7 @@
                 }
             });
     }
-    </script>
+</script>
 
 </body>
 

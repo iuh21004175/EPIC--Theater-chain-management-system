@@ -87,7 +87,7 @@
     <!-- Phim được xem nhiều nhất -->
     <section class="container mx-auto max-w-screen-xl px-4 py-16">
         <h2 class="text-3xl font-bold text-center mb-10">Phim Được Xem Nhiều Nhất</h2>
-        <hr class="border-t-2 border-red-500 w-48 mx-auto mb-10">>
+        <hr class="border-t-2 border-red-500 w-48 mx-auto mb-10">
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             <div class="relative rounded-xl overflow-hidden shadow-lg group">
                 <img src="https://res.cloudinary.com/dtkm5uyx1/image/upload/v1756787663/mua-do-500_1755156035605_amofs8.jpg"

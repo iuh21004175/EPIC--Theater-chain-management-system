@@ -100,7 +100,6 @@
               .then(data => {
                   if (data.success && data.data) {
                       const rap = data.data[0];
-                      console.log(rap);
                       // Gắn vào tiêu đề
                       document.getElementById("rapTen").textContent = rap.ten;
                       document.getElementById("title").textContent = rap.ten;
