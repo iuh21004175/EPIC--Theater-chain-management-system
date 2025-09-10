@@ -168,80 +168,71 @@
 
 
     <!-- Bình luận & đánh giá -->
-    <section class="w-full px-4 mt-8 mb-8">
-        <div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
-            <h3 class="text-xl font-bold mb-4">Bình luận & Đánh giá</h3>
+<section class="w-full px-4 mt-8 mb-8">
+  <div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
+    <h3 class="text-xl font-bold mb-4">Bình luận & Đánh giá</h3>
 
-            <!-- Form bình luận -->
-            <form class="mb-6 space-y-4 p-4 border rounded-lg shadow-sm bg-white" id="commentForm">
-                <!-- Avatar + tên -->
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                        T
-                    </div>
-                    <span class="font-semibold text-gray-800">Tuan Dung</span>
-                </div>
+    <!-- Form bình luận chính -->
+    <form class="mb-6 space-y-4 p-4 border rounded-lg shadow-sm bg-white" id="commentForm">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">T</div>
+        <span class="font-semibold text-gray-800">Tuan Dung</span>
+      </div>
 
-                <!-- Đánh giá sao -->
-                <div class="flex items-center gap-2">
-                    <span class="text-sm font-medium">Đánh giá:</span>
-                    <div class="flex gap-1" id="starRating">
-                        <button type="button" data-value="1" class="text-2xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
-                        <button type="button" data-value="2" class="text-2xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
-                        <button type="button" data-value="3" class="text-2xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
-                        <button type="button" data-value="4" class="text-2xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
-                        <button type="button" data-value="5" class="text-2xl text-gray-300 hover:text-yellow-400 transition-colors">★</button>
-                    </div>
-                    <span id="ratingValue" class="ml-2 font-semibold text-gray-700">5</span>
-                </div>
-
-                <!-- Bình luận -->
-                <textarea placeholder="Viết bình luận của bạn..." name="comment" rows="3"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400" required></textarea>
-
-                <!-- Nút gửi -->
-               <div class="mt-4 flex justify-end">
-                <button type="submit"
-                    class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow hover:bg-red-600 transition-colors duration-300">
-                    Gửi bình luận
-                </button>
-                </div>
-            </form>
-
-            <!-- Danh sách bình luận -->
-            <div class="space-y-4">
-                <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                        A
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-semibold">An Nguyen</span>
-                            <div class="flex text-yellow-400">
-                                ★★★★☆
-                            </div>
-                        </div>
-                        <p class="text-gray-700">Phim rất hay, cảnh quay đẹp và cảm xúc mãnh liệt!</p>
-                    </div>
-                </div>
-
-                <div class="flex flex-col md:flex-row items-start md:items-center gap-4">
-                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                        L
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex items-center justify-between mb-1">
-                            <span class="font-semibold">Linh Tran</span>
-                            <div class="flex text-yellow-400">
-                                ★★★★★
-                            </div>
-                        </div>
-                        <p class="text-gray-700">Một trong những bộ phim Việt xuất sắc nhất tôi từng xem!</p>
-                    </div>
-                </div>
-            </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium">Đánh giá:</span>
+        <div class="flex gap-1" id="starRating">
+          <button type="button" data-value="1" class="text-2xl text-gray-300 hover:text-yellow-400">★</button>
+          <button type="button" data-value="2" class="text-2xl text-gray-300 hover:text-yellow-400">★</button>
+          <button type="button" data-value="3" class="text-2xl text-gray-300 hover:text-yellow-400">★</button>
+          <button type="button" data-value="4" class="text-2xl text-gray-300 hover:text-yellow-400">★</button>
+          <button type="button" data-value="5" class="text-2xl text-gray-300 hover:text-yellow-400">★</button>
         </div>
-    </section>
+        <span id="ratingValue" class="ml-2 font-semibold text-gray-700">5</span>
+      </div>
+
+      <textarea placeholder="Viết bình luận của bạn..." name="comment" rows="3"
+        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400" required></textarea>
+
+      <div class="mt-4 flex justify-end">
+        <button type="submit"
+          class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow hover:bg-red-600">Gửi bình luận</button>
+      </div>
+    </form>
+
+    <!-- Danh sách bình luận -->
+    <div id="commentList" class="space-y-4">
+
+      <!-- Comment mẫu -->
+      <div class="comment flex flex-col md:flex-row items-start md:items-center gap-4">
+        <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">A</div>
+        <div class="flex-1">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-semibold">An Nguyen</span>
+            <div class="flex text-yellow-400">★★★★☆</div>
+          </div>
+          <p class="text-gray-700">Phim rất hay, cảnh quay đẹp và cảm xúc mãnh liệt!</p>
+          <button class="text-sm text-red-500 mt-1 replyBtn">Trả lời</button>
+
+          <!-- Khung reply (ẩn ban đầu) -->
+          <form class="replyForm mt-2 space-y-2 hidden">
+            <textarea placeholder="Viết trả lời..." rows="2"
+              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400"></textarea>
+            <div class="flex justify-end">
+              <button type="submit"
+                class="px-4 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 text-sm">Gửi</button>
+            </div>
+          </form>
+
+          <!-- Reply list -->
+          <div class="replies ml-6 mt-2 space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Có thể thêm nhiều comment tương tự -->
+    </div>
+  </div>
+</section>
 
 </main>
 @include('customer.layout.footer')
@@ -298,6 +289,28 @@
                 }
             });
     }
+    
+    document.querySelectorAll('.replyBtn').forEach(btn => {
+        btn.addEventListener('click', () => {
+        const form = btn.nextElementSibling;
+        form.classList.toggle('hidden');
+        });
+    });
+
+    // Handle submit reply
+    document.querySelectorAll('.replyForm').forEach(form => {
+        form.addEventListener('submit', e => {
+        e.preventDefault();
+        const textarea = form.querySelector('textarea');
+        if (textarea.value.trim() === '') return;
+        const replyDiv = document.createElement('div');
+        replyDiv.className = 'bg-gray-100 p-2 rounded-lg text-gray-700';
+        replyDiv.textContent = textarea.value;
+        form.parentElement.querySelector('.replies').appendChild(replyDiv);
+        textarea.value = '';
+        form.classList.add('hidden');
+        });
+    });
     </script>
 </body>
 </html>

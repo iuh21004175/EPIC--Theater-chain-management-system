@@ -5,7 +5,7 @@
   <title>Blog Điện Ảnh</title>
   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-50 text-gray-800 font-sans">
 @include('customer.layout.header')
   <div class="max-w-5xl mx-auto p-6">
     <!-- Header -->
@@ -49,7 +49,7 @@
           <span class="text-gray-500 text-sm">👁 161</span>
         </div>
       </div>
-    </div>
+    </a>
   </div>
   @include('customer.layout.footer')
 </body>

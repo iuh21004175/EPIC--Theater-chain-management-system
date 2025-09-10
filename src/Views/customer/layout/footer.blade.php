@@ -52,9 +52,9 @@
                         </svg>
                     </a>
                 </div>
-                <a href="http://online.gov.vn/Home/WebDetails/2110" target="_blank" rel="noopener noreferrer">
+                <!-- <a href="http://online.gov.vn/Home/WebDetails/2110" target="_blank" rel="noopener noreferrer">
                     <img src="http://online.gov.vn/PublicImages/img-logo-bocongthuong.png" alt="Bộ Công Thương" class="h-16">
-                </a>
+                </a> -->
             </div>
         </div>
 
@@ -63,8 +63,7 @@
                 <div class="flex items-center mb-4 md:mb-0">
                     <div class="space-y-1">
                         <h4 class="font-bold text-white">CÔNG TY TNHH EPIC CINEMA VIỆT NAM</h4>
-                        <p>Địa chỉ: Tầng 1, Toà nhà Capital, 109 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội.</p>
-                        <p>Giấy CNĐKDN: 0315333333, cấp bởi Sở KHĐT thành phố Hà Nội.</p>
+                        <p>Địa chỉ: Số 12 Nguyễn Văn Bảo, P. Hạnh Thông, Thành phố Hồ Chí Minh</p>
                     </div>
                 </div>
                 <p class="mt-4 md:mt-0 text-left md:text-right shrink-0">&copy; 2025 EPIC Cinema. All Rights Reserved.</p>

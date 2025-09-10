@@ -238,7 +238,7 @@ class Ctrl_XacThucCustomer
             $mail->Body = "
                 <p>Xin chào,</p>
                 <p>Bạn vừa gửi yêu cầu <b>lấy lại mật khẩu</b>.</p>
-                <p>Vui lòng truy cập: <b>{$linkPassword}</b> để thực hiện cập nhật mật khẩu mới</p>
+                <p>Vui lòng truy cập: <b>{$linkPassword}</b> để thực hiện cập nhật mật khẩu mới!</p>
             ";
 
             $mail->send();

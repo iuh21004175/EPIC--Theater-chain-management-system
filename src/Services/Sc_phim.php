@@ -130,6 +130,34 @@
                 'current_page' => $page
             ];
         }
+
+        public function docPhimKH($tuKhoaTimKiem = null, $theLoaiId = null)
+        {
+            $query = Phim::with(['TheLoai.TheLoai']); // load quan hệ
+
+            // tìm kiếm theo từ khóa
+            if ($tuKhoaTimKiem) {
+                $query->where(function ($q) use ($tuKhoaTimKiem) {
+                    $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
+                    ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
+                    ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
+                });
+            }
+
+            // lọc theo thể loại
+            if ($theLoaiId) {
+                $query->whereHas('TheLoai', function ($q) use ($theLoaiId) {
+                    $q->where('theloai_id', $theLoaiId);
+                });
+            }
+
+            $phims = $query->orderBy('id', 'desc')->get();
+
+            return [
+                'data' => $phims
+            ];
+        }
+
         public function suaPhim($id){
            
             $bucket = "poster";
