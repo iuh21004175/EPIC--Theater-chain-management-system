@@ -74,7 +74,7 @@
                     'thoi_luong' => $thoiLuong,
                     'do_tuoi' => $doTuoi,
                     'quoc_gia' => $quocGia,
-                    'poster_url' => $bucket/$keyName,
+                    'poster_url' => $bucket.'/'.$keyName,
                     'trailer_url' => $trailerUrl,
                     'trang_thai' => $trangThai,
                 ]);
@@ -207,7 +207,7 @@
                     'thoi_luong' => $thoiLuong,
                     'do_tuoi' => $doTuoi,
                     'quoc_gia' => $quocGia,
-                    'poster_url' => empty($fileExtension) ? $phimCu->poster_url : $bucket/$keyName,
+                    'poster_url' => empty($fileExtension) ? $phimCu->poster_url : $bucket.'/'.$keyName,
                     'trailer_url' => $trailerUrl,
                     'trang_thai' => $trangThai,
                 ]);

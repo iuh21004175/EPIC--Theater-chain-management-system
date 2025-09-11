@@ -23,6 +23,9 @@
         public function soDoGhe() {
             return $this->hasMany(SoDoGhe::class, 'phongchieu_id', 'id');
         }
+        public function suatChieu() {
+            return $this->hasMany(SuatChieu::class, 'id_phongchieu', 'id');
+        }
         public function capNhatSoLuongGhe() {
             $this->so_luong_ghe = $this->soDoGhe()->whereNotNull('loaighe_id')->count();
             $this->save();

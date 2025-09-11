@@ -8,6 +8,7 @@ use App\Controllers\Ctrl_KhachHang;
 use App\Controllers\Ctrl_Phim;
 use App\Controllers\Ctrl_Ghe;
 use App\Controllers\Ctrl_PhongChieu;
+use App\Controllers\Ctrl_SuatChieu;
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
     $r->addRoute('POST', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'themTaiKhoan', ['Admin']]);
@@ -35,6 +36,10 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/phong-chieu', [Ctrl_PhongChieu::class, 'themPhongChieu', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/phong-chieu/{id:\d+}', [Ctrl_PhongChieu::class, 'capNhatPhongChieu', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phong-chieu', [Ctrl_PhongChieu::class, 'docPhongChieu', ['Quản lý rạp']]);
+    $r->addRoute('POST', '/suat-chieu', [Ctrl_SuatChieu::class, 'themSuatChieu', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/suat-chieu', [Ctrl_SuatChieu::class, 'docSuatChieu', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/suat-chieu/tao-khung-gio-goi-y', [Ctrl_SuatChieu::class, 'taoKhungGioGoiY', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/suat-chieu/kiem-tra-hop-le', [Ctrl_SuatChieu::class, 'kiemTraSuatChieuHopLe', ['Quản lý rạp']]);
     //Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('POST', '/dang-nhap-khach-hang', [Ctrl_XacThucCustomer::class, 'dangNhap']);

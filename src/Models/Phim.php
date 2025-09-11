@@ -27,4 +27,7 @@ class Phim extends Model
     public function TheLoai() {
          return $this->hasMany(Phim_TheLoai::class, 'phim_id', 'id');
     }
+    public function suatchieu() {
+        return $this->hasMany(SuatChieu::class, 'id_phim', 'id');
+    }
 }

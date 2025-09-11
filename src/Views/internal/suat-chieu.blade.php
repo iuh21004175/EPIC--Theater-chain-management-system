@@ -4,6 +4,8 @@
 
 @section('head')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/suat-chieu.js"></script>
 <style>
     .flatpickr-calendar {
         z-index: 9999 !important;
@@ -77,17 +79,16 @@
 
     <!-- Modal thêm/cập nhật suất chiếu -->
     <div id="showtime-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 id="modal-title" class="text-xl font-bold text-gray-900">Thêm suất chiếu mới</h2>
-                    <button id="btn-close-modal" class="text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 id="modal-title" class="text-xl font-bold text-gray-900">Thêm suất chiếu mới</h2>
+                <button id="btn-close-modal" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="overflow-y-auto px-6 py-4 flex-1 max-h-[60vh]">
                 <form id="showtime-form">
                     <input type="hidden" id="showtime-id" name="id" value="">
                     <input type="hidden" id="showtime-date" name="date" value="">
@@ -142,13 +143,11 @@
                             <!-- Các khung giờ sẽ được tạo bằng JavaScript -->
                         </div>
                     </div>
-
-                    <!-- Nút lưu -->
-                    <div class="flex justify-end space-x-3 mt-6">
-                        <button type="button" id="btn-cancel" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md">Hủy</button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">Lưu</button>
-                    </div>
                 </form>
+            </div>
+            <div class="flex justify-end space-x-3 mt-6 px-6 py-3 border-t">
+                <button type="button" id="btn-cancel" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md">Hủy</button>
+                <button type="submit" form="showtime-form" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">Lưu</button>
             </div>
         </div>
     </div>
@@ -173,6 +172,5 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="{{$_ENV['URL_INTERNAL_BASE']}}/js/suat-chieu.js"></script>
+
 @endsection

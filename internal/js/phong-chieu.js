@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function loadRooms() {
         // Hiển thị spinner
         const spinner = Spinner.show({
-            target: roomsList,
+            target: document.getElementById('box-list'),
             text: 'Đang tải danh sách phòng chiếu...'
         });
 

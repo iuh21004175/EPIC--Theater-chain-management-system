@@ -501,12 +501,11 @@
     </div>
 
     <!-- Cinema screens list -->
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg" style="min-height: 300px;">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg" id="box-list" style="min-height: 300px;">
         <ul class="divide-y divide-gray-200" id="rooms-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
             <li class="px-6 py-4 flex items-center justify-center">
                 <div class="flex items-center text-gray-500">
-                    <div class="loading mr-3"></div>
-                    <span>Đang tải dữ liệu...</span>
+                    
                 </div>
             </li>
         </ul>
@@ -523,6 +522,7 @@
                         <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
                             <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                             <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
