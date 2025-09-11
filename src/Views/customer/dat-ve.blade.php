@@ -186,31 +186,31 @@
 <script>
     const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}"; 
     const trailerModal = document.getElementById("trailerModal");
-  const closeModal = document.getElementById("closeModal");
-  const trailerIframe = document.getElementById("trailerIframe");
+    const closeModal = document.getElementById("closeModal");
+    const trailerIframe = document.getElementById("trailerIframe");
 
-  // bắt sự kiện tất cả nút Trailer
-  document.querySelectorAll(".trailer-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const url = btn.getAttribute("data-url");
-      trailerIframe.src = url + "&autoplay=1";
-      trailerModal.classList.remove("hidden");
+    // bắt sự kiện tất cả nút Trailer
+    document.querySelectorAll(".trailer-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+        const url = btn.getAttribute("data-url");
+        trailerIframe.src = url + "&autoplay=1";
+        trailerModal.classList.remove("hidden");
+        });
     });
-  });
 
-  // đóng modal
-  closeModal.addEventListener("click", () => {
-    trailerModal.classList.add("hidden");
-    trailerIframe.src = "";
-  });
+    // đóng modal
+    closeModal.addEventListener("click", () => {
+        trailerModal.classList.add("hidden");
+        trailerIframe.src = "";
+    });
 
-  // bấm ra ngoài cũng đóng
-  trailerModal.addEventListener("click", (e) => {
-    if (e.target === trailerModal) {
-      trailerModal.classList.add("hidden");
-      trailerIframe.src = "";
-    }
-  });
+    // bấm ra ngoài cũng đóng
+    trailerModal.addEventListener("click", (e) => {
+        if (e.target === trailerModal) {
+        trailerModal.classList.add("hidden");
+        trailerIframe.src = "";
+        }
+    });
 
     function youtubeEmbed(url) {
         if (!url) return "";
@@ -360,7 +360,10 @@
     }
 
     const pathParts = window.location.pathname.split("/");
-    const idPhim = pathParts[pathParts.length - 1];
+    const slugWithId = pathParts[pathParts.length - 1]; 
+
+    // lấy ID sau dấu '-'
+    const idPhim = slugWithId.split("-").pop();
 
         fetch(`${baseUrl}/api/dat-ve/${idPhim}`)
             .then(res => res.json())

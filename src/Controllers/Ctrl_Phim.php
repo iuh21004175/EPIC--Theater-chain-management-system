@@ -151,6 +151,21 @@
             }
         }
 
+        public function docPhimMoiNhat() {
+            $service = new Sc_Phim();
+            try {
+                $result = $service->docPhimMoiNhat();
+                return [
+                    'success' => true,
+                    'data' => $result['data']
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải phim mới nhất: ' . $e->getMessage()
+                ];
+            }
+        }
         public function docChiTietPhim($argc)
         {
             $service = new Sc_Phim();

@@ -158,6 +158,16 @@
             ];
         }
 
+        public function docPhimMoiNhat() {
+            $phims = Phim::with(['TheLoai.TheLoai'])
+                        ->orderBy('id', 'desc') 
+                        ->take(4) // lấy 4 phim
+                        ->get();
+
+            return [
+                'data' => $phims
+            ];
+        }
         public function docChiTietPhim($id)
         {
             $phim = Phim::with(['TheLoai.TheLoai'])->find($id);
