@@ -129,5 +129,29 @@
                 ->orderBy('batdau', 'desc')->get();
             return $suatChieu;
         }
+
+       public function docSuatChieuKH($ngay = null, $idPhim)
+        {
+            $query = SuatChieu::with(['phim', 'phongChieu.rapChieuPhim'])
+                ->where('id_phim', $idPhim);
+
+            if ($ngay) {
+                try {
+                    // Chuẩn hóa ngày về dạng Y-m-d để whereDate khớp
+                    $ngayFormat = Carbon::parse($ngay)->toDateString();
+                    $query->whereDate('batdau', $ngayFormat);
+                } catch (\Exception $e) {
+                    // Nếu ngày sai format thì mặc định lấy từ hôm nay trở đi
+                    $query->whereDate('batdau', '>=', Carbon::today()->toDateString());
+                }
+            } else {
+                // Nếu không có ngày → mặc định lấy từ hôm nay trở đi
+                $query->whereDate('batdau', '>=', Carbon::today()->toDateString());
+            }
+
+            $suatChieu = $query->orderBy('batdau', 'asc')->get();
+
+            return $suatChieu;
+        }
     }
 ?>
