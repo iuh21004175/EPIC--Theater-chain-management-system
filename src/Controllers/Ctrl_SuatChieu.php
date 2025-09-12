@@ -97,6 +97,27 @@
                 ];
             }
         }
+
+        public function docSuatChieuKH(){
+            $service = new Sc_SuatChieu();
+            $ngay = $_GET['ngay'] ?? date('Y-m-d');
+            $idPhim = $_GET['id_phim'] ?? null;
+
+            try{
+                $result = $service->docSuatChieuKH($ngay, $idPhim);
+                return [
+                    'success' => true,
+                    'message' => 'Đọc suất chiếu khách hàng thành công',
+                    'data' => $result
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi đọc suất chiếu khách hàng: ' . $e->getMessage()
+                ];
+            }
+        }
         public function suaSuatChieu($id){
             $service = new Sc_SuatChieu();
             try{

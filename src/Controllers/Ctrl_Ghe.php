@@ -8,6 +8,10 @@
             // Code for the index method
            return view('internal.ghe');
         }
+        public function soDoGhe() {
+            // Code for the index method
+           return view('customer.so-do-ghe');
+        }
         public function themGhe(){
             $service = new Sc_Ghe();
             try {
