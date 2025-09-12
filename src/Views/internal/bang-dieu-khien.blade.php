@@ -106,7 +106,7 @@
                 <span class="text-xs text-center font-medium text-gray-700">Loại ghế</span>
             </a>
             <!-- Quản lý giá vé -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/gia-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý giá vé">
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/gia-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý quy tắc giá vé">
                 <div class="w-12 h-12 flex items-center justify-center bg-green-100 rounded-full mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />

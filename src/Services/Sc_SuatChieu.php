@@ -120,6 +120,12 @@
 
         }
         public function doc($ngay){
+            // Kiểm tra và chuyển đổi ngày nếu có dạng d/m/y sang y-m-d
+            if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $ngay)) {
+                $parts = explode('/', $ngay);
+                // Đảm bảo đúng thứ tự: ngày/tháng/năm -> năm-tháng-ngày
+                $ngay = $parts[2] . '-' . str_pad($parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
+            }
             $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
             $suatChieu = SuatChieu::with('phim', 'phongChieu')
                 ->whereHas('phongChieu', function($query) use ($idRapPhim) {
@@ -128,6 +134,42 @@
                 ->whereDate('batdau', $ngay)
                 ->orderBy('batdau', 'desc')->get();
             return $suatChieu;
+        }
+        public function sua($id){
+            $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+            $suatChieu = SuatChieu::with('phim', 'phongChieu')
+                ->whereHas('phongChieu', function($query) use ($idRapPhim) {
+                    $query->where('id_rapphim', $idRapPhim);
+                })
+                ->where('id', $id)
+                ->first();
+            if (!$suatChieu) {
+                throw new \Exception("Suất chiếu không tồn tại");
+                exit();
+            }
+            $data = file_get_contents('php://input');
+            $json = json_decode($data, true);
+            if (isset($json['id_phim'])) {
+                $phim = Phim::find($json['id_phim']);
+                if (!$phim) {
+                    throw new \Exception("Phim không tồn tại");
+                    exit();
+                }
+                $suatChieu->id_phim = $json['id_phim'];
+                $suatChieu->id_phongchieu = $json['id_phongchieu'] ;
+                $suatChieu->batdau = $json['batdau'];
+                $suatChieu->ketthuc = $json['ketthuc'];
+                $suatChieu->save();
+            }
+        }
+        public function xoa($id){
+            $suatChieu = SuatChieu::find($id);
+
+            if (!$suatChieu) {
+                throw new \Exception("Suất chiếu không tồn tại");
+                exit();
+            }
+            $suatChieu->delete();
         }
     }
 ?>

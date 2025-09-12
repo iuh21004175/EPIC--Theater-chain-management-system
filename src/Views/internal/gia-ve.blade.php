@@ -1,6 +1,6 @@
 @extends('internal.layout')
 
-@section('title', 'Quản lý giá vé')
+@section('title', 'Quản lý quy tắc giá vé')
 
 @section('head')
     <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/gia-ve.js"></script>
@@ -117,262 +117,101 @@
         <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
         </svg>
-        <span class="ml-4 text-gray-500 font-medium">Quản lý giá vé</span>
-    </div>
-</li>
-<li>
-    <div class="flex items-center ml-4 space-x-2">
-        <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-        </svg>
-        <div class="flex rounded-md shadow-sm">
-            <button id="tab-btn-gia-ve" class="tab-btn px-4 py-2 text-sm font-medium rounded-l-md bg-red-600 text-white" aria-current="page">
-                Giá vé gốc
-            </button>
-            <button id="tab-btn-phu-thu" class="tab-btn px-4 py-2 text-sm font-medium rounded-r-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
-                Phụ thu
-            </button>
-        </div>
+        <span class="ml-4 text-gray-500 font-medium">Quản lý quy tắc giá vé</span>
     </div>
 </li>
 @endsection
 
 @section('content')
-<!-- Tab Content Container -->
-<div class="tab-container">
-    <!-- Tab: Giá vé gốc -->
-    <div id="tab-gia-ve" class="tab-content active">
-        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Thiết lập giá vé cơ bản</h3>
-                <p class="mt-1 text-sm text-gray-500">Cập nhật giá vé gốc cho các loại ngày khác nhau</p>
-            </div>
-            <div class="border-t border-gray-200">
-                <form id="basic-price-form">
-                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <div class="text-sm font-medium text-gray-500">Giá vé ngày thường</div>
-                        <div class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <div class="relative rounded-md shadow-sm max-w-xs">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">₫</span>
-                                </div>
-                                <input type="number" name="regular_price" id="regular_price" class="focus:ring-red-500 focus:border-red-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md price-input" placeholder="0" value="85000">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">VND</span>
-                                </div>
-                            </div>
-                            <div class="invalid-feedback hidden" id="regular_price_error">
-                                Vui lòng nhập giá vé hợp lệ
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <div class="text-sm font-medium text-gray-500">Giá vé cuối tuần</div>
-                        <div class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <div class="relative rounded-md shadow-sm max-w-xs">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">₫</span>
-                                </div>
-                                <input type="number" name="weekend_price" id="weekend_price" class="focus:ring-red-500 focus:border-red-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md price-input" placeholder="0" value="95000">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">VND</span>
-                                </div>
-                            </div>
-                            <div class="invalid-feedback hidden" id="weekend_price_error">
-                                Vui lòng nhập giá vé hợp lệ
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <div class="text-sm font-medium text-gray-500">Giá vé ngày lễ</div>
-                        <div class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <div class="relative rounded-md shadow-sm max-w-xs">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">₫</span>
-                                </div>
-                                <input type="number" name="holiday_price" id="holiday_price" class="focus:ring-red-500 focus:border-red-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md price-input" placeholder="0" value="110000">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">VND</span>
-                                </div>
-                            </div>
-                            <div class="invalid-feedback hidden" id="holiday_price_error">
-                                Vui lòng nhập giá vé hợp lệ
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <div class="text-sm font-medium text-gray-500">Giá vé ngày tết</div>
-                        <div class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <div class="relative rounded-md shadow-sm max-w-xs">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">₫</span>
-                                </div>
-                                <input type="number" name="newyear_price" id="newyear_price" class="focus:ring-red-500 focus:border-red-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md price-input" placeholder="0" value="120000">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">VND</span>
-                                </div>
-                            </div>
-                            <div class="invalid-feedback hidden" id="newyear_price_error">
-                                Vui lòng nhập giá vé hợp lệ
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 px-4 py-5">
-                        <div class="flex justify-end">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                                Lưu tất cả thay đổi
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="bg-white shadow rounded-lg p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-900">Danh sách quy tắc giá vé</h2>
+        <button id="add-rule-btn" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Thêm quy tắc mới
+        </button>
     </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tên quy tắc</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hành động</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Giá trị</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Độ ưu tiên</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Điều kiện áp dụng</th>
+                    <th class="px-6 py-3"></th>
+                </tr>
+            </thead>
+            <tbody id="rules-list" class="bg-white divide-y divide-gray-200" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                <!-- Quy tắc sẽ được render ở đây bằng JS -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    <!-- Tab: Phụ thu -->
-    <div id="tab-phu-thu" class="tab-content">
-        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
-                <h3 class="text-xl font-semibold text-gray-900">Thiết lập phụ thu</h3>
-                <p class="mt-1 text-sm text-gray-500">Cập nhật phụ thu cho các loại phim và loại ghế</p>
+<!-- Modal thêm/sửa quy tắc -->
+<div id="rule-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl p-6 relative">
+        <button id="close-modal-btn" class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <h3 class="text-lg font-semibold mb-4" id="modal-title">Thêm mới quy tắc giá vé</h3>
+        <form id="rule-form" class="space-y-6">
+            <div>
+                <label for="rule-name" class="block text-sm font-medium text-gray-700">Tên quy tắc</label>
+                <input type="text" id="rule-name" name="rule_name" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                <div class="invalid-feedback hidden" id="rule_name_error">Vui lòng nhập tên quy tắc</div>
             </div>
-            
-            <div class="p-6">
-                <form id="surcharge-form" class="space-y-8">
-                    <!-- Phụ thu loại phim -->
-                    <div>
-                        <h4 class="text-lg font-medium text-gray-900 mb-4">Phụ thu theo loại phim</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="input-group">
-                                <label class="input-group-label" for="surcharge_3d">Phim 3D</label>
-                                <div class="price-input-container">
-                                    <span class="price-input-icon-left">₫</span>
-                                    <input type="number" name="surcharge_3d" id="surcharge_3d" class="price-input" placeholder="0" value="30000">
-                                    <span class="price-input-icon-right">VND</span>
-                                </div>
-                                <div class="invalid-feedback hidden" id="surcharge_3d_error">
-                                    Vui lòng nhập giá phụ thu hợp lệ
-                                </div>
-                            </div>
-                            
-                            <div class="input-group">
-                                <label class="input-group-label" for="surcharge_imax2d">Phim IMAX 2D</label>
-                                <div class="price-input-container">
-                                    <span class="price-input-icon-left">₫</span>
-                                    <input type="number" name="surcharge_imax2d" id="surcharge_imax2d" class="price-input" placeholder="0" value="40000">
-                                    <span class="price-input-icon-right">VND</span>
-                                </div>
-                                <div class="invalid-feedback hidden" id="surcharge_imax2d_error">
-                                    Vui lòng nhập giá phụ thu hợp lệ
-                                </div>
-                            </div>
-                            
-                            <div class="input-group">
-                                <label class="input-group-label" for="surcharge_imax3d">Phim IMAX 3D</label>
-                                <div class="price-input-container">
-                                    <span class="price-input-icon-left">₫</span>
-                                    <input type="number" name="surcharge_imax3d" id="surcharge_imax3d" class="price-input" placeholder="0" value="60000">
-                                    <span class="price-input-icon-right">VND</span>
-                                </div>
-                                <div class="invalid-feedback hidden" id="surcharge_imax3d_error">
-                                    Vui lòng nhập giá phụ thu hợp lệ
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Phụ thu loại ghế -->
-                    <div>
-                        <h4 class="text-lg font-medium text-gray-900 mb-4">Phụ thu theo loại ghế</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="input-group">
-                                <label class="input-group-label" for="surcharge_vip">Ghế VIP</label>
-                                <div class="price-input-container">
-                                    <span class="price-input-icon-left">₫</span>
-                                    <input type="number" name="surcharge_vip" id="surcharge_vip" class="price-input" placeholder="0" value="15000">
-                                    <span class="price-input-icon-right">VND</span>
-                                </div>
-                                <div class="invalid-feedback hidden" id="surcharge_vip_error">
-                                    Vui lòng nhập giá phụ thu hợp lệ
-                                </div>
-                            </div>
-                            
-                            <div class="input-group">
-                                <label class="input-group-label" for="surcharge_couple">Ghế đôi</label>
-                                <div class="price-input-container">
-                                    <span class="price-input-icon-left">₫</span>
-                                    <input type="number" name="surcharge_couple" id="surcharge_couple" class="price-input" placeholder="0" value="30000">
-                                    <span class="price-input-icon-right">VND</span>
-                                </div>
-                                <div class="invalid-feedback hidden" id="surcharge_couple_error">
-                                    Vui lòng nhập giá phụ thu hợp lệ
-                                </div>
-                            </div>
-                            
-                            <div class="input-group">
-                                <label class="input-group-label" for="surcharge_premium">Ghế Premium</label>
-                                <div class="price-input-container">
-                                    <span class="price-input-icon-left">₫</span>
-                                    <input type="number" name="surcharge_premium" id="surcharge_premium" class="price-input" placeholder="0" value="25000">
-                                    <span class="price-input-icon-right">VND</span>
-                                </div>
-                                <div class="invalid-feedback hidden" id="surcharge_premium_error">
-                                    Vui lòng nhập giá phụ thu hợp lệ
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Phụ thu theo khung giờ -->
-                    <div>
-                        <h4 class="text-lg font-medium text-gray-900 mb-4">Phụ thu theo khung giờ</h4>
-                        <div id="time-surcharges-container">
-                            <!-- Existing time surcharges will be loaded here -->
-                            <div class="time-surcharge-item grid grid-cols-1 md:grid-cols-7 gap-4 items-end mb-6">
-                                <div class="md:col-span-2">
-                                    <label class="input-group-label">Giờ bắt đầu</label>
-                                    <input type="time" name="time_start[]" class="price-input text-center" value="17:00">
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="input-group-label">Giờ kết thúc</label>
-                                    <input type="time" name="time_end[]" class="price-input text-center" value="23:00">
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="input-group-label">Phụ thu</label>
-                                    <div class="price-input-container">
-                                        <span class="price-input-icon-left">₫</span>
-                                        <input type="number" name="time_surcharge[]" class="price-input" value="10000">
-                                        <span class="price-input-icon-right">VND</span>
-                                    </div>
-                                </div>
-                                <div class="md:col-span-1 flex items-center justify-center md:justify-end">
-                                    <button type="button" class="remove-time-surcharge inline-flex items-center p-3 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <button type="button" id="add-time-surcharge" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                                </svg>
-                                Thêm phụ thu khung giờ
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="flex justify-end pt-4">
-                        <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
-                            Lưu thay đổi
-                        </button>
-                    </div>
-                </form>
+            <div>
+                <label for="rule-action" class="block text-sm font-medium text-gray-700">Hành động</label>
+                <select id="rule-action" name="rule_action" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <option value="">-- Chọn hành động --</option>
+                    <option value="Thiết lập giá">Thiết lập giá</option>
+                    <option value="Cộng thêm tiền">Cộng thêm tiền</option>
+                </select>
+                <div class="invalid-feedback hidden" id="rule_action_error">Vui lòng chọn hành động</div>
             </div>
-        </div>
+            <div>
+                <label for="rule-value" class="block text-sm font-medium text-gray-700">Giá trị</label>
+                <input type="number" id="rule-value" name="rule_value" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                <div class="invalid-feedback hidden" id="rule_value_error">Vui lòng nhập giá trị hợp lệ</div>
+            </div>
+            <div>
+                <label for="rule-priority" class="block text-sm font-medium text-gray-700">Độ ưu tiên</label>
+                <input type="number" id="rule-priority" name="rule_priority" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" required min="1" value="1">
+                <div class="invalid-feedback hidden" id="rule_priority_error">Vui lòng nhập độ ưu tiên hợp lệ</div>
+            </div>
+            <div>
+                <label for="rule-status" class="block text-sm font-medium text-gray-700">Trạng thái</label>
+                <select id="rule-status" name="rule_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500" required>
+                    <option value="1">Kích hoạt</option>
+                    <option value="0">Vô hiệu hóa</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Điều kiện áp dụng</label>
+                <div id="conditions-list" class="space-y-4">
+                    <!-- Điều kiện sẽ được render ở đây bằng JS -->
+                </div>
+                <button type="button" id="add-condition-btn" class="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Thêm điều kiện
+                </button>
+            </div>
+            <div class="flex justify-end pt-4">
+                <button type="submit" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                    Lưu quy tắc
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -382,7 +221,6 @@
         <div class="flex-shrink-0">
             <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
         </div>
         <div class="ml-3">
             <p id="toast-message" class="text-sm text-green-700">Thành công!</p>

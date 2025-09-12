@@ -1,158 +1,289 @@
+import Spinner from './util/spinner.js';
 document.addEventListener('DOMContentLoaded', function() {
-        // Tab switching
-        const tabBtns = document.querySelectorAll('.tab-btn');
-        const tabContents = document.querySelectorAll('.tab-content');
-        
-        tabBtns.forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Remove active class from all tabs
-                tabBtns.forEach(b => {
-                    b.classList.remove('bg-red-600', 'text-white');
-                    b.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-200');
-                });
-                
-                // Add active class to clicked tab
-                this.classList.remove('bg-white', 'text-gray-700', 'border', 'border-gray-200');
-                this.classList.add('bg-red-600', 'text-white');
-                
-                // Hide all tab contents
-                tabContents.forEach(content => {
-                    content.classList.remove('active');
-                });
-                
-                // Show corresponding tab content
-                const tabId = this.id.replace('tab-btn-', 'tab-');
-                document.getElementById(tabId).classList.add('active');
+        // CRUD Rule UI logic
+        const rules = [];
+
+        function renderRules() {
+            const tbody = document.getElementById('rules-list');
+            tbody.innerHTML = '';
+            if (rules.length === 0) {
+                tbody.innerHTML = '<tr><td colspan=7 class="text-center py-6 text-gray-400">Chưa có quy tắc nào</td></tr>';
+                return;
+            }
+            rules.forEach((rule, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap font-medium">${rule.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${actionLabel(rule.action)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${rule.value.toLocaleString()} VND</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${rule.priority}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusLabel(rule.status)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${renderConditions(rule.conditions)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                        <button class="edit-rule-btn text-blue-600 hover:underline mr-2" data-idx="${idx}">Sửa</button>
+                        <button class="delete-rule-btn text-red-600 hover:underline" data-idx="${idx}">Xóa</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
-        });
-        
-        // Add time surcharge
-        document.getElementById('add-time-surcharge').addEventListener('click', function() {
-            const container = document.getElementById('time-surcharges-container');
-            const newItem = document.createElement('div');
-            newItem.className = 'time-surcharge-item grid grid-cols-1 md:grid-cols-7 gap-4 items-end mb-6';
-            newItem.innerHTML = `
-                <div class="md:col-span-2">
-                    <label class="input-group-label">Giờ bắt đầu</label>
-                    <input type="time" name="time_start[]" class="price-input text-center">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="input-group-label">Giờ kết thúc</label>
-                    <input type="time" name="time_end[]" class="price-input text-center">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="input-group-label">Phụ thu</label>
-                    <div class="price-input-container">
-                        <span class="price-input-icon-left">₫</span>
-                        <input type="number" name="time_surcharge[]" class="price-input" placeholder="0">
-                        <span class="price-input-icon-right">VND</span>
-                    </div>
-                </div>
-                <div class="md:col-span-1 flex items-center justify-center md:justify-end">
-                    <button type="button" class="remove-time-surcharge inline-flex items-center p-3 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-150 ease-in-out">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
+        }
+        function actionLabel(action) {
+            if (action === 'set_price') return 'Thiết lập giá';
+            if (action === 'add_surcharge') return 'Cộng thêm tiền';
+            return '';
+        }
+        function statusLabel(status) {
+            if (status === 'active') return 'Kích hoạt';
+            if (status === 'disabled') return 'Vô hiệu hóa';
+            return '';
+        }
+        function renderConditions(conds) {
+            if (!conds || conds.length === 0) return '<span class="text-gray-400">Không có</span>';
+            return conds.map(c => `${conditionLabel(c.type)} = <span class='font-semibold'>${c.value}</span>`).join('<br>');
+        }
+        function conditionLabel(type) {
+            switch(type) {
+                case 'day_type': return 'Loại ngày';
+                case 'time_range': return 'Khung giờ';
+                case 'seat_type': return 'Loại ghế';
+                case 'movie_format': return 'Định dạng phim';
+                default: return type;
+            }
+        }
+
+        // Modal logic
+        const ruleModal = document.getElementById('rule-modal');
+        const ruleForm = document.getElementById('rule-form');
+        const modalTitle = document.getElementById('modal-title');
+        let editingIdx = null;
+
+        function openModal(editIdx = null) {
+            ruleModal.classList.remove('hidden');
+            document.body.classList.add('modal-active');
+            ruleForm.reset();
+            document.querySelectorAll('.invalid-feedback').forEach(el => el.classList.add('hidden'));
+            document.getElementById('conditions-list').innerHTML = '';
+            editingIdx = editIdx;
+            if (editIdx !== null) {
+                modalTitle.textContent = 'Sửa quy tắc giá vé';
+                const rule = rules[editIdx];
+                document.getElementById('rule-name').value = rule.name;
+                document.getElementById('rule-action').value = rule.action;
+                document.getElementById('rule-value').value = rule.value;
+                document.getElementById('rule-priority').value = rule.priority;
+                document.getElementById('rule-status').value = rule.status;
+                rule.conditions.forEach(cond => addConditionRow(cond.type, cond.value));
+            } else {
+                modalTitle.textContent = 'Thêm mới quy tắc giá vé';
+                document.getElementById('rule-priority').value = 1;
+                document.getElementById('rule-status').value = 'active';
+            }
+        }
+        function closeModal() {
+            ruleModal.classList.add('hidden');
+            document.body.classList.remove('modal-active');
+            editingIdx = null;
+        }
+        document.getElementById('add-rule-btn').addEventListener('click', () => openModal());
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+
+        // Add condition row
+        const conditionTypes = [
+            { value: 'day_type', label: 'Loại ngày', options: ['Ngày thường', 'Cuối tuần', 'Ngày lễ', 'Tết'] },
+            { value: 'time_range', label: 'Khung giờ', options: ['Sáng', 'Chiều', 'Tối'] },
+            { value: 'seat_type', label: 'Loại ghế', options: ['Thường', 'VIP', 'Đôi', 'Premium'] },
+            { value: 'movie_format', label: 'Định dạng phim', options: ['2D', '3D', 'IMAX 2D', 'IMAX 3D'] }
+        ];
+        function addConditionRow(type = '', value = '') {
+            const idx = Date.now() + Math.random();
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-2';
+            div.innerHTML = `
+                <select class="condition-type rounded border-gray-300" style="min-width:120px">
+                    <option value="">-- Loại điều kiện --</option>
+                    ${conditionTypes.map(opt => `<option value="${opt.value}" ${type===opt.value?'selected':''}>${opt.label}</option>`).join('')}
+                </select>
+                <select class="condition-value rounded border-gray-300" style="min-width:120px">
+                    <option value="">-- Giá trị --</option>
+                </select>
+                <button type="button" class="remove-condition-btn text-red-600 hover:underline">Xóa</button>
             `;
-            container.appendChild(newItem);
-            
-            // Add event listener to new remove button
-            newItem.querySelector('.remove-time-surcharge').addEventListener('click', function() {
-                container.removeChild(newItem);
-            });
-        });
-        
-        // Remove time surcharge
-        document.querySelectorAll('.remove-time-surcharge').forEach(button => {
-            button.addEventListener('click', function() {
-                const item = this.closest('.time-surcharge-item');
-                item.parentNode.removeChild(item);
-            });
-        });
-        
-        // Basic Price Form Submit
-        document.getElementById('basic-price-form').addEventListener('submit', function(e) {
+            document.getElementById('conditions-list').appendChild(div);
+            // Populate value options
+            const typeSelect = div.querySelector('.condition-type');
+            const valueSelect = div.querySelector('.condition-value');
+            function updateValueOptions() {
+                const selectedType = typeSelect.value;
+                valueSelect.innerHTML = '<option value="">-- Giá trị --</option>';
+                const found = conditionTypes.find(opt => opt.value === selectedType);
+                if (found) {
+                    valueSelect.innerHTML += found.options.map(v => `<option value="${v}" ${v===value?'selected':''}>${v}</option>`).join('');
+                }
+            }
+            typeSelect.addEventListener('change', updateValueOptions);
+            updateValueOptions();
+            valueSelect.value = value;
+            div.querySelector('.remove-condition-btn').addEventListener('click', () => div.remove());
+        }
+        document.getElementById('add-condition-btn').addEventListener('click', () => addConditionRow());
+
+        // Fetch rules from server
+        function fetchRules() {
+            const spinner = Spinner.show({text: 'Đang tải quy tắc...'});
+            fetch(`${document.querySelector('#rules-list').dataset.url}/api/quy-tac-gia-ve`)
+                .then(response => response.json())
+                .then(data => {
+                    Spinner.hide(spinner);
+                    if (data.success && Array.isArray(data.data)) {
+                        rules.length = 0;
+                        data.data.forEach(item => {
+                            let conditions = [];
+                            if (typeof item.dieu_kien === 'string') {
+                                try {
+                                    conditions = JSON.parse(item.dieu_kien);
+                                } catch (e) {
+                                    conditions = [];
+                                }
+                            } else if (Array.isArray(item.dieu_kien)) {
+                                conditions = item.dieu_kien;
+                            }
+                            rules.push({
+                                id: item.id,
+                                name: item.ten,
+                                action: item.loai_hanhdong,
+                                value: item.gia_tri,
+                                priority: item.do_uu_tien,
+                                status: item.trang_thai,
+                                conditions: conditions
+                            });
+                        });
+                        renderRules();
+                    }
+                })
+                .catch(error => {
+                    Spinner.hide(spinner);
+                    renderRules();
+                    console.error('Error:', error);
+                });
+        }
+
+        // Modal event listeners
+        document.getElementById('add-rule-btn').addEventListener('click', () => openModal());
+        document.getElementById('close-modal-btn').addEventListener('click', closeModal);
+
+        // Form submit
+        ruleForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            // Reset error messages
             document.querySelectorAll('.invalid-feedback').forEach(el => el.classList.add('hidden'));
-            
-            // Get values
-            const regularPrice = document.getElementById('regular_price').value;
-            const weekendPrice = document.getElementById('weekend_price').value;
-            const holidayPrice = document.getElementById('holiday_price').value;
-            const newyearPrice = document.getElementById('newyear_price').value;
-            
             // Validate
-            let isValid = true;
-            
-            if (!regularPrice || regularPrice <= 0) {
-                document.getElementById('regular_price_error').classList.remove('hidden');
-                isValid = false;
+            const name = document.getElementById('rule-name').value.trim();
+            const action = document.getElementById('rule-action').value;
+            const value = document.getElementById('rule-value').value;
+            const priority = document.getElementById('rule-priority').value;
+            const status = document.getElementById('rule-status').value;
+            let valid = true;
+            if (!name) {
+                document.getElementById('rule_name_error').classList.remove('hidden');
+                valid = false;
             }
-            
-            if (!weekendPrice || weekendPrice <= 0) {
-                document.getElementById('weekend_price_error').classList.remove('hidden');
-                isValid = false;
+            if (!action) {
+                document.getElementById('rule_action_error').classList.remove('hidden');
+                valid = false;
             }
-            
-            if (!holidayPrice || holidayPrice <= 0) {
-                document.getElementById('holiday_price_error').classList.remove('hidden');
-                isValid = false;
+            if (!value || value <= 0) {
+                document.getElementById('rule_value_error').classList.remove('hidden');
+                valid = false;
             }
-            
-            if (!newyearPrice || newyearPrice <= 0) {
-                document.getElementById('newyear_price_error').classList.remove('hidden');
-                isValid = false;
+            if (!priority || priority < 1) {
+                document.getElementById('rule_priority_error').classList.remove('hidden');
+                valid = false;
             }
-            
-            if (isValid) {
-                // In real app, we would submit data to server
-                // For demo purposes, show success toast
-                showSuccessToast('Cập nhật giá vé cơ bản thành công');
-            }
-        });
-        
-        // Surcharge Form Submit
-        document.getElementById('surcharge-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Reset error messages
-            document.querySelectorAll('.invalid-feedback').forEach(el => el.classList.add('hidden'));
-            
-            // Validate (simplified)
-            let isValid = true;
-            const surchargeInputs = ['surcharge_3d', 'surcharge_imax2d', 'surcharge_imax3d', 'surcharge_vip', 'surcharge_couple', 'surcharge_premium'];
-            
-            surchargeInputs.forEach(id => {
-                const value = document.getElementById(id).value;
-                if (value === '' || value < 0) {
-                    document.getElementById(`${id}_error`).classList.remove('hidden');
-                    isValid = false;
-                }
+            // Collect conditions
+            const conds = [];
+            document.querySelectorAll('#conditions-list > div').forEach(div => {
+                const type = div.querySelector('.condition-type').value;
+                const val = div.querySelector('.condition-value').value;
+                if (type && val) conds.push({ type, value: val });
             });
-            
-            // Check time surcharges
-            const timeStarts = document.getElementsByName('time_start[]');
-            const timeEnds = document.getElementsByName('time_end[]');
-            const timeSurcharges = document.getElementsByName('time_surcharge[]');
-            
-            for (let i = 0; i < timeStarts.length; i++) {
-                if (!timeStarts[i].value || !timeEnds[i].value || !timeSurcharges[i].value || timeSurcharges[i].value < 0) {
-                    isValid = false;
-                    // In a real app, we would add specific error messages for time surcharges
+            if (!valid) return;
+            const ruleObj = {
+                ten: name,
+                loai_hanhdong: action,
+                gia_tri: Number(value),
+                dieu_kien: conds,
+                trang_thai: status,
+                do_uu_tien: Number(priority)
+            };
+            const spinner = Spinner.show({text: editingIdx !== null ? 'Đang cập nhật quy tắc...' : 'Đang lưu quy tắc...'});
+            let url = `${document.querySelector('#rules-list').dataset.url}/api/quy-tac-gia-ve`;
+            let method = 'POST';
+            if (editingIdx !== null) {
+                if (rules[editingIdx].id) {
+                    url += `/${rules[editingIdx].id}`;
+                } else {
+                    showSuccessToast('Không tìm thấy id quy tắc để sửa');
+                    Spinner.hide(spinner);
+                    return;
                 }
+                method = 'PUT';
             }
-            
-            if (isValid) {
-                // In real app, we would submit data to server
-                // For demo purposes, show success toast
-                showSuccessToast('Cập nhật phụ thu thành công');
-            }
+            console.log('Submitting rule:', ruleObj, 'to', url, 'with method', method);
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(ruleObj),
+            })
+            .then(response => response.json())
+            .then(data => {
+                Spinner.hide(spinner);
+                if (data.success) {
+                    fetchRules();
+                    closeModal();
+                    if (method === 'PUT') {
+                        showSuccessToast('Cập nhật quy tắc thành công');
+                    } else {
+                        showSuccessToast('Thêm quy tắc thành công');
+                    }
+                } else {
+                    if (method === 'PUT') {
+                        showSuccessToast(data.message || 'Cập nhật quy tắc thất bại');
+                    } else {
+                        showSuccessToast(data.message || 'Thêm quy tắc thất bại');
+                    }
+                }
+            })
+            .catch(error => {
+                Spinner.hide(spinner);
+                showSuccessToast('Có lỗi khi gửi dữ liệu');
+                console.error('Error:', error);
+            });
         });
-        
+
+        // Edit & Delete
+        function attachRuleActions() {
+            document.querySelectorAll('.edit-rule-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    openModal(Number(btn.dataset.idx));
+                });
+            });
+            document.querySelectorAll('.delete-rule-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const idx = Number(btn.dataset.idx);
+                    if (confirm('Bạn có chắc muốn xóa quy tắc này?')) {
+                        rules.splice(idx, 1);
+                        renderRules();
+                        showSuccessToast('Xóa quy tắc thành công');
+                    }
+                });
+            });
+        }
+        // Re-attach after render
+        const observer = new MutationObserver(attachRuleActions);
+        observer.observe(document.getElementById('rules-list'), { childList: true });
+        renderRules();
+
         // Success toast handling
         function showSuccessToast(message) {
             const toast = document.getElementById('success-toast');
@@ -174,4 +305,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         document.getElementById('close-toast').addEventListener('click', hideToast);
+        fetchRules();
     });

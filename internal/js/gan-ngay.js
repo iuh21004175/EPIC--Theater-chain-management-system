@@ -1,3 +1,5 @@
+import Spinner from './util/spinner.js';
+
 document.addEventListener('DOMContentLoaded', function() {
     // Elements
     const calendarBody = document.getElementById('calendar-body');
@@ -112,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentMonth = 11;
             currentYear--;
         }
-        generateCalendar(currentMonth, currentYear);
+        loadDateLabels();
         updateMonthYearDisplay();
     }
     
@@ -123,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
             currentMonth = 0;
             currentYear++;
         }
-        generateCalendar(currentMonth, currentYear);
+        loadDateLabels();
         updateMonthYearDisplay();
     }
     
@@ -131,19 +133,18 @@ document.addEventListener('DOMContentLoaded', function() {
     function styleCell(cell, dateString) {
         if (dateLabelDatabase[dateString]) {
             const label = dateLabelDatabase[dateString];
-            
-            if (label.type === 'holiday') {
+            let type = label.type;
+            if (type === 'tet' || type === 'Ngày tết') type = 'Ngày tết';
+            else if (type === 'holiday' || type === 'Ngày lễ') type = 'Ngày lễ';
+            else type = 'Ngày thường';
+            if (type === 'Ngày lễ') {
                 cell.classList.add('bg-blue-200');
-                
-                // Add label tooltip
                 const tooltip = document.createElement('div');
                 tooltip.classList.add('text-xs', 'mt-1', 'text-blue-600', 'font-medium');
                 tooltip.textContent = label.name;
                 cell.appendChild(tooltip);
-            } else if (label.type === 'tet') {
+            } else if (type === 'Ngày tết') {
                 cell.classList.add('bg-red-200');
-                
-                // Add label tooltip
                 const tooltip = document.createElement('div');
                 tooltip.classList.add('text-xs', 'mt-1', 'text-red-600', 'font-medium');
                 tooltip.textContent = label.name;
@@ -156,24 +157,21 @@ document.addEventListener('DOMContentLoaded', function() {
     function openDateModal(dateString) {
         const dateObj = new Date(dateString);
         const formattedDate = formatDateDisplay(dateObj);
-        
-        // Set values in modal
         selectedDateInput.value = dateString;
         displayDateElement.textContent = formattedDate;
-        
         // Set date type and special day name if exists
         if (dateLabelDatabase[dateString]) {
-            dateTypeSelect.value = dateLabelDatabase[dateString].type;
+            let type = dateLabelDatabase[dateString].type;
+            if (type === 'tet' || type === 'Ngày tết') type = 'Ngày tết';
+            else if (type === 'holiday' || type === 'Ngày lễ') type = 'Ngày lễ';
+            else type = 'Ngày thường';
+            dateTypeSelect.value = type;
             specialDayNameInput.value = dateLabelDatabase[dateString].name || '';
         } else {
-            dateTypeSelect.value = 'regular';
+            dateTypeSelect.value = 'Ngày thường';
             specialDayNameInput.value = '';
         }
-        
-        // Show/hide special day name field
         handleDateTypeChange();
-        
-        // Show modal
         dateModal.classList.remove('hidden');
     }
     
@@ -185,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to handle date type change
     function handleDateTypeChange() {
-        if (dateTypeSelect.value === 'holiday' || dateTypeSelect.value === 'tet') {
+        if (dateTypeSelect.value === 'Ngày lễ' || dateTypeSelect.value === 'Ngày tết') {
             specialDayNameContainer.classList.remove('hidden');
         } else {
             specialDayNameContainer.classList.add('hidden');
@@ -195,58 +193,48 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to save date
     function saveDate() {
         const dateString = selectedDateInput.value;
-        const dateType = dateTypeSelect.value;
+        let dateType = dateTypeSelect.value;
+        if (dateType === 'Ngày tết') dateType = 'Ngày tết';
+        else if (dateType === 'Ngày lễ') dateType = 'Ngày lễ';
+        else dateType = 'Ngày thường';
         const specialDayName = specialDayNameInput.value.trim();
         
         // Validate
-        if ((dateType === 'holiday' || dateType === 'tet') && !specialDayName) {
+        if ((dateType === 'Ngày lễ' || dateType === 'Ngày tết') && !specialDayName) {
             specialDayError.classList.remove('hidden');
             return;
         } else {
             specialDayError.classList.add('hidden');
         }
-        
-        // Save to "database"
-        if (dateType === 'regular') {
-            delete dateLabelDatabase[dateString];
-        } else {
-            dateLabelDatabase[dateString] = {
-                type: dateType,
-                name: specialDayName
-            };
-        }
-        
-        // Here you would make an AJAX call to save to server
-        // For example:
-        /*
-        fetch('/api/date-labels', {
+        const spinner = Spinner.show({text: 'Đang lưu...'});
+        fetch(`${calendarBody.dataset.url}/api/gan-ngay`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                date: dateString,
-                type: dateType,
-                name: specialDayName
+                ngay: dateString,
+                loai_ngay: dateType,
+                dac_biet: specialDayName
             }),
         })
         .then(response => response.json())
         .then(data => {
-            // Success handling
+            if (data.success) {
+                closeModal();
+                loadDateLabels();
+                showToast();
+            } else {
+                alert(data.message || 'Có lỗi xảy ra khi lưu ngày');
+            }
         })
         .catch(error => {
+            alert('Có lỗi xảy ra khi lưu ngày');
             console.error('Error:', error);
+        })
+        .finally(() => {
+            Spinner.hide(spinner);
         });
-        */
-        
-        // Close modal
-        closeModal();
-        
-        // Regenerate calendar to reflect changes
-        generateCalendar(currentMonth, currentYear);
-        
-        // Show success toast
-        showToast();
     }
     
     // Function to show success toast
@@ -276,27 +264,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Load date labels from server
     function loadDateLabels() {
-        // Here you would make an AJAX call to get labels from server
-        // For example:
-        /*
-        fetch('/api/date-labels')
-        .then(response => response.json())
-        .then(data => {
-            dateLabelDatabase = data;
-            generateCalendar(currentMonth, currentYear);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-        */
-        
-        // For now, we'll use sample data
-        dateLabelDatabase = {
-            '2025-09-02': { type: 'holiday', name: 'Quốc Khánh' },
-            '2025-09-15': { type: 'tet', name: 'Tết Trung Thu' }
-        };
-        
-        generateCalendar(currentMonth, currentYear);
+        const thang = currentMonth + 1;
+        const nam = currentYear;
+        const spinner = Spinner.show({text: 'Đang tải dữ liệu...'});
+        fetch(`${calendarBody.dataset.url}/api/gan-ngay/${thang}-${nam}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.data)) {
+                    dateLabelDatabase = {};
+                    data.data.forEach(item => {
+                        dateLabelDatabase[item.ngay] = {
+                            type: item.loai_ngay,
+                            name: item.dac_biet || ''
+                        };
+                    });
+                }
+                generateCalendar(currentMonth, currentYear);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                generateCalendar(currentMonth, currentYear);
+            })
+            .finally(() => {
+                Spinner.hide(spinner);
+            });
     }
     
     // Initial load of date labels

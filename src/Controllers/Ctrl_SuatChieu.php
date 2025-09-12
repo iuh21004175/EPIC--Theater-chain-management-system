@@ -97,5 +97,37 @@
                 ];
             }
         }
+        public function suaSuatChieu($id){
+            $service = new Sc_SuatChieu();
+            try{
+                $service->sua($id);
+                return [
+                    'success' => true,
+                    'message' => 'Sửa suất chiếu thành công',
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi sửa suất chiếu: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function xoaSuatChieu($argc){
+            $service = new Sc_SuatChieu();
+            try{
+                $service->xoa($argc['id']);
+                return [
+                    'success' => true,
+                    'message' => 'Xóa suất chiếu thành công',
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi xóa suất chiếu: ' . $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

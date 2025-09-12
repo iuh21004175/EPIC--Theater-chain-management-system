@@ -36,123 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnCancelDelete = document.getElementById('btn-cancel-delete');
     const btnConfirmDelete = document.getElementById('btn-confirm-delete');
     
-    // Demo data
-    const demoMovies = [
-        { 
-            id: 1, 
-            title: "Avengers: Endgame", 
-            duration: 181,
-            poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg"
-        },
-        { 
-            id: 2, 
-            title: "Joker", 
-            duration: 122,
-            poster: "https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg"
-        },
-        { 
-            id: 3, 
-            title: "Parasite", 
-            duration: 132,
-            poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg"
-        },
-        { 
-            id: 4, 
-            title: "Dune", 
-            duration: 155,
-            poster: "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg"
-        },
-        { 
-            id: 5, 
-            title: "Spider-Man: No Way Home", 
-            duration: 148,
-            poster: "https://image.tmdb.org/t/p/w500/1g0dhYtq4irTY1GPXvft6k4YLjm.jpg"
-        }
-    ];
-
-    const demoRooms = [
-        { id: 1, name: "Phòng 1", capacity: 120 },
-        { id: 2, name: "Phòng 2", capacity: 80 },
-        { id: 3, name: "Phòng 3", capacity: 150 },
-        { id: 4, name: "Phòng 4 - IMAX", capacity: 200 },
-        { id: 5, name: "Phòng 5 - VIP", capacity: 50 }
-    ];
-
-    let demoShowtimes = [
-        {
-            id: 1,
-            movie_id: 1,
-            movie_title: "Avengers: Endgame",
-            movie_poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",
-            movie_duration: 181,
-            room_id: 4,
-            room_name: "Phòng 4 - IMAX",
-            date: "2025-09-04",
-            start_time: "10:00",
-            end_time: "13:01"
-        },
-        {
-            id: 2,
-            movie_id: 1,
-            movie_title: "Avengers: Endgame",
-            movie_poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",
-            movie_duration: 181,
-            room_id: 1,
-            room_name: "Phòng 1",
-            date: "2025-09-04",
-            start_time: "14:30",
-            end_time: "17:31"
-        },
-        {
-            id: 3,
-            movie_id: 1,
-            movie_title: "Avengers: Endgame",
-            movie_poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg",
-            movie_duration: 181,
-            room_id: 2,
-            room_name: "Phòng 2",
-            date: "2025-09-04",
-            start_time: "19:00",
-            end_time: "22:01"
-        },
-        {
-            id: 4,
-            movie_id: 2,
-            movie_title: "Joker",
-            movie_poster: "https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
-            movie_duration: 122,
-            room_id: 3,
-            room_name: "Phòng 3",
-            date: "2025-09-04",
-            start_time: "11:30",
-            end_time: "13:32"
-        },
-        {
-            id: 5,
-            movie_id: 2,
-            movie_title: "Joker",
-            movie_poster: "https://image.tmdb.org/t/p/w500/udDclJoHjfjb8Ekgsd4FDteOkCU.jpg",
-            movie_duration: 122,
-            room_id: 5,
-            room_name: "Phòng 5 - VIP",
-            date: "2025-09-04",
-            start_time: "18:00",
-            end_time: "20:02"
-        },
-        {
-            id: 6,
-            movie_id: 3,
-            movie_title: "Parasite",
-            movie_poster: "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
-            movie_duration: 132,
-            room_id: 2,
-            room_name: "Phòng 2",
-            date: "2025-09-05",
-            start_time: "13:00",
-            end_time: "15:12"
-        }
-    ];
-
     let moviesData = [];
     let roomsData = [];
 
@@ -239,9 +122,65 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmModal.classList.add('hidden');
     });
     
-    showtimeForm.addEventListener('submit', function(event) {
-        console.log('Form submit event triggered');
-        handleFormSubmit(event);
+    showtimeForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        if (!validateForm()) return;
+        Spinner.show({ target: showtimeModal, text: 'Đang xử lý...' });
+        const batdau = `${showtimeDate.value} ${startTime.value}`;
+        const ketthuc = `${showtimeDate.value} ${endTime.value}`;
+        const checkUrl = `${showtimeListing.dataset.url}/api/suat-chieu/kiem-tra-hop-le?batdau=${encodeURIComponent(batdau)}&id_phong_chieu=${roomSelect.value}&thoi_luong_phim=${selectedMovieInfo.dataset.duration}`;
+        try {
+            const checkRes = await fetch(checkUrl, { method: 'GET' });
+            const checkData = await checkRes.json();
+            if (!checkData.success) {
+                showToast(checkData.message, 'error');
+                Spinner.hide();
+                return;
+            }
+        } catch (e) {
+            showToast('Lỗi kiểm tra suất chiếu', 'error');
+            Spinner.hide();
+            return;
+        }
+        const id = showtimeId.value;
+        const body = JSON.stringify({
+            id_phim: selectedMovieId.value,
+            id_phongchieu: roomSelect.value,
+            batdau,
+            ketthuc
+        });
+        try {
+            let res, data;
+            if (id) {
+                res = await fetch(`${showtimeListing.dataset.url}/api/suat-chieu/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body
+                });
+            } else {
+                res = await fetch(`${showtimeListing.dataset.url}/api/suat-chieu`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        id_phim: selectedMovieId.value,
+                        id_phongchieu: roomSelect.value,
+                        batdau,
+                        ketthuc
+                    })
+                });
+            }
+            data = await res.json();
+            if (data.success) {
+                closeModal();
+                loadShowtimes(showtimeDate.value);
+                showToast(id ? 'Cập nhật suất chiếu thành công' : 'Thêm suất chiếu thành công');
+            } else {
+                showToast(data.message, 'error');
+            }
+        } catch (e) {
+            showToast(id ? 'Lỗi cập nhật suất chiếu' : 'Lỗi thêm suất chiếu', 'error');
+        }
+        Spinner.hide();
     });
     movieSearch.addEventListener('input', debounce(handleMovieSearch, 300));
     roomSelect.addEventListener('change', generateSuggestedTimes);
@@ -293,14 +232,9 @@ document.addEventListener('DOMContentLoaded', function() {
         resetForm();
         modalTitle.textContent = 'Cập nhật suất chiếu';
         showtimeId.value = id;
-
-        // Lấy lại danh sách phim và phòng chiếu
         await Promise.all([fetchMovies(), fetchRooms()]);
         fillRoomSelect();
-
-        // Lấy ngày hiện tại đang chọn
         const date = document.getElementById('date-picker').value;
-        // Gọi API lấy danh sách suất chiếu theo ngày
         let showtime = null;
         try {
             const res = await fetch(`${showtimeListing.dataset.url}/api/suat-chieu?ngay=${date}`);
@@ -309,7 +243,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showtime = data.data.find(s => s.id === id);
             }
         } catch (e) {}
-
         if (showtime) {
             showtimeDate.value = showtime.batdau.substr(0, 10);
             selectedMovieId.value = showtime.phim.id;
@@ -317,8 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
             endTime.value = showtime.ketthuc.substr(11,5);
             roomSelect.value = showtime.phong_chieu.id;
             movieSearch.value = showtime.phim.ten_phim;
-
-            // Hiển thị thông tin phim từ moviesData
             const movie = moviesData.find(m => m.id === showtime.phim.id);
             if (movie) {
                 selectedMovieInfo.classList.remove('hidden');
@@ -327,7 +258,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 selectedMovieDuration.textContent = `${movie.thoi_luong} phút`;
                 selectedMovieInfo.dataset.duration = movie.thoi_luong;
             }
-
             generateSuggestedTimes();
             showtimeModal.classList.remove('hidden');
         } else {
@@ -370,28 +300,43 @@ document.addEventListener('DOMContentLoaded', function() {
             Spinner.hide();
             return;
         }
-        const addBody = new URLSearchParams({
+        const id = showtimeId.value;
+        const body = JSON.stringify({
             id_phim: selectedMovieId.value,
             id_phongchieu: roomSelect.value,
             batdau,
             ketthuc
         });
         try {
-            const res = await fetch(`${showtimeListing.dataset.url}/api/suat-chieu`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: addBody
-            });
-            const data = await res.json();
+            let res, data;
+            if (id) {
+                res = await fetch(`${showtimeListing.dataset.url}/api/suat-chieu/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body
+                });
+            } else {
+                res = await fetch(`${showtimeListing.dataset.url}/api/suat-chieu`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        id_phim: selectedMovieId.value,
+                        id_phongchieu: roomSelect.value,
+                        batdau,
+                        ketthuc
+                    })
+                });
+            }
+            data = await res.json();
             if (data.success) {
                 closeModal();
                 loadShowtimes(showtimeDate.value);
-                showToast('Thêm suất chiếu thành công');
+                showToast(id ? 'Cập nhật suất chiếu thành công' : 'Thêm suất chiếu thành công');
             } else {
                 showToast(data.message, 'error');
             }
         } catch (e) {
-            showToast('Lỗi thêm suất chiếu', 'error');
+            showToast(id ? 'Lỗi cập nhật suất chiếu' : 'Lỗi thêm suất chiếu', 'error');
         }
         Spinner.hide();
     }
@@ -586,22 +531,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function deleteShowtime(id) {
-        // Remove from demo data
-        demoShowtimes = demoShowtimes.filter(s => s.id !== id);
-        confirmModal.classList.add('hidden');
-        loadShowtimes(formatDate(flatpickrInstance.selectedDates[0]));
-        showToast('Xóa suất chiếu thành công');
+        Spinner.show({ text: 'Đang xóa...' });
+        fetch(`${showtimeListing.dataset.url}/api/suat-chieu/${id}`, {
+            method: 'DELETE'
+        })
+        .then(res => res.json())
+        .then(data => {
+            confirmModal.classList.add('hidden');
+            if (data.success) {
+                loadShowtimes(formatDate(flatpickrInstance.selectedDates[0]));
+                showToast('Xóa suất chiếu thành công');
+            } else {
+                showToast(data.message, 'error');
+            }
+        })
+        .catch(() => {
+            showToast('Lỗi xóa suất chiếu', 'error');
+        })
+        .finally(() => {
+            Spinner.hide();
+        });
     }
     
     function loadRooms() {
         roomSelect.innerHTML = '<option value="">-- Chọn phòng chiếu --</option>';
-        
-        demoRooms.forEach(room => {
-            const option = document.createElement('option');
-            option.value = room.id;
-            option.textContent = `${room.name} - ${room.capacity} ghế`;
-            roomSelect.appendChild(option);
-        });
     }
     
     function generateSuggestedTimes() {
