@@ -92,8 +92,16 @@
   <script>
       document.addEventListener("DOMContentLoaded", () => {
           // Lấy ID rạp từ URL
+          function base64Decode(str) {
+              return decodeURIComponent(escape(atob(str)));
+          }
+
           const pathParts = window.location.pathname.split("/");
-          const idRap = pathParts[pathParts.length - 1];
+          const slugWithId = pathParts[pathParts.length - 1];  
+          const encodedId = slugWithId.split("-").pop();
+          const salt = "{{ $_ENV['URL_SALT'] }}";
+          const decoded = base64Decode(encodedId); 
+          const idRap = decoded.replace(salt, ""); 
 
           fetch(`${baseUrl}/api/rap/${idRap}`)
               .then(res => res.json())

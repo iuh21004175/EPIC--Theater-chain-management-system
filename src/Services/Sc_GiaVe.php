@@ -1,6 +1,8 @@
 <?php
     namespace App\Services;
     use App\Models\QuyTac_GiaVe;
+    use App\Models\Ghe;
+    use Carbon\Carbon;
     class Sc_GiaVe {
         // Properties and methods for the Sc_GiaVe class
         public function them(){
@@ -32,5 +34,22 @@
             }
             return false;
         }   
+        public function tinhGiaGhe($loaiGheId, $ngay = null, $dinhDangPhim = null)
+        {
+            // Xác định ngày
+            $date = $ngay ? Carbon::parse($ngay) : Carbon::today();
+            $dayType = ($date->dayOfWeek == 0 || $date->dayOfWeek == 6) ? 'Cuối tuần' : 'Ngày thường';
+
+            // Lấy giá cơ bản theo dayType (và định dạng phim nếu có)
+            $giaCoBan = QuyTac_GiaVe::where('trang_thai', 1)
+            ->whereRaw("JSON_SEARCH(dieu_kien, 'one', ?, NULL, '$[*].value') IS NOT NULL", [$dayType])
+            ->value('gia_tri');
+
+            // Lấy phụ thu loại ghế
+            $loaiGhe = Ghe::where('id', $loaiGheId)->first();
+            $phuThu = $loaiGhe->phu_thu ?? 0; 
+
+            return $giaCoBan + $phuThu;
+        }
     }
 ?>

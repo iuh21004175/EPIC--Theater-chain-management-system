@@ -1,0 +1,36 @@
+<?php
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Ve extends Model
+{
+    protected $table = 've';
+    protected $primaryKey = 'id';
+    public $timestamps = false; 
+
+    protected $fillable = [
+        'id',
+        'suat_chieu_id',
+        'ghe_id',
+        'khach_hang_id',
+        'trang_thai',
+        'het_han_giu',
+        'ngay_tao',
+    ];
+
+    public function suatchieu()
+    {
+        return $this->belongsTo(SuatChieu::class, 'suat_chieu_id', 'id');
+    }
+
+    public function ghe()
+    {
+        return $this->belongsTo(SoDoGhe::class, 'ghe_id', 'id');
+    }
+
+    public function khachhang()
+    {
+        return $this->belongsTo(KhachHang::class, 'khach_hang_id', 'id');
+    }
+}

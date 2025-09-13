@@ -78,5 +78,27 @@
                 ];
             }
         }
+
+        public function chiTietPhongChieu($vars)
+        {
+            $service = new Sc_PhongChieu();
+
+            try {
+                $id = is_array($vars) ? ($vars['id'] ?? null) : $vars;
+
+                $chiTiet = $service->chiTiet((int) $id);
+
+                return [
+                    'success' => true,
+                    'data'    => $chiTiet
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Không tìm thấy phòng chiếu: ' . $e->getMessage()
+                ];
+            }
+        }
+
     }
 ?>

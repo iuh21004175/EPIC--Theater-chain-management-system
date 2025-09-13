@@ -65,6 +65,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/dat-ve/{id}', [Ctrl_Phim::class, 'docChiTietPhim']);
     $r->addRoute('GET', '/phim-moi', [Ctrl_Phim::class, 'docPhimMoiNhat']);
     $r->addRoute('GET', '/suat-chieu-khach', [Ctrl_SuatChieu::class, 'docSuatChieuKH']);
+    $r->addRoute('GET', '/so-do-ghe/{id}', [Ctrl_PhongChieu::class, 'chiTietPhongChieu']);
+    $r->addRoute('GET', '/tinh-gia-ve/{loaiGheId}[/{ngay}[/{dinhDangPhim}]]', [Ctrl_GiaVe::class, 'docGiaVe']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

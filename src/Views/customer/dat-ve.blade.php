@@ -127,6 +127,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}";
     const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
+    const salt = "{{ $_ENV['URL_SALT'] }}";
 
     // --- DOM elements ---
     const trailerModal = document.getElementById("trailerModal");
@@ -297,11 +298,19 @@ document.addEventListener('DOMContentLoaded', () => {
     loadRap();
 
     // Load Phim & Suất chiếu
+    function base64Decode(str) {
+        return decodeURIComponent(escape(atob(str)));
+    }
 
+    function base64Encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
     const pathParts = window.location.pathname.split("/");
-    const slugWithId = pathParts[pathParts.length - 1];
-    const idPhim = slugWithId.split("-").pop();
-
+    const slugWithId = pathParts[pathParts.length - 1];  
+    const encodedId = slugWithId.split("-").pop();
+    const decoded = base64Decode(encodedId); 
+    const idPhim = decoded.replace(salt, "");   
+    
     let allSuatChieu = [];
 
     function renderSuatChieu() {
@@ -336,21 +345,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     const batDau = new Date(suat.batdau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
                     return `<button type="button" 
                                     class="suat-btn px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors"
-                                    data-id="${suat.id}">
+                                    data-suat-id="${suat.id}"
+                                    data-phong-id="${suat.phong_chieu.id}"
+                                    data-rap-id="${suat.phong_chieu.rap_chieu_phim.id}">
                                 ${batDau}
                             </button>`;
                 }).join(' ');
 
+
                 return `
-                    <div class="flex items-center gap-4 mb-2">
-                        <span class="font-medium w-40">${loaiChieu}</span>
+                    <div class="flex items-center mb-2">
+                        <span class="font-medium mr-4 min-w-[80px]">${loaiChieu}</span>
                         <div class="flex flex-wrap gap-2">${suatHtml}</div>
                     </div>`;
             }).join('');
 
             return `
                 <div class="bg-gray-50 p-4 rounded-xl shadow-sm mb-6">
-                    <h4 class="text-lg font-semibold mb-4">${rapName}</h4>
+                    <h4 class="text-lg font-semibold mb-4" data-phong-id="${suats[0].phong_chieu.id}">${rapName}</h4>
                     ${loaiHtml}
                 </div>
                 <hr class="border-t-2 border-grey-500 w-full mx-auto mb-10">
@@ -369,10 +381,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.classList.add('bg-red-600', 'text-white');
 
                 // Lấy id suất chiếu
-                const suatId = btn.dataset.id;
+                const suatId = btn.dataset.suatId;
+                const phongId = btn.dataset.phongId;
+                const rapId = btn.dataset.rapId;
+                const encoded = base64Encode(suatId + salt);
                 console.log("Chọn suất chiếu ID:", suatId);
+                console.log("Chọn suất chiếu ID:", rapId);
                 // Chuyển trang
-                window.location.href = `${baseUrl}/so-do-ghe`;
+                window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
             });
         });
     }
