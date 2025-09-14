@@ -4,6 +4,8 @@
 
 @section('head')
     <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/san-pham-an-uong.js"></script>
+    <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/combo-san-pham.js"></script>
+    <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/danh-muc-san-pham.js"></script>
     <style>
         .modal {
             transition: opacity 0.25s ease;
@@ -122,14 +124,11 @@
         .image-preview {
             width: 100%;
             height: 200px;
-            border: 2px dashed #e5e7eb;
-            border-radius: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             position: relative;
-            background-color: #f9fafb;
         }
         .image-preview img {
             max-width: 100%;
@@ -154,6 +153,7 @@
             text-align: left;
             align-items: center;
             display: flex;
+            height: 42px;
         }
 
         /* Đảm bảo văn bản option hiển thị đúng trong dropdown */
@@ -268,7 +268,7 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
+                                <tbody class="bg-white divide-y divide-gray-200"data-url="{{$_ENV['URL_WEB_BASE']}}">
                                     <tr class="product-item cursor-pointer hover:bg-gray-50" data-id="1">
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
@@ -365,63 +365,8 @@
 
             <!-- Categories list -->
             <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-md">
-                <ul class="divide-y divide-gray-200">
-                    <li class="category-item cursor-pointer hover:bg-gray-50" data-id="1">
-                        <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">Bắp rang</p>
-                                </div>
-                            </div>
-                            <div class="ml-2 flex-shrink-0 flex">
-                                <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    <span class="product-count">3</span> sản phẩm
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="category-item cursor-pointer hover:bg-gray-50" data-id="2">
-                        <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">Đồ uống</p>
-                                </div>
-                            </div>
-                            <div class="ml-2 flex-shrink-0 flex">
-                                <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    <span class="product-count">5</span> sản phẩm
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="category-item cursor-pointer hover:bg-gray-50" data-id="3">
-                        <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">Đồ ăn nhanh</p>
-                                </div>
-                            </div>
-                            <div class="ml-2 flex-shrink-0 flex">
-                                <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    <span class="product-count">2</span> sản phẩm
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="category-item cursor-pointer hover:bg-gray-50" data-id="4">
-                        <div class="px-4 py-4 sm:px-6 flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-sm font-medium text-indigo-600 truncate">Snack</p>
-                                </div>
-                            </div>
-                            <div class="ml-2 flex-shrink-0 flex">
-                                <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    <span class="product-count">4</span> sản phẩm
-                                </p>
-                            </div>
-                        </div>
-                    </li>
+                <ul class="divide-y divide-gray-200" id="category-list" data-url="{{$_ENV['URL_WEB_BASE']}}">
+            
                 </ul>
             </div>
         </div>
@@ -481,6 +426,8 @@
                                 <div class="mt-1 flex items-center text-sm text-gray-500">
                                     <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-14a3 3 0 00-3 3v2H7a1 1 0 000 2h1v1a1 1 0 01-1 1 1 1 0 100 2h6a1 1 0 100-2H9.83c.11-.313.17-.65.17-1v-1h1a1 1 0 100-2h-1V7a1 1 0 112 0 1 1 0 102 0 3 3 0 00-3-3z" clip-rule="evenodd" />
+                                
+                                    </svg>
                                 </div>
                             </div>
                         </div>
@@ -505,6 +452,7 @@
                                 <div class="mt-1 flex items-center text-sm text-gray-500">
                                     <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-14a3 3 0 00-3 3v2H7a1 1 0 000 2h1v1a1 1 0 01-1 1 1 1 0 100 2h6a1 1 0 100-2H9.83c.11-.313.17-.65.17-1v-1h1a1 1 0 100-2h-1V7a1 1 0 112 0 1 1 0 102 0 3 3 0 00-3-3z" clip-rule="evenodd" />
+                                    </svg>
                                 </div>
                             </div>
                         </div>
@@ -587,15 +535,7 @@
                             <label class="input-group-label" for="product-image">
                                 Hình ảnh <span class="text-red-500">*</span>
                             </label>
-                            <div class="image-preview mb-2">
-                                <div class="image-preview-placeholder">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    <span>Chọn hoặc kéo thả hình ảnh vào đây</span>
-                                </div>
-                                <img id="preview-image" class="hidden">
-                            </div>
+                           
                             <input type="file" id="product-image" class="hidden" accept="image/*">
                             <button type="button" id="select-image-btn" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                                 <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -604,6 +544,9 @@
                                 Chọn ảnh
                             </button>
                             <div class="invalid-feedback hidden" id="product-image-error">Vui lòng chọn hình ảnh cho sản phẩm.</div>
+                             <div class="image-preview mb-2">
+                                <img id="preview-image" class="hidden">
+                            </div>
                         </div>
                         
                         <div class="input-group">

@@ -1,3 +1,4 @@
+import Spinner from "./util/spinner.js";
 document.addEventListener('DOMContentLoaded', function() {
     // Tab switching
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -23,6 +24,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show corresponding tab content
             const tabId = this.id.replace('tab-btn-', 'tab-');
             document.getElementById(tabId).classList.add('active');
+            
+            // Load data for the active tab
+            loadTabData(tabId);
         });
     });
 
@@ -38,6 +42,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Open Add Product Modal
     document.getElementById('btn-add-product').addEventListener('click', function() {
+        // Load categories for combobox
+        const categorySelect = document.getElementById('product-category');
+        const url = document.getElementById('category-list').dataset.url + '/api/danh-muc';
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                // Xóa các option cũ
+                categorySelect.innerHTML = '<option value="">Chọn danh mục</option>';
+                if (data.success && Array.isArray(data.data)) {
+                    data.data.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.id;
+                        option.textContent = cat.ten;
+                        categorySelect.appendChild(option);
+                    });
+                }
+            });
         openModal(modals.addProduct);
     });
     
@@ -98,28 +119,44 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add Product Form Submit
     document.getElementById('add-product-form').addEventListener('submit', function(e) {
         e.preventDefault();
-        
-        const name = document.getElementById('product-name').value;
+        const name = document.getElementById('product-name').value.trim();
         const category = document.getElementById('product-category').value;
         const price = document.getElementById('product-price').value;
         const imageInput = document.getElementById('product-image');
-        const description = document.getElementById('product-description').value;
-        
-        // Check if an image is selected
+        const description = document.getElementById('product-description').value.trim();
         const hasImage = imageInput.files && imageInput.files.length > 0;
-        
         let isValid = validateProductForm(name, category, price, hasImage);
-        
         if (isValid) {
-            // In a real application, submit data via AJAX
-            // For demo purposes:
-            showSuccessToast('Thêm sản phẩm thành công!');
-            closeModal(modals.addProduct);
-            
-            // Add the new product to the list (in a real app, we would refresh or append the new data)
-            setTimeout(() => {
-                location.reload(); // Simple refresh for demo
-            }, 1000);
+            const spinner = Spinner.show({text: 'Đang thêm sản phẩm...'});
+            const formData = new FormData();
+            formData.append('ten', name);
+            formData.append('danh_muc_id', category);
+            formData.append('gia', price);
+            formData.append('mo_ta', description);
+            if (hasImage) {
+                formData.append('hinh_anh', imageInput.files[0]);
+            }
+            fetch(document.querySelector('.product-item').parentElement.dataset.url + '/api/san-pham', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                Spinner.hide(spinner);
+                if (data.success) {
+                    showSuccessToast('Thêm sản phẩm thành công!');
+                    closeModal(modals.addProduct);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showSuccessToast(data.message || 'Thêm sản phẩm thất bại!');
+                }
+            })
+            .catch(() => {
+                Spinner.hide(spinner);
+                showSuccessToast('Có lỗi khi gửi dữ liệu!');
+            });
         }
     });
     
@@ -148,27 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add Category Form Submit
-    document.getElementById('add-category-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const name = document.getElementById('category-name').value;
-        
-        let isValid = validateCategoryForm(name);
-        
-        if (isValid) {
-            // In a real application, submit data via AJAX
-            // For demo purposes:
-            showSuccessToast('Thêm danh mục thành công!');
-            closeModal(modals.addCategory);
-            
-            // Add the new category to the list (in a real app, we would refresh or append the new data)
-            setTimeout(() => {
-                location.reload(); // Simple refresh for demo
-            }, 1000);
-        }
-    });
-    
     // Edit Category Form Submit
     document.getElementById('edit-category-form').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -181,13 +197,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (isValid) {
             // In a real application, submit data via AJAX
             // For demo purposes:
-            showSuccessToast('Cập nhật thông tin danh mục thành công!');
             closeModal(modals.editCategory);
             
-            // Update the category in the list (in a real app, we would refresh or update the UI)
-            setTimeout(() => {
-                location.reload(); // Simple refresh for demo
-            }, 1000);
         }
     });
     
@@ -454,34 +465,31 @@ document.addEventListener('DOMContentLoaded', function() {
     function validateProductForm(name, category, price, hasImage, prefix = '') {
         let isValid = true;
         prefix = prefix || '';
-        
         // Reset error messages
         document.querySelectorAll('.invalid-feedback').forEach(el => el.classList.add('hidden'));
-        
         // Validate name (required)
         if (!name) {
             document.getElementById(`${prefix}product-name-error`).classList.remove('hidden');
             isValid = false;
         }
-        
         // Validate category (required)
         if (!category) {
             document.getElementById(`${prefix}product-category-error`).classList.remove('hidden');
             isValid = false;
         }
-        
         // Validate price (required and must be positive)
         if (!price || price <= 0) {
             document.getElementById(`${prefix}product-price-error`).classList.remove('hidden');
             isValid = false;
         }
-        
         // Validate image for new products
-        if (prefix === '' && !hasImage) {
-            document.getElementById('product-image-error').classList.remove('hidden');
-            isValid = false;
+        if (prefix === '') {
+            const imageInput = document.getElementById('product-image');
+            if (!imageInput.files || imageInput.files.length === 0) {
+                document.getElementById('product-image-error').classList.remove('hidden');
+                isValid = false;
+            }
         }
-        
         return isValid;
     }
     
@@ -562,18 +570,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadCategoryData(categoryId) {
-        // In a real application, this would fetch data via AJAX
-        document.getElementById('edit-category-id').value = categoryId;
-        
-        // Demo data for each category
-        if (categoryId === '1') {
-            document.getElementById('edit-category-name').value = 'Bắp rang';
-        } else if (categoryId === '2') {
-            document.getElementById('edit-category-name').value = 'Nước uống';
-        } else if (categoryId === '3') {
-            document.getElementById('edit-category-name').value = 'Đồ ăn nhẹ';
-        } else if (categoryId === '4') {
-            document.getElementById('edit-category-name').value = 'Combo';
+        if (window.loadCategoryData) {
+            window.loadCategoryData(categoryId);
+        } else {
+            // Fallback implementation
+            document.getElementById('edit-category-id').value = categoryId;
+            
+            // Demo data for each category
+            if (categoryId === '1') {
+                document.getElementById('edit-category-name').value = 'Bắp rang';
+            } else if (categoryId === '2') {
+                document.getElementById('edit-category-name').value = 'Nước uống';
+            } else if (categoryId === '3') {
+                document.getElementById('edit-category-name').value = 'Đồ ăn nhẹ';
+            } else if (categoryId === '4') {
+                document.getElementById('edit-category-name').value = 'Combo';
+            }
         }
     }
 
@@ -812,4 +824,120 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset errors
         document.querySelectorAll('#add-combo-modal .invalid-feedback').forEach(el => el.classList.add('hidden'));
     }
+
+    // Load data for each tab
+    function loadTabData(tabId) {
+        switch(tabId) {
+            case 'tab-products':
+                loadProducts();
+                break;
+            case 'tab-categories':
+                loadCategories();
+                break;
+            case 'tab-combos':
+                loadCombos();
+                break;
+        }
+    }
+
+    // Load products data
+    function loadProducts() {
+        const spinner = Spinner.show({text: 'Đang tải danh sách sản phẩm...'});
+        
+        // In a real application, you would fetch from API
+        // For demo purposes, we'll simulate loading
+        setTimeout(() => {
+            Spinner.hide(spinner);
+            console.log('Products loaded');
+            // Here you would update the products table with fresh data
+        }, 1000);
+    }
+
+    // Load categories data - use function from danh-muc-san-pham.js
+    function loadCategories() {
+        if (window.loadCategories) {
+            window.loadCategories();
+        } else {
+            // Fallback if danh-muc-san-pham.js is not loaded
+            const spinner = Spinner.show({text: 'Đang tải danh sách danh mục...'});
+            setTimeout(() => {
+                Spinner.hide(spinner);
+            }, 1000);
+        }
+    }
+
+    // Load combos data - use function from combo-san-pham.js
+    function loadCombos() {
+        if (window.loadCombos) {
+            window.loadCombos();
+        } else {
+            // Fallback if combo-san-pham.js is not loaded
+            const spinner = Spinner.show({text: 'Đang tải danh sách combo...'});
+            setTimeout(() => {
+                Spinner.hide(spinner);
+            }, 1000);
+        }
+    }
+
+    // Render categories (helper function for loadCategories)
+    function renderCategories(categories = []) {
+        if (window.renderCategories) {
+            window.renderCategories(categories);
+        } else {
+            // Fallback if danh-muc-san-pham.js is not loaded
+            const categoryList = document.getElementById('category-list');
+            if (!categoryList) return;
+            
+            categoryList.innerHTML = '';
+            if (!categories || categories.length === 0) {
+                categoryList.innerHTML = '<li class="px-4 py-4 text-gray-400">Chưa có danh mục nào</li>';
+                return;
+            }
+            
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                li.className = 'category-item cursor-pointer hover:bg-gray-50';
+                li.setAttribute('data-id', cat.id);
+                li.innerHTML = `
+                    <a href="#" class="block">
+                        <div class="px-4 py-4 sm:px-6 flex items-center">
+                            <div class="w-full">
+                                <p class="text-sm font-medium text-indigo-600">${cat.ten}</p>
+                                <p class="mt-2 text-sm text-gray-500">Số sản phẩm: ${cat.so_sanpham ?? 0}</p>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                categoryList.appendChild(li);
+            });
+            
+            // Re-attach click handlers for category items
+            attachCategoryClickHandlers();
+        }
+    }
+
+    // Attach click handlers for category items
+    function attachCategoryClickHandlers() {
+        if (window.attachCategoryClickHandlers) {
+            window.attachCategoryClickHandlers();
+        } else {
+            // Fallback implementation
+            const categoryItems = document.querySelectorAll('.category-item');
+            categoryItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const categoryId = this.getAttribute('data-id');
+                    // Highlight selected row
+                    categoryItems.forEach(row => row.classList.remove('bg-gray-100'));
+                    this.classList.add('bg-gray-100');
+                    
+                    // Load category data and show edit modal
+                    loadCategoryData(categoryId);
+                    openModal(modals.editCategory);
+                });
+            });
+        }
+    }
+
+    // Load initial data when page loads
+    loadTabData('tab-products');
 });

@@ -101,17 +101,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Đặt giá trị date-picker là ngày 09/09/2025 nếu chưa có
+    // Đặt giá trị date-picker là ngày hiện tại nếu chưa có
     if (!datePicker.value) {
-        const defaultDate = new Date(); // Tháng 9 là 8
-        console.log(defaultDate);
-        datePicker.value = formatDate(defaultDate);
+        const defaultDate = new Date();
+        datePicker.value = formatDateDisplay(defaultDate);
     }
-    // Khởi tạo navigation tuần và load dữ liệu đúng thứ tự
-    if (document.getElementById('prev-week')) {
-        initWeekNavigation();
-    }
-    loadShowtimes(datePicker.value);
+    // Chuyển sang format YYYY-MM-DD để load showtimes
+    const selectedDateAPI = formatDate(parseDateFromDisplay(datePicker.value));
+    loadShowtimes(selectedDateAPI);
     loadRooms();
     
     // Event listeners
@@ -193,6 +190,27 @@ document.addEventListener('DOMContentLoaded', function() {
         return `${year}-${month}-${day}`;
     }
     
+    function formatDateDisplay(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${day}/${month}/${year}`;
+    }
+    
+    function parseDateFromDisplay(dateStr) {
+        // Chuyển từ DD/MM/YYYY sang Date object
+        const parts = dateStr.split('/');
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // Tháng trong JavaScript là 0-11
+        const year = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+    }
+    
+    function parseDateFromAPI(dateStr) {
+        // Chuyển từ YYYY-MM-DD sang Date object
+        return new Date(dateStr);
+    }
+    
     function displayDate(date) {
         const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
         return new Date(date).toLocaleDateString('vi-VN', options);
@@ -220,7 +238,10 @@ document.addEventListener('DOMContentLoaded', function() {
         resetForm();
         modalTitle.textContent = 'Thêm suất chiếu mới';
         showtimeId.value = '';
-        showtimeDate.value = formatDate(flatpickrInstance.selectedDates[0]);
+        // Lấy ngày từ date-picker và chuyển sang format YYYY-MM-DD
+        const selectedDateDisplay = document.getElementById('date-picker').value;
+        const selectedDateAPI = formatDate(parseDateFromDisplay(selectedDateDisplay));
+        showtimeDate.value = selectedDateAPI;
         await Promise.all([fetchMovies(), fetchRooms()]);
         fillRoomSelect();
         showtimeModal.classList.remove('hidden');
@@ -234,7 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
         showtimeId.value = id;
         await Promise.all([fetchMovies(), fetchRooms()]);
         fillRoomSelect();
-        const date = document.getElementById('date-picker').value;
+        const dateDisplay = document.getElementById('date-picker').value;
+        const date = formatDate(parseDateFromDisplay(dateDisplay)); // Chuyển sang YYYY-MM-DD
         let showtime = null;
         try {
             const res = await fetch(`${showtimeListing.dataset.url}/api/suat-chieu?ngay=${date}`);
@@ -449,7 +471,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 showtimeListing.innerHTML = '<div class="text-center py-8 text-gray-500">Không có dữ liệu suất chiếu</div>';
             }
-            document.getElementById('date-picker').value = date;
+            // Không cập nhật date-picker.value ở đây để giữ format DD/MM/YYYY
         } catch (e) {
             showtimeListing.innerHTML = '<div class="text-center py-8 text-red-500">Lỗi tải dữ liệu suất chiếu</div>';
         } finally {
@@ -654,9 +676,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Chức năng điều hướng theo tuần (Phương án 1)
     function updateWeekDisplay() {
         const weekRangeDisplay = document.getElementById('week-range');
-        const currentWeekStart = new Date();
-        const weekEnd = new Date();
+        if (!weekRangeDisplay || !currentWeekStart) return;
+        
+        const weekEnd = new Date(currentWeekStart);
         weekEnd.setDate(currentWeekStart.getDate() + 6);
+        
         const formatDay = date => {
             const day = date.getDate().toString().padStart(2, '0');
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -670,31 +694,51 @@ document.addEventListener('DOMContentLoaded', function() {
         const prevWeekBtn = document.getElementById('prev-week');
         const nextWeekBtn = document.getElementById('next-week');
         let selectedDate = document.getElementById('date-picker').value;
+        
         if (!selectedDate) {
             const today = new Date();
-            //console.log(today)
             today.setHours(0,0,0,0);
-            selectedDate = formatDate(today);
+            selectedDate = formatDateDisplay(today);
             document.getElementById('date-picker').value = selectedDate;
         }
-        const parts = selectedDate.split('/');
-        const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // Tháng trong JavaScript là 0-11
-        let year = parseInt(parts[2], 10);
-        let baseDate = new Date(year, month, day);
+        
+        // Parse date - date-picker hiển thị DD/MM/YYYY
+        let baseDate;
+        if (selectedDate.includes('/')) {
+            // Format DD/MM/YYYY từ date-picker
+            baseDate = parseDateFromDisplay(selectedDate);
+        } else {
+            // Format YYYY-MM-DD từ API
+            baseDate = parseDateFromAPI(selectedDate);
+        }
+        
         baseDate.setHours(0,0,0,0);
-        currentWeekStart = new Date(baseDate); // Tuần bắt đầu từ ngày đang chọn
+        currentWeekStart = getMonday(baseDate); // Tuần bắt đầu từ thứ 2
         updateWeekDisplay();
-        renderWeekDays(currentWeekStart, selectedDate);
+        // Chuyển sang format YYYY-MM-DD cho renderWeekDays
+        const selectedDateAPI = formatDate(baseDate);
+        renderWeekDays(currentWeekStart, selectedDateAPI);
+        
         prevWeekBtn.addEventListener('click', () => {
             currentWeekStart.setDate(currentWeekStart.getDate() - 7);
             updateWeekDisplay();
-            renderWeekDays(currentWeekStart, document.getElementById('date-picker').value);
+            // Cập nhật date-picker với ngày đầu tuần mới (format DD/MM/YYYY)
+            const newDateDisplay = formatDateDisplay(currentWeekStart);
+            const newDateAPI = formatDate(currentWeekStart);
+            document.getElementById('date-picker').value = newDateDisplay;
+            renderWeekDays(currentWeekStart, newDateAPI);
+            loadShowtimes(newDateAPI);
         });
+        
         nextWeekBtn.addEventListener('click', () => {
             currentWeekStart.setDate(currentWeekStart.getDate() + 7);
             updateWeekDisplay();
-            renderWeekDays(currentWeekStart, document.getElementById('date-picker').value);
+            // Cập nhật date-picker với ngày đầu tuần mới (format DD/MM/YYYY)
+            const newDateDisplay = formatDateDisplay(currentWeekStart);
+            const newDateAPI = formatDate(currentWeekStart);
+            document.getElementById('date-picker').value = newDateDisplay;
+            renderWeekDays(currentWeekStart, newDateAPI);
+            loadShowtimes(newDateAPI);
         });
     }
 
@@ -742,8 +786,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 div.classList.add('border-green-500', 'bg-green-50');
             }
             itemDiv.addEventListener('click', function() {
-                document.getElementById('date-picker').value = formattedDate;
-                currentWeekStart = new Date(formattedDate); // Tuần bắt đầu từ ngày đang chọn
+                // Cập nhật date-picker với format DD/MM/YYYY
+                const dateDisplay = formatDateDisplay(new Date(formattedDate));
+                document.getElementById('date-picker').value = dateDisplay;
+                // Cập nhật currentWeekStart để tuần hiển thị đúng
+                currentWeekStart = getMonday(new Date(formattedDate));
                 updateWeekDisplay();
                 renderWeekDays(currentWeekStart, formattedDate);
                 loadShowtimes(formattedDate);
@@ -762,14 +809,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const btnAddShowtime = document.getElementById('btn-add-showtime');
         const datePicker = document.getElementById('date-picker');
         if (!btnAddShowtime || !datePicker) return;
-        const parts = datePicker.value.split('/');
-        const day = parseInt(parts[0], 10);
-        const month = parseInt(parts[1], 10) - 1; // Tháng trong JavaScript là 0-11
-        let year = parseInt(parts[2], 10);
-        const selectedDate = new Date(year, month, day);
+        
+        const dateValue = datePicker.value;
+        let selectedDate;
+        
+        if (dateValue.includes('/')) {
+            // Format DD/MM/YYYY từ date-picker
+            selectedDate = parseDateFromDisplay(dateValue);
+        } else {
+            // Format YYYY-MM-DD từ API
+            selectedDate = parseDateFromAPI(dateValue);
+        }
+        
         const today = new Date();
         today.setHours(0,0,0,0);
         selectedDate.setHours(0,0,0,0);
+        
         if (selectedDate < today) {
             btnAddShowtime.style.display = 'none';
         } else {

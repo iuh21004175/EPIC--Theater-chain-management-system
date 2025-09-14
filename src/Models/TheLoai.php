@@ -20,8 +20,4 @@ class TheLoai extends Model
     public function Phim() {
          return $this->hasMany(Phim_TheLoai::class, 'theloai_id', 'id');
     }
-    public function capNhatSoPhim() {
-        $this->so_phim = $this->Phim()->count();
-        $this->save();
-    }
 }

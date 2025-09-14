@@ -3,7 +3,7 @@
     use Illuminate\Database\Eloquent\Model;
 
     class DanhMuc extends Model{
-        protected $table = 'danh_muc';
+        protected $table = 'danhmuc';
         protected $primaryKey = 'id';
         protected $fillable = [
             'id',
@@ -12,6 +12,9 @@
             'created_at',
             'updated_at'
         ];
-        public $timestamps = false;
+        public function sanPhams()
+        {
+            return $this->hasMany(SanPham::class, 'danh_muc_id', 'id');
+        }
     }
 ?>

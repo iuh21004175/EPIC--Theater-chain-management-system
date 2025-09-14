@@ -30,16 +30,13 @@
             }
             return false;
         }
-        public function suaTheLoaiPhim($idPhim){
-            $data = file_get_contents('php://input');
-            $data = json_decode($data, true);
-            $theLoai = TheLoai::find($idPhim);
-            if($theLoai){
-                $theLoai->ten = $data['ten'] ?? '';
-                $theLoai->save();
-                return true;
+        private function capNhatSoPhimTheLoai() {
+            $theLoai = TheLoai::all();
+            foreach ($theLoai as $tl) {
+                $soPhim = Phim_TheLoai::where('theloai_id', $tl->id)->count();
+                $tl->so_phim = $soPhim;
+                $tl->save();
             }
-            return false;
         }
         public function themPhim(){
             $phim = null;
@@ -79,6 +76,8 @@
                     'trang_thai' => $trangThai,
                 ]);
                 if($phim){
+                    
+
                     getS3Client()->putObject([
                         'Bucket' => $bucket,
                         'Key'    => $keyName,
@@ -90,6 +89,7 @@
                             'phim_id' => $phim->id,
                         ]);
                     }
+                    $this->capNhatSoPhimTheLoai(); // Cập nhật số phim cho thể loại
                     return true;
                 }
                 return false;
@@ -241,6 +241,7 @@
                             'phim_id' => $phim->id,
                         ]);
                     }
+                    $this->capNhatSoPhimTheLoai(); // Cập nhật số phim cho thể loại
                     return true;
                 }
                 return false;

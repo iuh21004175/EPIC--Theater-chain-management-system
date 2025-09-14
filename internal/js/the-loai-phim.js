@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         genres.forEach(genre => {
                             // Count movies of this genre (if data available)
-                            const movieCount = genre.movie_count || 0;
+                            const movieCount = genre.so_phim || 0;
                             
                             const row = document.createElement('tr');
                             // Add cursor-pointer and hover effect to indicate clickable row
