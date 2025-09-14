@@ -122,7 +122,7 @@
         </a>
         <nav class="hidden md:flex items-center space-x-8 relative">
             <a href="{{$_ENV['URL_WEB_BASE']}}/" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Trang chủ</a>
-            <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Đặt vé</a>
+            <!-- <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Đặt vé</a> -->
             <a href="{{$_ENV['URL_WEB_BASE']}}/phim" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Phim</a>
             <div class="relative group" id="rap-dropdown">
                 <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
@@ -324,16 +324,29 @@
 
 </body>
 <script>
-const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
-const rapMenu = document.getElementById('rap-menu');
+    const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
+    const salt = "{{ $_ENV['URL_SALT'] }}";
+    const rapMenu = document.getElementById('rap-menu');
+    function base64Encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+    function slugify(str) {
+        return str
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // bỏ dấu tiếng Việt
+            .replace(/[^a-z0-9]+/g, "-") // thay ký tự đặc biệt thành "-"
+            .replace(/^-+|-+$/g, ""); // bỏ dấu - thừa
+    }
+   
 if (rapMenu) {
     fetch(baseUrl + "/api/rap-phim-khach")
         .then(res => res.json())
         .then(data => {
             if (data.success && data.data.length > 0) {
                 data.data.forEach(rap => {
+                    const encoded = base64Encode(rap.id + salt);
                     const a = document.createElement('a');
-                    a.href = `${baseUrl}/rap/${rap.id}`;
+                    a.href = `${baseUrl}/rap/${slugify(rap.ten)}-${encoded}`;
                     a.textContent = rap.ten;
                     a.className = "block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap";
                     rapMenu.appendChild(a);

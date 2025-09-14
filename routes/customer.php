@@ -19,7 +19,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/tin-tuc', [Ctrl_Phim::class, 'tinTuc']);
     $r->addRoute('GET', '/tin-tuc/{name}', [Ctrl_Phim::class, 'chiTietTinTuc']);
     $r->addRoute('GET', '/reset-password', [Ctrl_XacThucCustomer::class, 'resetPassword']);
-    $r->addRoute('GET', '/so-do-ghe', [Ctrl_Ghe::class, 'soDoGhe']);
+    $r->addRoute('GET', '/so-do-ghe/{id}', [Ctrl_Ghe::class, 'soDoGhe']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

@@ -172,28 +172,75 @@
             $suatChieu->delete();
         }
 
-       public function docSuatChieuKH($ngay = null, $idPhim)
+        public function docSuatChieuKH($ngay = null, $idPhim)
         {
             $query = SuatChieu::with(['phim', 'phongChieu.rapChieuPhim'])
                 ->where('id_phim', $idPhim);
 
             if ($ngay) {
                 try {
-                    // Chuẩn hóa ngày về dạng Y-m-d để whereDate khớp
                     $ngayFormat = Carbon::parse($ngay)->toDateString();
-                    $query->whereDate('batdau', $ngayFormat);
+                    $today = Carbon::today()->toDateString();
+
+                    if ($ngayFormat === $today) {
+                        $query->where('batdau', '>=', Carbon::now());
+                    } elseif ($ngayFormat > $today) {
+                        $query->whereDate('batdau', $ngayFormat);
+                    } else {
+                        return collect([]);
+                    }
                 } catch (\Exception $e) {
-                    // Nếu ngày sai format thì mặc định lấy từ hôm nay trở đi
-                    $query->whereDate('batdau', '>=', Carbon::today()->toDateString());
+                    $query->where('batdau', '>=', Carbon::now());
                 }
             } else {
-                // Nếu không có ngày → mặc định lấy từ hôm nay trở đi
-                $query->whereDate('batdau', '>=', Carbon::today()->toDateString());
+                $query->where('batdau', '>=', Carbon::now());
+            }
+            return $query->orderBy('batdau', 'asc')->get();
+        }
+
+        public function docPhimTheoRap($ngay = null, $idRap = null)
+        {
+            $query = SuatChieu::with(['phim', 'phongChieu.rapChieuPhim'])
+                ->whereHas('phongChieu', function ($q) use ($idRap) {
+                    $q->where('id_rapphim', $idRap);
+                });
+
+            // Xử lý ngày
+            $today = Carbon::today()->toDateString();
+            if ($ngay) {
+                try {
+                    $ngayFormat = Carbon::parse($ngay)->toDateString();
+                    if ($ngayFormat === $today) {
+                        // Nếu là hôm nay, chỉ lấy suất chiếu còn trong tương lai
+                        $query->where('batdau', '>=', Carbon::now());
+                    } else {
+                        // Ngày khác, lấy tất cả suất chiếu trong ngày
+                        $query->whereDate('batdau', $ngayFormat);
+                    }
+                } catch (\Exception $e) {
+                    // Nếu parse ngày lỗi, mặc định lấy từ hiện tại trở đi
+                    $query->where('batdau', '>=', Carbon::now());
+                }
+            } else {
+                // Không truyền ngày, lấy từ hiện tại trở đi
+                $query->where('batdau', '>=', Carbon::now());
+                $ngayFormat = $today;
             }
 
-            $suatChieu = $query->orderBy('batdau', 'asc')->get();
+            // Lấy tất cả suất chiếu, sắp xếp theo thời gian bắt đầu
+            $suatChieuList = $query->orderBy('batdau', 'asc')->get();
 
-            return $suatChieu;
+            // Lọc phim dựa trên **suất chiếu trong ngày** trước khi unique
+            $phimList = $suatChieuList
+            ->filter(fn($suat) => Carbon::parse($suat->batdau)->toDateString() === $ngayFormat)
+            ->sortBy('batdau')      // <--- thêm dòng này
+            ->pluck('phim')
+            ->filter()
+            ->unique('id')
+            ->values();
+            return $phimList;
         }
+
+
     }
 ?>

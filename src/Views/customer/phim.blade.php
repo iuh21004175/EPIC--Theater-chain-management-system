@@ -81,7 +81,8 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}"; 
-    const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}"; 
+    const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}";
+    const salt = "{{ $_ENV['URL_SALT'] }}"; 
 
     const trailerModal = document.getElementById("trailerModal");
     const closeModal = document.getElementById("closeModal");
@@ -114,8 +115,13 @@ document.addEventListener("DOMContentLoaded", () => {
             .replace(/^-+|-+$/g, ""); // bỏ dấu - thừa
     }
 
+    function base64Encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+    
     // === Hàm render card phim ===
     function renderCard(phim) {
+    const encoded = base64Encode(phim.id + salt);
     return `
         <div class="relative rounded-xl overflow-hidden shadow-lg group bg-white">
             <!-- Poster -->
@@ -125,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <!-- Overlay hover -->
             <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-3 
                         opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                <a href="${baseUrl}/dat-ve/${slugify(phim.ten_phim)}-${phim.id}"
+                <a href="${baseUrl}/dat-ve/${slugify(phim.ten_phim)}-${encoded}"
                     class="flex items-center justify-center w-[140px] h-[40px] rounded-lg text-white font-semibold 
                             bg-red-600 hover:bg-red-500 transition-all duration-300">
                     🎟 Mua vé

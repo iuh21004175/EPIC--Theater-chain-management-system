@@ -67,5 +67,29 @@
             }
         }
 
+        public function docGiaVe($loaiGheId, $ngay = null, $dinhDangPhim = null)
+        {
+            $service = new Sc_GiaVe();
+
+            try {
+                if (!$loaiGheId) {
+                    throw new \Exception("Thiếu tham số loai_ghe_id");
+                }
+
+                $data = $service->tinhGiaGhe($loaiGheId, $ngay, $dinhDangPhim);
+
+                return [
+                    'success' => true,
+                    'data' => $data,
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi đọc quy tắc giá vé: ' . $e->getMessage(),
+                ];
+            }
+        }
+
+
     }
 ?>

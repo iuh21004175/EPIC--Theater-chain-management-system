@@ -1,6 +1,8 @@
 <?php
     namespace App\Services;
     use App\Models\PhongChieu;
+    use App\Models\Ve;
+    use App\Models\SuatChieu;
     class Sc_PhongChieu {
         // Các phương thức liên quan đến phòng chiếu sẽ được thêm vào đây
         public function them(){
@@ -137,6 +139,76 @@
 
             return $dsPhongChieu;
         }
+
+        public function chiTiet($idSuatChieu)
+        {
+            // Lấy vé của suất chiếu kèm thông tin ghế và loại ghế
+            $ves = Ve::with('ghe.loaiGhe')
+                ->where('suat_chieu_id', $idSuatChieu)
+                ->get();
+
+            // Lấy suất chiếu kèm phòng chiếu, sơ đồ ghế, loại ghế, phim và rạp
+            $suat = SuatChieu::with([
+                'phongChieu.soDoGhe.loaiGhe',
+                'phongChieu.rapChieuPhim', 
+                'phim'
+            ])->find($idSuatChieu);
+
+            if (!$suat || !$suat->phongChieu) {
+                throw new \Exception("Không tìm thấy phòng chiếu");
+            }
+
+            $phong = $suat->phongChieu;
+
+            // Map dữ liệu ghế + trạng thái
+            $soDoGhe = $phong->soDoGhe->map(function ($ghe) use ($ves) {
+                $ve = $ves->firstWhere('ghe_id', $ghe->id);
+                return [
+                    'so_ghe'     => $ghe->so_ghe,
+                    'loaighe_id' => $ghe->loaighe_id,
+                    'loai_ghe'   => $ghe->loaiGhe ? [
+                        'ten'     => $ghe->loaiGhe->ten,
+                        'ma_mau'  => $ghe->loaiGhe->ma_mau,
+                        'phu_thu' => $ghe->loaiGhe->phu_thu,
+                        'mo_ta'   => $ghe->loaiGhe->mo_ta,
+                    ] : null,
+                    'trang_thai' => $ve ? $ve->trang_thai : 'trong',
+                ];
+            })->values();
+
+            return [
+                'phim' => $suat->phim ? [
+                    'id'          => $suat->phim->id,
+                    'ten_phim'    => $suat->phim->ten_phim,
+                    'do_tuoi'   => $suat->phim->do_tuoi,
+                    'dao_dien'    => $suat->phim->dao_dien,
+                    'dien_vien'   => $suat->phim->dien_vien,
+                    'thoi_luong'  => $suat->phim->thoi_luong,
+                    'ngay_cong_chieu' => $suat->phim->ngay_cong_chieu,
+                    'poster_url'  => $suat->phim->poster_url,
+                ] : null,
+                'suat_chieu' => [
+                    'id'        => $suat->id,
+                    'bat_dau'   => $suat->batdau,
+                    'ket_thuc'  => $suat->ketthuc,
+                ],
+                'phong' => [
+                    'id'         => $phong->id,
+                    'id_rapphim' => $phong->id_rapphim,
+                    'ten'        => $phong->ten,
+                    'sohang_ghe' => $phong->sohang_ghe,
+                    'socot_ghe'  => $phong->socot_ghe,
+                    'loai_phongchieu'  => $phong->loai_phongchieu,
+                    'soDoGhe'    => $soDoGhe,
+                ],
+                'rap' => $phong->rapChieuPhim ? [
+                    'id'   => $phong->rapChieuPhim->id,
+                    'ten'  => $phong->rapChieuPhim->ten,
+                    'dia_chi' => $phong->rapChieuPhim->dia_chi ?? null,
+                ] : null,
+            ];
+        }
+
     }
 
 ?>
