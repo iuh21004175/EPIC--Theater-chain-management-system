@@ -118,6 +118,32 @@
                 ];
             }
         }
+
+        public function docPhimTheoRapKH($idRap)
+        {
+            $service = new Sc_SuatChieu();
+
+            // Lấy ngày từ query string, mặc định hôm nay
+            $ngay = $_GET['ngay'] ?? date('Y-m-d');
+
+            try {
+                // Gọi service để lấy danh sách phim theo rạp và ngày
+                $phimList = $service->docPhimTheoRap($ngay, $idRap);
+
+                return [
+                    'success' => true,
+                    'message' => 'Đọc phim theo rạp thành công',
+                    'data' => $phimList
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi đọc phim theo rạp: ' . $e->getMessage(),
+                    'data' => []
+                ];
+            }
+        }
+
         public function suaSuatChieu($id){
             $service = new Sc_SuatChieu();
             try{

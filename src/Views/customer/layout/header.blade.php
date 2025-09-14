@@ -325,7 +325,7 @@
 </body>
 <script>
     const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
-    //const salt = "{{ $_ENV['URL_SALT'] }}";
+    const salt = "{{ $_ENV['URL_SALT'] }}";
     const rapMenu = document.getElementById('rap-menu');
     function base64Encode(str) {
         return btoa(unescape(encodeURIComponent(str)));

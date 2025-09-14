@@ -38,12 +38,16 @@
       </div>
     </div>
   </div>
-
+  <div id="foodContainer" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
+    <h2 class="text-lg font-bold">Chọn bắp & nước</h2>
+  </div>
   <!-- Bên phải: Thông tin phim + ghế đã chọn + tổng cộng -->
   <div id="movieInfo" class="w-full md:w-96 bg-white rounded-lg shadow-lg p-6 flex flex-col gap-4">
     <!-- Nội dung sẽ render bằng JS -->
   </div>
 
+
+  
 </div>
 
 <script>
@@ -124,6 +128,7 @@
           const selectedSeatsContainer = document.getElementById("selectedSeatsContainer");
           const totalPriceEl = document.getElementById("totalPrice");
           const continueContainer = document.getElementById("continueContainer");
+          const foodContainer = document.getElementById("foodContainer");
 
           // Grid số cột
           seatMap.style.gridTemplateColumns = `repeat(${data.socot_ghe}, minmax(0, 1fr))`;
@@ -146,7 +151,16 @@
 
           // Render sơ đồ ghế
           data.phong.soDoGhe.forEach(ghe => {
+            
             const seat = document.createElement("div");
+            
+            if (!ghe.loaighe_id) {
+              // Ghế null → hiển thị lối đi
+              seat.className =
+                "w-12 h-12 rounded-xl bg-transparent"; // ô trống, không click
+              seatMap.appendChild(seat);
+              return;
+            }
             seat.textContent = ghe.so_ghe;
             seat.className =
               "flex items-center justify-center w-12 h-12 text-sm font-bold rounded-xl cursor-pointer transition transform hover:scale-105 select-none shadow-md";
@@ -174,6 +188,9 @@
               leftContainer.style.transition = "opacity 0.5s";
               leftContainer.style.opacity = 0;          
               leftContainer.style.pointerEvents = "none"; 
+
+              leftContainer.classList.add("hidden"); // ẩn sơ đồ ghế
+              foodContainer.classList.remove("hidden");
             });
         })
         .catch(err => {

@@ -198,5 +198,49 @@
             return $query->orderBy('batdau', 'asc')->get();
         }
 
+        public function docPhimTheoRap($ngay = null, $idRap = null)
+        {
+            $query = SuatChieu::with(['phim', 'phongChieu.rapChieuPhim'])
+                ->whereHas('phongChieu', function ($q) use ($idRap) {
+                    $q->where('id_rapphim', $idRap);
+                });
+
+            // Xử lý ngày
+            $today = Carbon::today()->toDateString();
+            if ($ngay) {
+                try {
+                    $ngayFormat = Carbon::parse($ngay)->toDateString();
+                    if ($ngayFormat === $today) {
+                        // Nếu là hôm nay, chỉ lấy suất chiếu còn trong tương lai
+                        $query->where('batdau', '>=', Carbon::now());
+                    } else {
+                        // Ngày khác, lấy tất cả suất chiếu trong ngày
+                        $query->whereDate('batdau', $ngayFormat);
+                    }
+                } catch (\Exception $e) {
+                    // Nếu parse ngày lỗi, mặc định lấy từ hiện tại trở đi
+                    $query->where('batdau', '>=', Carbon::now());
+                }
+            } else {
+                // Không truyền ngày, lấy từ hiện tại trở đi
+                $query->where('batdau', '>=', Carbon::now());
+                $ngayFormat = $today;
+            }
+
+            // Lấy tất cả suất chiếu, sắp xếp theo thời gian bắt đầu
+            $suatChieuList = $query->orderBy('batdau', 'asc')->get();
+
+            // Lọc phim dựa trên **suất chiếu trong ngày** trước khi unique
+            $phimList = $suatChieuList
+            ->filter(fn($suat) => Carbon::parse($suat->batdau)->toDateString() === $ngayFormat)
+            ->sortBy('batdau')      // <--- thêm dòng này
+            ->pluck('phim')
+            ->filter()
+            ->unique('id')
+            ->values();
+            return $phimList;
+        }
+
+
     }
 ?>
