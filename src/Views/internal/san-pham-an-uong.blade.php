@@ -4,8 +4,9 @@
 
 @section('head')
     <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/san-pham-an-uong.js"></script>
-    <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/combo-san-pham.js"></script>
     <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/danh-muc-san-pham.js"></script>
+    <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/combo-san-pham.js"></script>
+    <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/tab-loader-san-pham.js"></script>
     <style>
         .modal {
             transition: opacity 0.25s ease;
@@ -268,70 +269,9 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200"data-url="{{$_ENV['URL_WEB_BASE']}}">
-                                    <tr class="product-item cursor-pointer hover:bg-gray-50" data-id="1">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10">
-                                                    <img class="h-10 w-10 rounded-full object-cover" src="{{$_ENV['URL_INTERNAL_BASE']}}/img/popcorn.jpg" alt="Bắp rang">
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">Bắp rang bơ</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">Bắp rang</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">45.000₫</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-500 max-w-xs truncate">Bắp rang bơ thơm ngon, giòn rụm</div>
-                                        </td>
-                                    </tr>
-                                    <tr class="product-item cursor-pointer hover:bg-gray-50" data-id="2">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10">
-                                                    <img class="h-10 w-10 rounded-full object-cover" src="{{$_ENV['URL_INTERNAL_BASE']}}/img/coca.jpg" alt="Coca-Cola">
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">Coca-Cola (L)</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">Đồ uống</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">35.000₫</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-500 max-w-xs truncate">Coca-Cola size lớn 500ml</div>
-                                        </td>
-                                    </tr>
-                                    <tr class="product-item cursor-pointer hover:bg-gray-50" data-id="3">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="flex items-center">
-                                                <div class="flex-shrink-0 h-10 w-10">
-                                                    <img class="h-10 w-10 rounded-full object-cover" src="{{$_ENV['URL_INTERNAL_BASE']}}/img/nachos.jpg" alt="Nachos">
-                                                </div>
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900">Nachos pho mát</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">Đồ ăn nhanh</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500">55.000₫</div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-500 max-w-xs truncate">Nachos giòn kèm sốt pho mát béo ngậy</div>
-                                        </td>
-                                    </tr>
+                                <tbody class="bg-white divide-y divide-gray-200" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
+                                    <!-- Product rows will be dynamically inserted here -->
+                                   
                                 </tbody>
                             </table>
                         </div>
@@ -792,7 +732,7 @@
                 <div class="modal-body px-6 py-2">
                     <div class="grid grid-cols-1 gap-4">
                         <!-- Thông tin chung combo -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class=" p-4 rounded-lg">
                             <h3 class="text-base font-medium text-gray-900 mb-4">Thông tin combo</h3>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -842,7 +782,7 @@
                         </div>
                         
                         <!-- Thêm sản phẩm vào combo -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class=" p-4 rounded-lg">
                             <h3 class="text-base font-medium text-gray-900 mb-4">Thêm sản phẩm vào combo</h3>
                             
                             <div class="flex flex-col md:flex-row gap-4 mb-4">
@@ -945,7 +885,7 @@
                 <div class="modal-body px-6 py-2">
                     <div class="grid grid-cols-1 gap-4">
                         <!-- Thông tin chung combo -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class=" p-4 rounded-lg">
                             <h3 class="text-base font-medium text-gray-900 mb-4">Thông tin combo</h3>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1002,7 +942,7 @@
                         </div>
                         
                         <!-- Thêm sản phẩm vào combo -->
-                        <div class="bg-gray-50 p-4 rounded-lg">
+                        <div class=" p-4 rounded-lg">
                             <h3 class="text-base font-medium text-gray-900 mb-4">Thêm sản phẩm vào combo</h3>
                             
                             <div class="flex flex-col md:flex-row gap-4 mb-4">

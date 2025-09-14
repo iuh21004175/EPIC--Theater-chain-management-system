@@ -30,9 +30,10 @@
                 ];
             }
         }
-        public function docTaiKhoan(){
+        public function docTaiKhoan($argc = null){
+            $id = $argc['id'] ?? null;
             $service = new Sc_TaiKhoanInternal();
-            $taiKhoans = $service->doc();
+            $taiKhoans = $service->doc($id);
             return [
                 'success' => true,
                 'data' => $taiKhoans

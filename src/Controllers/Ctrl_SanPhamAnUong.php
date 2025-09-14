@@ -56,5 +56,28 @@
                 return ['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()];
             }
         }
+        public function docSanPham($argc){
+            $service = new Sc_SanPham();
+            try {
+                $result = $service->docSanPham($argc['id'] ?? null, $_GET['tukhoa'] ?? null, $_GET['danh_muc_id'] ?? null);
+                return ['success' => true, 'data' => $result];
+            } catch (\Exception $e) {
+                return ['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()];
+            }
+        }
+        public function suaSanPham($argc){
+            $service = new Sc_SanPham();
+            $id = $argc['id'];
+            try {
+                $result = $service->suaSanPham($id);
+                if($result){
+                    return ['success' => true, 'message' => 'Sửa sản phẩm thành công'];
+                } else {
+                    return ['success' => false, 'message' => 'Sửa sản phẩm thất bại'];
+                }
+            } catch (\Exception $e) {
+                return ['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()];
+            }
+        }
     }
 ?>

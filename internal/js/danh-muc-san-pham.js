@@ -7,11 +7,19 @@ document.addEventListener('DOMContentLoaded', function() {
         editCategory: document.getElementById('edit-category-modal'),
     };
     function closeModal(modal) {
+        if (!modal) {
+            console.error('Modal is undefined');
+            return;
+        }
         document.body.classList.remove('modal-active');
         modal.classList.add('opacity-0', 'pointer-events-none');
         modal.classList.remove('opacity-100');
     }
     function openModal(modal) {
+        if (!modal) {
+            console.error('Modal is undefined');
+            return;
+        }
         document.body.classList.add('modal-active');
         modal.classList.add('opacity-100');
         modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -62,7 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function attachCategoryClickHandlers() {
         const categoryItems = document.querySelectorAll('.category-item');
         categoryItems.forEach(item => {
-            item.addEventListener('click', function() {
+            item.addEventListener('click', function(event) {
+                event.preventDefault(); // Ngăn reload trang khi click vào <a>
                 const categoryId = this.getAttribute('data-id');
                 // Highlight selected row
                 categoryItems.forEach(row => row.classList.remove('bg-gray-100'));
@@ -202,9 +211,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // fetchCategories(); // Removed - now handled by tab switching
     
-    // Export functions for use in san-pham-an-uong.js
+    // Export functions for use in tab-loader.js
     window.loadCategories = fetchCategories;
     window.renderCategories = renderCategories;
     window.attachCategoryClickHandlers = attachCategoryClickHandlers;
     window.loadCategoryData = loadCategoryData;
+    window.openModal = openModal;
+    window.modals = modals;
 });

@@ -16,7 +16,7 @@
                         'DienThoai' => $taiKhoan->nguoiDungInternals->dien_thoai ?? '',
                         'TenDangNhap' => $taiKhoan->tendangnhap,
                         'VaiTro' => $taiKhoan->vaiTro->ten,
-                        'ID_RapPhim' => $taiKhoan->nguoiDungInternals->id ?? null,
+                        'ID_RapPhim' => $taiKhoan->nguoiDungInternals->id_rapphim ?? null,
                     ];
                     return true;
                 }

@@ -195,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.btn-assign').forEach(button => {
             button.addEventListener('click', function() {
                 const accountId = this.getAttribute('data-id');
+                console.log('Assign cinema to account ID:', accountId);
                 openAssignModal(accountId);
             });
         });
@@ -445,6 +446,13 @@ document.addEventListener('DOMContentLoaded', function() {
         modalAddAccount.classList.add('hidden');
         modalEditAccount.classList.add('hidden');
         modalAssignCinema.classList.add('hidden');
+        // Reset assign modal fields
+        document.getElementById('assign-account-id').value = '';
+        document.getElementById('assign-cinema-id').selectedIndex = 0;
+        document.getElementById('assign-account-name').textContent = '';
+        document.getElementById('assign-cinema-error').textContent = '';
+        document.getElementById('assign-cinema-error').classList.add('hidden');
+        btnUnassign.classList.add('hidden');
     }
 
     // Add new account
@@ -612,7 +620,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Assign cinema to account
-    function assignCinema() {
+    function assignCinema(e) {
         const accountId = document.getElementById('assign-account-id').value;
         const cinemaId = document.getElementById('assign-cinema-id').value;
         
