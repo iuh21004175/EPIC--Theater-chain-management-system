@@ -388,7 +388,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("Chọn suất chiếu ID:", suatId);
                 console.log("Chọn suất chiếu ID:", rapId);
                 // Chuyển trang
-                window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
+                fetch(`${baseUrl}/api/check-login`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
+                    } else {
+                        alert("Vui lòng đăng nhập!");
+                    }
+                })
+                .catch(err => {
+                    console.error("Lỗi check login:", err);
+                    alert("Không thể xác thực đăng nhập, vui lòng thử lại.");
+                });
             });
         });
     }

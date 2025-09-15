@@ -7,10 +7,11 @@ class Ve extends Model
 {
     protected $table = 've';
     protected $primaryKey = 'id';
-    public $timestamps = false; 
+    public $timestamps = false;
 
     protected $fillable = [
         'id',
+        'donhang_id',
         'suat_chieu_id',
         'ghe_id',
         'khach_hang_id',
@@ -18,6 +19,11 @@ class Ve extends Model
         'het_han_giu',
         'ngay_tao',
     ];
+
+    public function donhang()
+    {
+        return $this->belongsTo(DonHang::class, 'donhang_id', 'id');
+    }
 
     public function suatchieu()
     {

@@ -80,7 +80,16 @@
         }
 
         public function chiTietPhongChieu($vars)
-        {
+        {   
+            if (empty($_SESSION['user'])) {
+                http_response_code(401);
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Bạn chưa đăng nhập"
+                ]);
+                exit();
+            }
+
             $service = new Sc_PhongChieu();
 
             try {

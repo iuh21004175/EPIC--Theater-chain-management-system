@@ -164,6 +164,7 @@
             $soDoGhe = $phong->soDoGhe->map(function ($ghe) use ($ves) {
                 $ve = $ves->firstWhere('ghe_id', $ghe->id);
                 return [
+                    'id'     => $ghe->id,
                     'so_ghe'     => $ghe->so_ghe,
                     'loaighe_id' => $ghe->loaighe_id,
                     'loai_ghe'   => $ghe->loaiGhe ? [

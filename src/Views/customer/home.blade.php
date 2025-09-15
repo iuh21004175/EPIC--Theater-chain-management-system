@@ -97,7 +97,7 @@
     const closeModal = document.getElementById("closeModal");
     const trailerIframe = document.getElementById("trailerIframe");
     const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}"; 
-    const salt = "{{ $_ENV['URL_SALT'] }}";
+   // const salt = "{{ $_ENV['URL_SALT'] }}";
 
     function youtubeEmbed(url) {
       if (!url) return "";

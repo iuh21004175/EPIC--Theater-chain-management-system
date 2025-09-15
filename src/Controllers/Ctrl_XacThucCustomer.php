@@ -67,6 +67,30 @@ class Ctrl_XacThucCustomer
         }
     }
 
+    public function checkLogin() {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            if (isset($_SESSION['user']) && !empty($_SESSION['user'])) {
+                return [
+                    'status'  => 'success',
+                    'message' => 'Người dùng đã đăng nhập',
+                    'user'    => $_SESSION['user']
+                ];
+            } else {
+                return [
+                    'status'  => 'error',
+                    'message' => 'Người dùng chưa đăng nhập'
+                ];
+            }
+        } catch (\Exception $e) {
+            return [
+                'status'  => 'error',
+                'message' => 'Lỗi kiểm tra đăng nhập',
+                'error'   => $e->getMessage()
+            ];
+        }
+    }
+
     public function dangXuat()
     {
         session_destroy();

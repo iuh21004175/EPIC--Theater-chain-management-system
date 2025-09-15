@@ -58,5 +58,12 @@ use Exception;
                 throw new Exception($e);
             }
         }
+
+        public function docSanPhamTheoRap($idRap) {
+            $sanPham = SanPham::where('id_rapphim', $idRap)
+                            ->where('trang_thai', 1) 
+                            ->get();
+            return $sanPham;
+        }
     }
 ?>

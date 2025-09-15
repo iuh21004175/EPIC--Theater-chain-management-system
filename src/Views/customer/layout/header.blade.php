@@ -122,7 +122,6 @@
         </a>
         <nav class="hidden md:flex items-center space-x-8 relative">
             <a href="{{$_ENV['URL_WEB_BASE']}}/" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Trang chủ</a>
-            <!-- <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Đặt vé</a> -->
             <a href="{{$_ENV['URL_WEB_BASE']}}/phim" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Phim</a>
             <div class="relative group" id="rap-dropdown">
                 <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
@@ -135,6 +134,9 @@
                 </div>
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Tin tức</a>
+            <?php if (isset($_SESSION['user'])): ?>
+                <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim online</a>
+            <?php endif; ?>
         </nav>
         <div id="user-area">
             <?php if (isset($_SESSION['user'])): 

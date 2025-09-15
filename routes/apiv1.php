@@ -12,6 +12,9 @@ use App\Controllers\Ctrl_SuatChieu;
 use App\Controllers\Ctrl_GanNgay;
 use App\Controllers\Ctrl_GiaVe;
 use App\Controllers\Ctrl_SanPhamAnUong;
+use App\Controllers\Ctrl_Ve;
+use App\Controllers\Ctrl_DonHang;
+use App\Controllers\Ctrl_GiaoDich;
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
     $r->addRoute('POST', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'themTaiKhoan', ['Admin']]);
@@ -57,6 +60,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     //Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('POST', '/dang-nhap-khach-hang', [Ctrl_XacThucCustomer::class, 'dangNhap']);
+    $r->addRoute('GET', '/check-login', [Ctrl_XacThucCustomer::class, 'checkLogin']);
     $r->addRoute('GET', '/thong-tin-ca-nhan', [Ctrl_KhachHang::class, 'thongTinKhachHang']);
     $r->addRoute('PUT', '/thong-tin-ca-nhan', [Ctrl_KhachHang::class, 'updateThongTinKhachHang']);
     $r->addRoute('PUT', '/doi-mat-khau', [Ctrl_XacThucCustomer::class, 'xuLyDoiMatKhau']);
@@ -73,6 +77,12 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/so-do-ghe/{id}', [Ctrl_PhongChieu::class, 'chiTietPhongChieu']);
     $r->addRoute('GET', '/tinh-gia-ve/{loaiGheId}[/{ngay}[/{dinhDangPhim}]]', [Ctrl_GiaVe::class, 'docGiaVe']);
     $r->addRoute('GET', '/phim-theo-rap/{idRap:\d+}', [Ctrl_SuatChieu::class, 'docPhimTheoRapKH']);
+    $r->addRoute('POST', '/tao-ve', [Ctrl_Ve::class, 'themVe']);
+    $r->addRoute('POST', '/tao-don-hang', [Ctrl_DonHang::class, 'themDonHang']);
+    $r->addRoute('POST', '/luu-giao-dich', [Ctrl_GiaoDich::class, 'handleWebhook']);
+    $r->addRoute('POST', '/lay-trang-thai', [Ctrl_GiaoDich::class, 'checkTrangThai']);
+    $r->addRoute('POST', '/gui-don-hang', [Ctrl_DonHang::class, 'guiDonHang']);
+    $r->addRoute('GET', '/lay-san-pham-khach/{id}', [Ctrl_SanPhamAnUong::class, 'docSanPhamTheoRap']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

@@ -56,5 +56,15 @@
                 return ['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()];
             }
         }
+
+        public function docSanPhamTheoRap($argc){
+            $service = new Sc_SanPham();
+            try {
+                $result = $service->docSanPhamTheoRap($argc['id']);
+                return ['success' => true, 'data' => $result];
+            } catch (\Exception $e) {
+                return ['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()];
+            }
+        }
     }
 ?>
