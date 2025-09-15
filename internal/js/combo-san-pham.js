@@ -40,4 +40,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Export loadCombos function for use in san-pham-an-uong.js
     window.loadCombos = loadCombos;
+
+    // Mở modal thêm combo khi nhấn nút
+    const btnAddCombo = document.getElementById('btn-add-combo');
+    const addComboModal = document.getElementById('add-combo-modal');
+    if (btnAddCombo && addComboModal) {
+        btnAddCombo.addEventListener('click', function() {
+            document.body.classList.add('modal-active');
+            addComboModal.classList.add('opacity-100');
+            addComboModal.classList.remove('opacity-0', 'pointer-events-none');
+        });
+    }
+    // Mở modal cập nhật combo khi click vào combo trong danh sách
+    const editComboModal = document.getElementById('edit-combo-modal');
+    const comboItems = document.querySelectorAll('.combo-item');
+    comboItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const comboId = this.getAttribute('data-id');
+            if (editComboModal) {
+                document.body.classList.add('modal-active');
+                editComboModal.classList.add('opacity-100');
+                editComboModal.classList.remove('opacity-0', 'pointer-events-none');
+                // Gọi hàm loadComboData nếu có để load thông tin combo
+                if (window.loadComboData) {
+                    window.loadComboData(comboId);
+                }
+            }
+        });
+    });
 });

@@ -57,7 +57,10 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/danh-muc', [Ctrl_SanPhamAnUong::class, 'themDanhMuc', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/danh-muc/{id:\d+}', [Ctrl_SanPhamAnUong::class, 'suaDanhMuc', ['Quản lý rạp']]);
     $r->addRoute('POST', '/san-pham', [Ctrl_SanPhamAnUong::class, 'themSanPham', ['Quản lý rạp']]);
-    //Khách hàng
+    $r->addRoute('GET', '/san-pham', [Ctrl_SanPhamAnUong::class, 'docSanPham', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/san-pham/{id:\d+}', [Ctrl_SanPhamAnUong::class, 'docSanPham', ['Quản lý rạp']]);
+    $r->addRoute('PUT', '/san-pham/{id:\d+}', [Ctrl_SanPhamAnUong::class, 'suaSanPham', ['Quản lý rạp']]);
+    // Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('POST', '/dang-nhap-khach-hang', [Ctrl_XacThucCustomer::class, 'dangNhap']);
     $r->addRoute('GET', '/check-login', [Ctrl_XacThucCustomer::class, 'checkLogin']);

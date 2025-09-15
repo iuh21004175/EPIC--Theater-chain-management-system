@@ -32,7 +32,7 @@
         }
         public function doc($id = null){
             $query = TaiKhoanInternal::with('vaiTro', 'nguoiDungInternals.rapPhim')
-                ->whereNotIn('id_vaitro', [1, 2]);  // Exclude Admin (1) and Quản lý chuỗi rạp (2)
+                ->whereNotIn('id_vaitro', [1, 2, 4]);  // Exclude Admin (1), Quản lý chuỗi rạp (2), and another role (4)
 
             if ($id) {
                 $query->where('id', $id);
