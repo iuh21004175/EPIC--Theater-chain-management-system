@@ -47,7 +47,6 @@
             // Nếu đăng nhập không thành công
             return false;
         }
-
         public function scDoiMatKhau($userId, $newPassword) {
             $khachHang = KhachHang::find($userId);
             if ($khachHang) {

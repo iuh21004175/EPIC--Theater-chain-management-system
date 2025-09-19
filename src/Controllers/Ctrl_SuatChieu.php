@@ -9,18 +9,11 @@
         public function themSuatChieu(){
             $service = new Sc_SuatChieu();
             try {
-                $result = $service->them();
-                if ($result) {
-                    return [
-                        'success' => true,
-                        'message' => 'Thêm suất chiếu thành công',
-                    ];
-                } else {
-                    return [
-                        'success' => false,
-                        'message' => 'Thêm suất chiếu thất bại',
-                    ];
-                }
+                $service->them();
+                return [
+                    'success' => true,
+                    'message' => 'Thêm suất chiếu thành công',
+                ];
             }
             catch (\Exception $e) {
                 
@@ -97,7 +90,6 @@
                 ];
             }
         }
-
         public function docSuatChieuKH(){
             $service = new Sc_SuatChieu();
             $ngay = $_GET['ngay'] ?? date('Y-m-d');
@@ -173,6 +165,23 @@
                 return [
                     'success' => false,
                     'message' => 'Lỗi khi xóa suất chiếu: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function docNhatKy(){
+            $service = new Sc_SuatChieu();
+            try{
+                $result = $service->docNhatKy();
+                return [
+                    'success' => true,
+                    'message' => 'Đọc nhật ký suất chiếu thành công',
+                    'data' => $result
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi đọc nhật ký suất chiếu: ' . $e->getMessage()
                 ];
             }
         }

@@ -1,13 +1,17 @@
 <?php
     namespace App\Services;
     use App\Models\SuatChieu;
+    use App\Models\LogSuatChieu;
     use App\Models\Phim;
     use Carbon\Carbon;
 
     class Sc_SuatChieu {
         public function them(){
             $idPhim = $_POST['id_phim'] ?? '';
-            $idPhongChieu = $_POST['id_phongchieu'] ?? '';
+            $listPhongChieu = $_POST['list_phongChieu'] ?? '';
+            if (!is_array($listPhongChieu)) {
+                $listPhongChieu = explode(',', $listPhongChieu);
+            }
             $batDau = $_POST['batdau'] ?? '';
             $ketThuc = $_POST['ketthuc'] ?? '';
 
@@ -16,16 +20,88 @@
                 throw new \Exception("Phim không tồn tại");
             }
 
-            $suatChieu = SuatChieu::create([
-                'id_phim' => $idPhim,
-                'id_phongchieu' => $idPhongChieu,
-                'batdau' => $batDau,
-                'ketthuc' => $ketThuc,
-            ]);
-            if($suatChieu){
-                return true;
+            foreach ($listPhongChieu as $idPhongChieu) {
+                $suatChieu = SuatChieu::create([
+                    'id_phim' => $idPhim,
+                    'id_phongchieu' => $idPhongChieu,
+                    'batdau' => $batDau,
+                    'ketthuc' => $ketThuc,
+                    'tinh_trang' => 0 // Mặc định là "Chờ duyệt"
+                ]);
+                $suatChieu->logSuatChieu()->create([
+                    'hanh_dong' => '0',
+                    'id_phim' => $suatChieu->phim->id ?? null,
+                    'ten_phim' => $suatChieu->phim->ten_phim ?? null,
+                    'batdau' => $suatChieu->batdau,
+                    'da_xem' => 0, // Đánh dấu quản lý chuỗi rạp chưa xem
+                    'rap_da_xem' => 1 // Đánh dấu rạp đã xem
+
+                ]);
             }
-            return false;
+        }
+        public function sua($id){
+            $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+            $suatChieu = SuatChieu::with('phim', 'phongChieu')
+                ->whereHas('phongChieu', function($query) use ($idRapPhim) {
+                    $query->where('id_rapphim', $idRapPhim);
+                })
+                ->where('id', $id)
+                ->first();
+            if (!$suatChieu) {
+                throw new \Exception("Suất chiếu không tồn tại");
+                exit();
+            }
+            $data = file_get_contents('php://input');
+            $json = json_decode($data, true);
+            if (isset($json['id_phim'])) {
+                $phim = Phim::find($json['id_phim']);
+                if (!$phim) {
+                    throw new \Exception("Phim không tồn tại");
+                    exit();
+                }
+                $suatChieu->id_phim = $json['id_phim'];
+                $suatChieu->id_phongchieu = $json['id_phongChieu'] ;
+                $suatChieu->batdau = $json['batdau'];
+                $suatChieu->ketthuc = $json['ketthuc'];
+                if($suatChieu->tinh_trang == 0){ //  thì nguyên trạng thí chờ duyệt
+                    $suatChieu->tinh_trang = 0; // Đặt lại trạng thái về chờ duyệt nếu đã duyệt hoặc từ chối trước đó
+                }
+                if($suatChieu->tinh_trang == 2){// Nếu từ chối
+                    $suatChieu->tinh_trang = 3; // Chờ duyệt lại
+                    $suatChieu->ly_do = null; // Xóa lý do từ chối
+                    $suatChieu->da_xem = 0; // Đánh dấu quản lý chuỗi rạp chưa xem lại
+                }
+                $suatChieu->logSuatChieu()->create([
+                    'hanh_dong' => '1', // Sửa suất chiếu
+                    'id_phim' => $suatChieu->phim->id ?? null,
+                    'ten_phim' => $suatChieu->phim->ten_phim ?? null,
+                    'batdau' => $suatChieu->batdau,
+                    'da_xem' => 0, // Đánh dấu quản lý chuỗi rạp chưa xem
+                    'rap_da_xem' => 1, // Đánh dấu rạp đã xem
+                ]);
+                $suatChieu->save();
+            }
+        }
+        public function xoa($id){
+            $suatChieu = SuatChieu::with('phim')->find($id);
+
+            if (!$suatChieu) {
+                throw new \Exception("Suất chiếu không tồn tại");
+                exit();
+            }
+
+            // Lưu log trước khi xóa
+            $suatChieu->logSuatChieu()->create([
+                'hanh_dong' => 2, // 2 - Xóa
+                'id_phim' => $suatChieu->phim->id ?? null,
+                'ten_phim' => $suatChieu->phim->ten_phim ?? null,
+                'batdau' => $suatChieu->batdau,
+                'da_xem' => 0, // Đánh dấu quản lý chuỗi rạp chưa xem
+                'rap_da_xem' => 1 // Đánh dấu rạp đã xem
+                // Thêm các trường khác nếu cần
+            ]);
+
+            $suatChieu->delete();
         }
         public function taoKhungGioGoiY($ngay, $id_phong_chieu, $thoi_luong_phim)
         {
@@ -119,6 +195,40 @@
             return true;
 
         }
+        public function duyetSuatChieu($id){
+            $suatChieu = SuatChieu::find($id);
+            if (!$suatChieu) {
+                throw new \Exception("Suất chiếu không tồn tại");
+                exit();
+            }
+            $suatChieu->tinh_trang = 1; // Đã duyệt
+            $suatChieu->logSuatChieu()->create([
+                'hanh_dong' => '3', // Duyệt suất chiếu
+                'id_phim' => $suatChieu->phim->id ?? null,
+                'ten_phim' => $suatChieu->phim->ten_phim ?? null,
+                'batdau' => $suatChieu->batdau,
+                'da_xem' => 1, // Đánh dấu quản lý chuỗi rạp đã xem
+                'rap_da_xem' => 0 // Đánh dấu rạp chưa xem
+            ]);
+            $suatChieu->save();
+        }
+        public function tuChoiSuatChieu($id){
+            $suatChieu = SuatChieu::find($id);
+            $data = json_decode(file_get_contents('php://input'), true);
+            $lyDoTuChoi = $data['ly_do'] ?? 'Không có lý do cụ thể';
+            if (!$suatChieu) {
+                throw new \Exception("Suất chiếu không tồn tại");
+                exit();
+            }
+            $suatChieu->tinh_trang = 2; // Từ chối
+            $suatChieu->ly_do = $lyDoTuChoi;
+            $suatChieu->logSuatChieu()->create([
+                'hanh_dong' => '4', // Từ chối suất chiếu
+                'da_xem' => 1, // Đánh dấu quản lý chuỗi rạp đã xem
+                'rap_da_xem' => 0 // Đánh dấu rạp chưa xem
+            ]);
+            $suatChieu->save();
+        }
         public function doc($ngay){
             // Kiểm tra và chuyển đổi ngày nếu có dạng d/m/y sang y-m-d
             if (preg_match('/^\d{1,2}\/\d{1,2}\/\d{4}$/', $ngay)) {
@@ -126,52 +236,72 @@
                 // Đảm bảo đúng thứ tự: ngày/tháng/năm -> năm-tháng-ngày
                 $ngay = $parts[2] . '-' . str_pad($parts[1], 2, '0', STR_PAD_LEFT) . '-' . str_pad($parts[0], 2, '0', STR_PAD_LEFT);
             }
-            $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
-            $suatChieu = SuatChieu::with('phim', 'phongChieu')
+            if(isset($_SESSION['UserInternal']['ID_RapPhim'])){
+                $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+                $suatChieu = SuatChieu::with('phim', 'phongChieu')
                 ->whereHas('phongChieu', function($query) use ($idRapPhim) {
                     $query->where('id_rapphim', $idRapPhim);
                 })
                 ->whereDate('batdau', $ngay)
                 ->orderBy('batdau', 'desc')->get();
-            return $suatChieu;
+                return $suatChieu;
+            }
+            else{
+                $idRapPhim = $_GET['id_rap'] ?? 0;
+                if($idRapPhim == 0){
+                    throw new \Exception("Thiếu ID rạp phim");
+                }
+                $suatChieu = SuatChieu::with('phim', 'phongChieu')
+                ->whereHas('phongChieu', function($query) use ($idRapPhim) {
+                    $query->where('id_rapphim', $idRapPhim);
+                })
+                ->whereDate('batdau', $ngay)
+                ->orderBy('batdau', 'desc')->get();
+                return $suatChieu;
+            }
         }
-        public function sua($id){
-            $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+        public function docSuatChieuChuaXem($idRapPhim){
             $suatChieu = SuatChieu::with('phim', 'phongChieu')
                 ->whereHas('phongChieu', function($query) use ($idRapPhim) {
                     $query->where('id_rapphim', $idRapPhim);
                 })
-                ->where('id', $id)
-                ->first();
-            if (!$suatChieu) {
-                throw new \Exception("Suất chiếu không tồn tại");
-                exit();
-            }
-            $data = file_get_contents('php://input');
-            $json = json_decode($data, true);
-            if (isset($json['id_phim'])) {
-                $phim = Phim::find($json['id_phim']);
-                if (!$phim) {
-                    throw new \Exception("Phim không tồn tại");
-                    exit();
+                ->where('da_xem', 0)
+                ->where('batdau', '>=', Carbon::now())
+                ->orderBy('batdau', 'asc')->get();
+            return $suatChieu;
+
+        }
+        public function tinhTrangSuatChieu($ngay, $idRapPhim){
+            $ngayThuHai = Carbon::parse($ngay)->startOfWeek(Carbon::MONDAY)->toDateString();
+            $ngayChuNhat = Carbon::parse($ngay)->endOfWeek(Carbon::SUNDAY)->toDateString();
+            $suatChieu = SuatChieu::with('phim', 'phongChieu')
+                ->whereHas('phongChieu', function($query) use ($idRapPhim) {
+                    $query->where('id_rapphim', $idRapPhim);
+                })
+                ->whereBetween('batdau', [$ngayThuHai, $ngayChuNhat])
+                ->orderBy('batdau', 'asc')->get();
+            $tinhTrang = [
+                'cho_duyet' => 0,
+                'da_duyet' => 0,
+                'tu_choi' => 0,
+                'cho_duyet_lai' => 0
+            ];
+            foreach($suatChieu as $sc){
+                if($sc->trang_thai == 0){
+                    $tinhTrang['cho_duyet'] += 1;
                 }
-                $suatChieu->id_phim = $json['id_phim'];
-                $suatChieu->id_phongchieu = $json['id_phongchieu'] ;
-                $suatChieu->batdau = $json['batdau'];
-                $suatChieu->ketthuc = $json['ketthuc'];
-                $suatChieu->save();
+                elseif($sc->trang_thai == 1){
+                    $tinhTrang['da_duyet'] += 1;
+                }
+                elseif($sc->trang_thai == 2){
+                    $tinhTrang['tu_choi'] += 1;
+                }
+                elseif($sc->trang_thai == 3){
+                    $tinhTrang['cho_duyet_lai'] += 1;
+                }
             }
-        }
-        public function xoa($id){
-            $suatChieu = SuatChieu::find($id);
-
-            if (!$suatChieu) {
-                throw new \Exception("Suất chiếu không tồn tại");
-                exit();
-            }
-            $suatChieu->delete();
-        }
-
+            return $tinhTrang;
+        }      
         public function docSuatChieuKH($ngay = null, $idPhim)
         {
             $query = SuatChieu::with(['phim', 'phongChieu.rapChieuPhim'])
@@ -198,8 +328,7 @@
             return $query->orderBy('batdau', 'asc')->get();
         }
 
-        public function docPhimTheoRap($ngay = null, $idRap = null)
-        {
+        public function docPhimTheoRap($ngay = null, $idRap = null) {
             $query = SuatChieu::with(['phim', 'phongChieu.rapChieuPhim'])
                 ->whereHas('phongChieu', function ($q) use ($idRap) {
                     $q->where('id_rapphim', $idRap);
@@ -240,7 +369,17 @@
             ->values();
             return $phimList;
         }
-
+        public function docNhatKy(){
+            // Lấy ngày cách đây 7 ngày
+            $bayNgayTruoc = Carbon::now()->subDays(7)->toDateString();
+        
+            // Lấy nhật ký trong 7 ngày gần nhất
+            $nhatKy = LogSuatChieu::whereDate('created_at', '>=', $bayNgayTruoc)
+                ->orderBy('created_at', 'desc')
+                ->get();
+        
+            return $nhatKy;
+        }
 
     }
 ?>

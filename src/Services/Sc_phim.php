@@ -3,6 +3,7 @@
     use App\Models\Phim_TheLoai;
     use App\Models\Phim;
     use App\Models\TheLoai;
+    use App\Models\PhanPhoiPhim;
     use function App\Core\getS3Client;
     class Sc_Phim {
         public function themTheLoai(){
@@ -253,6 +254,23 @@
                 }
                 throw new \Exception('Lỗi khi thêm phim: ' . $e->getMessage());
             }
+        }
+        public function phanPhoi($idRap){
+            $phimIds = $_POST['phim_ids'] ?? [];
+            // Xóa phân phối cũ
+            PhanPhoiPhim::where('id_rapphim', $idRap)->delete();
+            // Thêm phân phối mới
+            foreach ($phimIds as $phimId) {
+                PhanPhoiPhim::create([
+                    'id_rapphim' => $idRap,
+                    'id_phim' => $phimId
+                ]);
+            }
+        }
+        public function docPhimTheoRap($idRap){
+            $phimIds = PhanPhoiPhim::where('id_rapphim', $idRap)->pluck('id_phim')->toArray();
+            $phims = Phim::with(['TheLoai.TheLoai'])->whereIn('id', $phimIds)->get();
+            return $phims;
         }
     }
 ?>

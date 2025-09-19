@@ -5,6 +5,7 @@
 @section('head')
 <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/phim.js"></script>
 <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/the-loai-phim.js"></script>
+<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/phan-phoi-phim.js"></script>
 <style>
     /* Giữ nguyên CSS cũ */
     .movie-poster {
@@ -112,6 +113,9 @@
             </button>
             <button id="tab-btn-theloai" class="tab-btn px-4 py-2 text-sm font-medium rounded-r-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
                 Thể loại
+            </button>
+            <button id="tab-btn-phanphoi" class="tab-btn px-4 py-2 text-sm font-medium rounded-r-md border border-gray-200 bg-white text-gray-700 hover:bg-gray-50">
+                Phân phối phim
             </button>
         </div>
     </div>
@@ -262,12 +266,14 @@
                                     <span class="sr-only">Previous</span>
                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                                    </svg>
                                 </a>
                                 <a href="#" aria-current="page" class="relative z-10 inline-flex items-center bg-red-600 px-4 py-2 text-sm font-semibold text-white focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600">1</a>
                                 <a href="#" class="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
                                     <span class="sr-only">Next</span>
                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                                    </svg>
                                 </a>
                             </nav>
                         </div>
@@ -377,6 +383,34 @@
                     </div>
                 </div>
                 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Phân phối phim -->
+    <div id="tab-phanphoi" class="tab-content">
+        <div class="flex flex-col md:flex-row gap-6">
+            <!-- Sidebar: Danh sách rạp -->
+            <div class="md:w-1/4 w-full bg-white rounded-lg shadow p-4 mb-4 md:mb-0">
+                <div class="font-semibold text-gray-800 text-base mb-3 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17l4 4 4-4m0-5V3m-8 9v6a2 2 0 002 2h8a2 2 0 002-2v-6"></path>
+                    </svg>
+                    Danh sách rạp phim
+                </div>
+                <ul id="sidebar-rap-list" class="space-y-2" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                    <!-- JS sẽ render danh sách rạp ở đây -->
+                </ul>
+            </div>
+            <!-- Nội dung: Danh sách phim của rạp đang chọn -->
+            <div class="flex-1 bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="font-semibold text-gray-800 text-base" id="rap-title">Chọn rạp để phân phối phim</span>
+                    <button id="btn-open-phanphoi-modal" class="ml-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Phân phối phim mới</button>
+                </div>
+                <div id="phim-of-rap-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                    <!-- JS sẽ render danh sách phim đã phân phối ở đây -->
+                </div>
             </div>
         </div>
     </div>
@@ -797,6 +831,7 @@
                 <div class="modal-close cursor-pointer z-50">
                     <svg class="fill-current text-white" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 18 18">
                         <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                    </svg>
                 </div>
             </div>
 

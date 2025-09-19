@@ -1,6 +1,9 @@
 <?php
     namespace App\Services;
     use App\Models\RapPhim;
+    use App\Models\SuatChieu;
+use Carbon\Carbon;
+
     class Sc_RapPhim {
         public function them(){
             $rapPhim = null;
@@ -20,10 +23,19 @@
             
         }
         public function doc(){
-            return RapPhim::all();
+            $rapPhim = RapPhim::all();
+            foreach ($rapPhim as $item) {
+                $item->so_suat_chua_xem = SuatChieu::whereHas('phongChieu', function($query) use ($item) {
+                    $query->where('id_rapphim', $item->id);
+                })->where('da_xem', 0)
+                ->where('batdau', '>=', Carbon::now())
+                ->count();
+            }
+            return $rapPhim;
         }
-        public function docTheoID($id){
-            return RapPhim::find($id);
+        public function docTheoID($id) {
+            $rapPhim = RapPhim::find($id);
+            return $rapPhim;
         }
         public function trangThai($id){
             $rapPhim = RapPhim::find($id);

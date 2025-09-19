@@ -204,5 +204,37 @@
                 ];
             }
         }
+        public function phanPhoiPhim($argc){
+            $service = new Sc_Phim();
+            try {
+                $service->phanPhoi($argc['id']);
+                
+                return [
+                    'success' => true,
+                    'message' => 'Phân phối phim thành công'
+                ];
+    
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi phân phối phim: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function docPhimTheoRap($argc){
+            $service = new Sc_Phim();
+            try {
+                $result = $service->docPhimTheoRap($argc['id']);
+                return [
+                    'success' => true,
+                    'data' => $result
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải danh sách phim theo rạp: ' . $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

@@ -18,8 +18,10 @@
         background-color: #f3f4f6;
     }
     .time-slot.selected {
-        background-color: #3b82f6;
-        color: white;
+        background-color: #2563eb !important;
+        color: #fff !important;
+        border-color: #2563eb !important;
+        font-weight: bold;
     }
 </style>
 @endsection
@@ -37,7 +39,33 @@
 
 @section('content')
 <div class="bg-white rounded-lg shadow-md p-6">
-    <h1 class="text-xl font-bold text-gray-900 mb-6">Quản lý suất chiếu</h1>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold text-gray-900">Quản lý suất chiếu</h1>
+        <button id="btn-log" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-md flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Nhật ký
+        </button>
+    </div>
+
+    <!-- Overlay modal for log -->
+    <div id="log-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-900">Nhật ký thao tác</h2>
+                <button id="btn-close-log" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="overflow-y-auto px-6 py-4 flex-1 max-h-[60vh]" id="log-content">
+                <!-- Nội dung nhật ký sẽ được cập nhật bằng JavaScript -->
+                <div class="text-gray-500 text-center">Đang tải nhật ký...</div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bộ lọc và chọn ngày - Phương án 1: Navigation theo tuần -->
     <div class="mb-6">
@@ -61,20 +89,23 @@
         
         <input type="hidden" id="date-picker" value="">
         
-        <div class="mt-6 flex justify-end">
-            <button id="btn-add-showtime" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center">
+        <div class="mt-6 flex justify-between items-center">
+            <div id="week-status" class="text-sm text-gray-600"></div>
+            <div class="flex items-center space-x-2">
+                <button id="btn-add-showtime" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
                 Thêm suất chiếu mới
-            </button>
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Danh sách phim và suất chiếu -->
-    <div id="showtime-listing" class="space-y-6" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
+    <div id="showtime-listing" class="space-y-6 overflow-auto max-h-[60vh]" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
         <!-- Nội dung sẽ được cập nhật bằng JavaScript -->
-        <div class="text-center py-8 text-gray-500">Đang tải dữ liệu...</div>
+        
     </div>
 
     <!-- Modal thêm/cập nhật suất chiếu -->
@@ -97,7 +128,7 @@
                     <div class="mb-4">
                         <label for="movie-search" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm phim</label>
                         <div class="relative">
-                            <input type="text" id="movie-search" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm" placeholder="Nhập tên phim...">
+                            <input type="text" id="movie-search" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm" placeholder="Nhập tên phim..." autocomplete="off">
                             <input type="hidden" id="selected-movie-id" name="movie_id">
                             <div id="movie-search-results" class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md hidden max-h-60 overflow-auto"></div>
                         </div>
@@ -115,16 +146,17 @@
                     <!-- Chọn phòng chiếu -->
                     <div class="mb-4">
                         <label for="room-select" class="block text-sm font-medium text-gray-700 mb-1">Phòng chiếu</label>
-                        <select id="room-select" name="room_id" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm">
+                        <select id="room-select" name="room_id" multiple class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm">
                             <option value="">-- Chọn phòng chiếu --</option>
                             <!-- Danh sách phòng sẽ được tải bằng JavaScript -->
                         </select>
+                        <p class="text-xs text-gray-500 mt-1">Giữ Ctrl (Windows) hoặc Cmd (Mac) để chọn nhiều phòng</p>
                     </div>
 
                     <!-- Khung giờ -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Thời gian chiếu</label>
-                        <div class="flex space-x-2">
+                        <div class="flex space-x-2" id="single-time-row">
                             <div class="flex-1">
                                 <label for="start-time" class="block text-xs text-gray-500 mb-1">Giờ bắt đầu</label>
                                 <input type="text" id="start-time" name="start_time" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm" placeholder="Chọn giờ bắt đầu">
@@ -134,12 +166,13 @@
                                 <input type="text" id="end-time" name="end_time" class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm" disabled>
                             </div>
                         </div>
+                        <div id="per-room-times" class="space-y-4 hidden"></div>
                     </div>
 
                     <!-- Khung giờ gợi ý -->
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Khung giờ gợi ý</label>
-                        <div id="suggested-times" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                        <div id="suggested-times" class="space-y-4">
                             <!-- Các khung giờ sẽ được tạo bằng JavaScript -->
                         </div>
                     </div>

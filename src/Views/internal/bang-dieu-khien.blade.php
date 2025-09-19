@@ -133,6 +133,15 @@
                 </div>
                 <span class="text-xs text-center font-medium text-gray-700">Thống kê toàn rạp</span>
             </a>
+            <!-- Duyệt suất chiếu -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/duyet-suat-chieu" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Duyệt suất chiếu">
+                <div class="w-12 h-12 flex items-center justify-center bg-lime-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-lime-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Duyệt suất chiếu</span>
+            </a>
             @elseif($_SESSION['UserInternal']['VaiTro'] == 'Quản lý rạp')
             <!-- Quản lý phòng chiếu -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/phong-chieu" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý phòng chiếu">
