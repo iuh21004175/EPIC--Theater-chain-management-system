@@ -5,6 +5,7 @@
     use App\Models\TheLoai;
     use App\Models\PhanPhoiPhim;
     use function App\Core\getS3Client;
+    use function App\Core\getRedisConnection;
     class Sc_Phim {
         public function themTheLoai(){
             $ten = $_POST['ten'] ?? '';
@@ -58,6 +59,7 @@
                 $hinhAnh = $_FILES['poster'] ?? null;
                 $trailerUrl = $_POST['trailer_url'] ?? '';
                 $fileExtension = "";
+                $tenTheLoais = [];
                 if ($hinhAnh && isset($hinhAnh['name'])) {
                     $fileExtension = pathinfo($hinhAnh['name'], PATHINFO_EXTENSION);
                 }
@@ -85,12 +87,26 @@
                         'SourceFile' => $_FILES['poster']['tmp_name'],
                     ]);
                     foreach($theLoaiIds as $theLoaiId){
-                        $phim->TheLoai()->create([
+                        $theLoai = $phim->TheLoai()->create([
                             'theloai_id' => $theLoaiId,
                             'phim_id' => $phim->id,
                         ]);
+                        $tenTheLoais[] = $theLoai->TheLoai->ten;
                     }
                     $this->capNhatSoPhimTheLoai(); // Cập nhật số phim cho thể loại
+                    getRedisConnection()->publish('them-phim', json_encode([
+                        'id' => $phim->id,
+                        'ten_phim' => $phim->ten_phim,
+                        'the_loai' => implode(', ', $tenTheLoais),
+                        'dao_dien' => $phim->dao_dien,
+                        'dien_vien' => $phim->dien_vien,
+                        'thoi_luong' => $phim->thoi_luong,
+                        'poster_url' => $phim->poster_url,
+                        'trailer_url' => $phim->trailer_url,
+                        'ngay_cong_chieu' => $phim->ngay_cong_chieu,
+                        'mo_ta' => $phim->mo_ta,
+                        'trang_thai' => $phim->trang_thai
+                    ]));
                     return true;
                 }
                 return false;

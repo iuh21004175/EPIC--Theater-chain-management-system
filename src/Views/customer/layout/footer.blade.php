@@ -71,3 +71,33 @@
         </div>
     </div>
 </footer>
+
+@if(isset($_SESSION['user']))
+    <div id="ai-chatbox" class="fixed bottom-6 right-6 z-50" data-urlRealtiem="{{$_ENV['URL_SERVER_REALTIME']}}">
+        <button id="btn-open-chat" class="bg-blue-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700 focus:outline-none transition-all duration-200">
+            💬
+        </button>
+        <div id="chatbox-panel" class="hidden bg-white rounded-2xl shadow-2xl w-80 max-h-[70vh] flex flex-col overflow-hidden border border-blue-200 animate-fade-in">
+            <div class="flex items-center justify-between bg-blue-600 text-white px-4 py-2">
+                <span class="font-semibold">Epic AI Chatbot</span>
+                <button id="btn-close-chat" class="text-white text-2xl leading-none hover:text-red-200">&times;</button>
+            </div>
+            <div id="chatbox-messages" class="flex-1 p-3 overflow-y-auto text-sm bg-blue-50"></div>
+            <form id="chatbox-form" class="flex border-t bg-white">
+                <input id="chatbox-input" autocomplete="off" type="text" class="flex-1 px-3 py-2 outline-none text-gray-800" placeholder="Nhập câu hỏi...">
+                <button class="bg-blue-600 text-white px-4 hover:bg-blue-700 transition" type="submit">Gửi</button>
+            </form>
+        </div>
+    </div>
+    <style>
+        #ai-chatbox .animate-fade-in { animation: fadeInUp 0.2s; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        #chatbox-panel::-webkit-scrollbar { width: 6px; }
+        #chatbox-panel::-webkit-scrollbar-thumb { background: #e0e7ef; border-radius: 3px; }
+        #chatbox-messages { min-height: 300px; }
+    </style>
+    <script type="module" src="{{$_ENV['URL_WEB_BASE']}}/js/chat.js"></script>
+@endif
