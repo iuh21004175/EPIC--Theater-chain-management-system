@@ -35,7 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Event listeners for opening and closing modals
-        document.getElementById('btn-login').addEventListener('click', () => openModal(modalLogin));
+        const btnLogin = document.getElementById('btn-login');
+        if (btnLogin) {
+            btnLogin.addEventListener('click', () => openModal(modalLogin));
+        }
 
         document.querySelectorAll('.modal .close').forEach(button => {
             button.addEventListener('click', (event) => {

@@ -4,6 +4,7 @@ use App\Controllers\Ctrl_Phim;
 use App\Controllers\Ctrl_RapPhim;
 use App\Controllers\Ctrl_KhachHang;
 use App\Controllers\Ctrl_Ghe;
+use App\Controllers\Ctrl_DonHang;
 use function App\Core\view;
 
 // Vai trò: Khách hàng thành viên, Khách hàng vãng lại
@@ -20,6 +21,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/tin-tuc/{name}', [Ctrl_Phim::class, 'chiTietTinTuc']);
     $r->addRoute('GET', '/reset-password', [Ctrl_XacThucCustomer::class, 'resetPassword']);
     $r->addRoute('GET', '/so-do-ghe/{id}', [Ctrl_Ghe::class, 'soDoGhe']);
+    $r->addRoute('GET', '/ve-cua-toi', [Ctrl_DonHang::class, 'index']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

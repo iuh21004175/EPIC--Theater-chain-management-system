@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Trang chủ - EPIC CINEMAS</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
   <style>
     @keyframes slide {

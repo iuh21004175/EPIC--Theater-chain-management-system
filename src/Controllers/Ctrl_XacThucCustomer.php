@@ -243,6 +243,7 @@ class Ctrl_XacThucCustomer
             $url = $_ENV['URL_WEB_BASE'];
             $linkPassword = "{$url}/reset-password?token={$resetToken->token}";
 
+            $PHPMAILER_KEY = $_ENV['PHPMAILER_KEY'];
             // Gửi mail
             $mail = new PHPMailer(true);
             $mail->SMTPDebug = 0;
@@ -251,7 +252,7 @@ class Ctrl_XacThucCustomer
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
             $mail->Username   = 'tuandungnguyen800@gmail.com';
-            $mail->Password   = 'oeke ldzf ssso avls';
+            $mail->Password   = $PHPMAILER_KEY;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
 

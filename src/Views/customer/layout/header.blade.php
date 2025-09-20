@@ -50,6 +50,7 @@
             max-width: 500px;
             width: 90%;
             position: relative;
+            z-index: 1001;
         }
 
         /* Class để hiển thị modal */
@@ -134,9 +135,7 @@
                 </div>
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Tin tức</a>
-            <?php if (isset($_SESSION['user'])): ?>
-                <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim online</a>
-            <?php endif; ?>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim online</a>
         </nav>
         <div id="user-area">
             <?php if (isset($_SESSION['user'])): 
@@ -155,6 +154,7 @@
                             Xin chào, <?= htmlspecialchars($user['ho_ten']) ?>
                         </div>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/thong-tin-ca-nhan" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Thông tin cá nhân</a>
+                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/ve-cua-toi" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Vé của tôi</a>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/doi-mat-khau" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đổi mật khẩu</a>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đăng xuất</a>
                         <!-- <form method="POST" action="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat">

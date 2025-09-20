@@ -10,63 +10,65 @@
 
 <div class="flex flex-col md:flex-row gap-6 max-w-6xl w-full px-4">
 
-  <!-- Bên trái: Sơ đồ ghế -->
-  <div id="leftContainer" class="flex-1 transition-opacity duration-500">
-    <div class="w-full text-white text-center py-3 rounded-lg mb-6 
-                shadow-2xl tracking-wider font-bold text-lg
-                bg-gray-900 border border-gray-800">
-      MÀN HÌNH
-    </div>
-
-    <div id="seatMap" class="grid gap-4 mb-6"
-         style="grid-template-columns: repeat(10, minmax(0, 1fr));">
-      <!-- Ghế sẽ được JS render -->
-    </div>
-
-    <!-- Chú thích -->
-    <div class="mt-6 space-y-3">
-      <h2 class="text-lg font-semibold text-gray-700">Chú thích</h2>
-      <div id="chuthich" class="flex flex-wrap gap-6">
-        <div class="flex items-center gap-2">
-          <div class="w-12 h-12 rounded-xl shadow-md flex items-center justify-center text-white font-bold bg-gray-400"></div> 
-          <span>Đang chọn</span>
+    <!-- Bên trái: Sơ đồ ghế -->
+    <div id="leftContainer" class="flex-1 transition-opacity duration-500">
+        <div class="w-full text-white text-center py-3 rounded-lg mb-6 
+                    shadow-2xl tracking-wider font-bold text-lg
+                    bg-gray-900 border border-gray-800">
+        MÀN HÌNH
         </div>
-        <div class="flex items-center gap-2">
-          <div class="w-12 h-12 rounded-xl bg-white-400 flex items-center justify-center shadow-md">
-            🎟️
-          </div>
-          <span>Đã đặt</span>
+
+        <div id="seatMap" class="grid gap-4 mb-6"
+            style="grid-template-columns: repeat(10, minmax(0, 1fr));">
+        <!-- Ghế sẽ được JS render -->
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Chọn đồ ăn -->
-  <div id="foodContainer" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
-    <h2 class="text-lg font-bold mb-4">Chọn bắp & nước</h2>
-  </div>
-
-  <!-- QR thanh toán -->
-  <div id="qrContainer" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
-    <h2 class="text-lg  text-center font-bold mb-4">Quét mã QR để thanh toán</h2>
-    <img id="qrImage" src="" alt="QR Thanh toán" class="mx-auto">
-    <p class="mt-4 text-center text-gray-600">Vui lòng quét QR để hoàn tất thanh toán</p>
-  </div>
-  <div id="success_pay_box" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
-  <h2 class="text-success flex justify-center items-center gap-2">
-    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle text-success" viewBox="0 0 16 16">
-      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-      <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
-    </svg>
-    Thanh toán thành công
-  </h2>
-  <p class="text-center text-success">Chúng mừng bạn đã đặt vé thành công!</p>
+        <!-- Chú thích -->
+        <div class="mt-6 space-y-3">
+        <h2 class="text-lg font-semibold text-gray-700">Chú thích</h2>
+        <div id="chuthich" class="flex flex-wrap gap-6">
+            <div class="flex items-center gap-2">
+            <div class="w-12 h-12 rounded-xl shadow-md flex items-center justify-center text-white font-bold bg-gray-400"></div> 
+            <span>Đang chọn</span>
+            </div>
+            <div class="flex items-center gap-2">
+            <div class="w-12 h-12 rounded-xl bg-white-400 flex items-center justify-center shadow-md">
+                🎟️
+            </div>
+            <span>Đã đặt</span>
+            </div>
+        </div>
+        </div>
 </div>
 
-  <!-- Bên phải: Thông tin phim + ghế đã chọn + tổng cộng -->
-  <div id="movieInfo" class="w-full md:w-96 bg-white rounded-lg shadow-lg p-6 flex flex-col gap-4">
-    <!-- Nội dung sẽ render bằng JS -->
-  </div>
+    <!-- Chọn đồ ăn -->
+    <div id="foodContainer" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
+        <h2 class="text-lg font-bold mb-4">Chọn bắp & nước</h2>
+    </div>
+
+    <!-- QR thanh toán -->
+    <div id="qrContainer" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
+        <h2 class="text-lg  text-center font-bold mb-4">Quét mã QR để thanh toán</h2>
+        <img id="qrImage" src="" alt="QR Thanh toán" class="mx-auto">
+        <p class="mt-4 text-center text-gray-600">Vui lòng quét QR để hoàn tất thanh toán</p>
+        <p id="countdownTimer" class="mt-4 text-center text-red-600 font-bold text-lg"></p>
+    </div>
+
+    <div id="success_pay_box" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
+        <h2 class="text-success flex justify-center items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle text-success" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+            <path d="m10.97 4.97-.02.022-3.473 4.425-2.093-2.094a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05"/>
+            </svg>
+            Thanh toán thành công
+        </h2>
+        <p class="text-center text-success">Chúng mừng bạn đã đặt vé thành công!</p>
+    </div>
+
+    <!-- Bên phải: Thông tin phim + ghế đã chọn + tổng cộng -->
+    <div id="movieInfo" class="w-full md:w-96 bg-white rounded-lg shadow-lg p-6 flex flex-col gap-4">
+        <!-- Nội dung sẽ render bằng JS -->
+    </div>
 </div>
 
 <script>
@@ -90,6 +92,25 @@ let suatChieuData = null;
 // Giải mã base64 và lấy id phòng
 function base64Decode(str) {
     return decodeURIComponent(escape(atob(str)));
+}
+
+function startCountdown(duration, donhangId) {
+    const countdownEl = document.getElementById("countdownTimer");
+    const soDoGheUrl = window.location.href;
+    let time = duration; // tính bằng giây
+    const interval = setInterval(() => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        countdownEl.textContent = `Thời gian còn lại: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        time--;
+
+        // Hết giờ thì quay về trang chủ
+        if (time < 0) {
+            clearInterval(interval);
+            alert("Hết thời gian thanh toán. Vui lòng đặt lại!");
+            window.location.href = soDoGheUrl; // quay về trang sơ đồ ghế
+        }
+    }, 1000);
 }
 const pathParts = window.location.pathname.split("/");
 const slugWithId = pathParts[pathParts.length - 1];
@@ -139,6 +160,13 @@ async function loadSeats() {
                     <span>Tổng cộng</span>
                     <span id="totalPrice">0 ₫</span>
                 </div>
+                <div id="giftCardContainer" class="mt-2 hidden">
+                    <select id="giftCardSelect" class="w-full p-2 border rounded text-center">
+                        <option value="">Chọn thẻ quà tặng</option>
+                    </select>
+                    <p id="giftMsg" class="mt-2 text-center text-red-600 font-semibold"></p>
+                </div>
+
                 <div id="continueContainer" class="mt-2 hidden">
                     <button id="continueBtn" class="w-full bg-red-600 text-white py-2 rounded-lg font-bold hover:bg-red-700 transition">Tiếp tục</button>
                 </div>
@@ -152,6 +180,7 @@ async function loadSeats() {
         const totalPriceEl = document.getElementById("totalPrice");
         const continueContainer = document.getElementById("continueContainer");
         const thanhToanContainer = document.getElementById("thanhToanContainer");
+        const giftCardContainer = document.getElementById("giftCardContainer");
 
         // Render chú thích loại ghế
         const seatTypes = {};
@@ -205,116 +234,185 @@ async function loadSeats() {
             foodContainer.classList.remove("hidden");
             continueContainer.classList.add("hidden");
             thanhToanContainer.classList.remove("hidden");
-
+            giftCardContainer.classList.remove("hidden");
             // Load đồ ăn theo rạp
             loadFood(data.phong.id_rapphim)
         });
         function random9Digits() { return Math.floor(100000000 + Math.random() * 900000000); }
         // Nút thanh toán
         document.getElementById("btnThanhToan").addEventListener("click", async () => {
-    try {
-        const totalSeats = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
-        const totalFood = selectedFood.reduce((sum, f) => sum + f.gia, 0);
-        const total = totalSeats + totalFood;
+        try {
+            const totalSeats = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
+            const totalFood = selectedFood.reduce((sum, f) => sum + f.gia * f.quantity, 0);
+            const total = totalSeats + totalFood;;
 
-        // Tạo đơn hàng
-        const maVe = random9Digits();
-        const resDH = await fetch(`${baseUrl}/api/tao-don-hang`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                suat_chieu_id: suatChieuData.suat_chieu.id,
-                tong_tien: total,
-                ma_ve: maVe
-            })
-        }); 
-        const jDH = await resDH.json();
-        if (!jDH.success) throw new Error(jDH.message);
-        const donhangId = jDH.data.id;
+            // Tạo đơn hàng
+            const maVe = random9Digits();
+            const resDH = await fetch(`${baseUrl}/api/tao-don-hang`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    suat_chieu_id: suatChieuData.suat_chieu.id,
+                    tong_tien: total,
+                    ma_ve: maVe
+                })
+            }); 
+            const jDH = await resDH.json();
+            if (!jDH.success) throw new Error(jDH.message);
+            const donhangId = jDH.data.id;
 
-        // Tạo vé
-        const resVe = await fetch(`${baseUrl}/api/tao-ve`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                donhang_id: donhangId,
-                suat_chieu_id: suatChieuData.suat_chieu.id,
-                seats: selectedSeats.map(s => ({ ghe_id: s.ghe_id }))
-            })
-        });
-        const jVe = await resVe.json();
-        if (!jVe.success) throw new Error(jVe.message);
+            // Tạo vé
+            const resVe = await fetch(`${baseUrl}/api/tao-ve`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    donhang_id: donhangId,
+                    suat_chieu_id: suatChieuData.suat_chieu.id,
+                    seats: selectedSeats.map(s => ({ ghe_id: s.ghe_id }))
+                })
+            });
+            const jVe = await resVe.json();
+            if (!jVe.success) throw new Error(jVe.message);
 
-        // Hiển thị QR
-        foodContainer.classList.add("hidden");
-        qrContainer.classList.remove("hidden");
-        qrImage.src = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${total}&des=DH${donhangId}`;
-
-        // Kiểm tra trạng thái thanh toán
-        const interval = setInterval(async () => {
-            try {
-                const res = await fetch(`${baseUrl}/api/lay-trang-thai`, {
+            // Tạo chi tiết đơn hàng
+            for (const f of selectedFood) {
+                const resSP = await fetch(`${baseUrl}/api/tao-chi-tiet-don-hang`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ donhang_id: donhangId })
+                    body: JSON.stringify({
+                        donhang_id: donhangId,
+                        sanpham_id: f.id,
+                        so_luong: f.quantity,
+                        don_gia: f.gia,
+                        thanh_tien: f.gia * f.quantity
+                    })
                 });
-                const status = await res.json();
-                if (status.payment_status === "Paid") {
-                    // Hiển thị thông báo thành công
-                    movieInfo.classList.add("hidden");
-                    qrContainer.classList.add("hidden");
-                    foodContainer.classList.add("hidden");
-                    success_pay_box.classList.remove("hidden");
 
-                    clearInterval(interval);
-
-                    // Gửi mail xác nhận
-                    try {
-                        const mailRes = await fetch(`${baseUrl}/api/gui-don-hang`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                don_hang: {
-                                    ma_ve: jVe.data[0]?.ma_ve || "",
-                                    qr: qrImage.src
-                                },
-                                phim: {
-                                    rap: suatChieuData.rap.ten,
-                                    ma_ve: maVe,
-                                    dia_chi: suatChieuData.rap.dia_chi,
-                                    ten_phim: suatChieuData.phim.ten_phim,
-                                    phong: suatChieuData.phong.ten,
-                                    suat_chieu: new Date(suatChieuData.suat_chieu.bat_dau)
-                                        .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
-                                        ' ' +
-                                        new Date(suatChieuData.suat_chieu.bat_dau)
-                                        .toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })
-                                },
-                                ve: selectedSeats.map(s => ({ so_ghe: s.so_ghe, gia: s.gia })),
-                                thuc_an: selectedFood
-                            })
-                        });
-                        const mailJson = await mailRes.json();
-                        console.log(mailJson.message);
-                    } catch (e) {
-                        console.error("Lỗi gửi mail:", e);
-                    }
+                const jSP = await resSP.json();
+                if (!jSP.success) {
+                    throw new Error(jSP.message || "Lỗi lưu chi tiết đơn hàng");
                 }
-            } catch (e) {
-                console.log("Lỗi check trạng thái:", e);
             }
-        }, 1000);
+
+            // Hiển thị QR
+            foodContainer.classList.add("hidden");
+            qrContainer.classList.remove("hidden");
+            qrImage.src = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${total}&des=DH${donhangId}`;
+            startCountdown(300, donhangId);
+            // Kiểm tra trạng thái thanh toán
+            const interval = setInterval(async () => {
+                try {
+                    const res = await fetch(`${baseUrl}/api/lay-trang-thai`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ donhang_id: donhangId })
+                    });
+                    const status = await res.json();
+                    if (status.payment_status === "Paid") {
+                        // Hiển thị thông báo thành công
+                        movieInfo.classList.add("hidden");
+                        qrContainer.classList.add("hidden");
+                        foodContainer.classList.add("hidden");
+                        success_pay_box.classList.remove("hidden");
+
+                        clearInterval(interval);
+
+                        // Gửi mail xác nhận
+                        try {
+                            const mailRes = await fetch(`${baseUrl}/api/gui-don-hang`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    don_hang: {
+                                        ma_ve: maVe
+                                    },
+                                    phim: {
+                                        rap: suatChieuData.rap.ten,
+                                        ma_ve: maVe,
+                                        dia_chi: suatChieuData.rap.dia_chi,
+                                        ten_phim: suatChieuData.phim.ten_phim,
+                                        phong: suatChieuData.phong.ten,
+                                        suat_chieu: new Date(suatChieuData.suat_chieu.bat_dau)
+                                            .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
+                                            ' ' +
+                                            new Date(suatChieuData.suat_chieu.bat_dau)
+                                            .toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })
+                                    },
+                                    ve: selectedSeats.map(s => ({ so_ghe: s.so_ghe, gia: s.gia })),
+                                    thuc_an: selectedFood.map(f => ({
+                                        ten: f.ten,
+                                        so_luong: f.quantity,
+                                        gia: f.gia,
+                                        tong: f.gia * f.quantity
+                                    }))
+                                })
+                            });
+                            const mailJson = await mailRes.json();
+                            console.log(mailJson.message);
+                        } catch (e) {
+                            console.error("Lỗi gửi mail:", e);
+                        }
+                    }
+                } catch (e) {
+                    console.log("Lỗi check trạng thái:", e);
+                }
+            }, 1000);
+
+        } catch (e) {
+            console.error("Lỗi thanh toán:", e);
+        }
+        });
+            
+        } catch (err) {
+            seatMap.innerHTML = `<p class="text-red-500">Lỗi khi tải dữ liệu: ${err.message}</p>`;
+        }
+    }
+
+// Load danh sách thẻ quà tặng từ DB
+async function loadGiftCards() {
+    try {
+        const res = await fetch(`${baseUrl}/api/gift-cards`); // API trả về danh sách thẻ
+        const json = await res.json();
+        if (!json.success || !json.data) return;
+
+        const select = document.getElementById("giftCardSelect");
+        json.data.forEach(card => {
+            const option = document.createElement("option");
+            option.value = card.id;           // id thẻ
+            option.textContent = `${card.ten} - Giảm ${card.gia_tri.toLocaleString()} ₫`;
+            option.dataset.value = card.gia_tri; // lưu giá trị giảm
+            select.appendChild(option);
+        });
+
+        select.addEventListener("change", () => {
+            const val = select.selectedOptions[0].dataset.value || 0;
+            applyGift(parseInt(val));
+        });
 
     } catch (e) {
-        console.error("Lỗi thanh toán:", e);
-    }
-});
-
-            
-    } catch (err) {
-        seatMap.innerHTML = `<p class="text-red-500">Lỗi khi tải dữ liệu: ${err.message}</p>`;
+        console.error("Lỗi load gift card:", e);
     }
 }
+
+// Áp dụng thẻ quà tặng
+function applyGift(amount) {
+    const totalPriceEl = document.getElementById("totalPrice");
+    const totalSeats = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
+    const totalFood = selectedFood.reduce((sum, f) => sum + f.gia * f.quantity, 0);
+    let total = totalSeats + totalFood;
+
+    if (amount > 0) {
+        total -= amount;
+        document.getElementById("giftMsg").textContent = `Đã áp dụng thẻ quà tặng giảm ${amount.toLocaleString()} ₫`;
+    } else {
+        document.getElementById("giftMsg").textContent = "";
+    }
+
+    totalPriceEl.textContent = `${total.toLocaleString()} ₫`;
+}
+
+// Gọi loadGiftCards sau khi render movieInfo
+loadGiftCards();
 
 // Toggle ghế
 async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl, continueContainer) {
@@ -361,18 +459,27 @@ function updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueConta
         selectedSeatsContainer.innerHTML = '<div class="text-gray-500 text-sm">Chưa chọn ghế hoặc sản phẩm</div>';
         continueContainer.classList.add("hidden");
     } else {
-        // Ghế
-        selectedSeats.forEach(s => {
+        // Xử lý ghế: gom nhóm theo giá
+        const groupedSeats = selectedSeats.reduce((acc, seat) => {
+            const key = seat.gia; // có thể đổi thành seat.loai_ghe nếu muốn gom theo loại ghế
+            if (!acc[key]) {
+                acc[key] = { gia: seat.gia, ghe: [] };
+            }
+            acc[key].ghe.push(seat.so_ghe);
+            return acc;
+        }, {});
+
+        Object.values(groupedSeats).forEach(group => {
             const div = document.createElement("div");
             div.className = "flex justify-between mb-1 items-center";
             div.innerHTML = `
-                <span>Ghế ${s.so_ghe}</span>
-                <span>${s.gia.toLocaleString()} ₫</span>
+                <span>Ghế ${group.ghe.join(", ")}</span>
+                <span>${(group.gia * group.ghe.length).toLocaleString()} ₫</span>
             `;
             selectedSeatsContainer.appendChild(div);
         });
 
-        // Sản phẩm
+        // Xử lý sản phẩm 
         selectedFood.forEach((f, index) => {
             const div = document.createElement("div");
             div.className = "flex justify-between mb-1 items-center";
@@ -400,8 +507,6 @@ function updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueConta
     const totalFood = selectedFood.reduce((sum, f) => sum + f.gia * f.quantity, 0);
     totalPriceEl.textContent = `${(totalSeats + totalFood).toLocaleString()} ₫`;
 }
-
-
 
 // Load đồ ăn theo rạp
 async function loadFood(idRap) {

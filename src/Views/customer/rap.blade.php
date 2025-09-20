@@ -252,9 +252,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadSuatChieuEl.scrollIntoView({behavior: "smooth"});
 }
 
-
-
-  // -------------------
   // Gắn sự kiện click phim
   function attachMovieClickEvents() {
     document.querySelectorAll('.group[data-movie]').forEach(card => {

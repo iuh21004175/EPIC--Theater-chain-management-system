@@ -28,8 +28,8 @@ class Sc_Ve {
                     'ghe_id' => $ghe_id,
                     'khach_hang_id' => $khach_hang_id,
                     'trang_thai' => $trang_thai,
-                    'het_han_giu' => $het_han_giu,
-                    'ngay_tao' => date('Y-m-d H:i:s')
+                    'ngay_tao' => date('Y-m-d H:i:s'),
+                    'het_han_giu' => date('Y-m-d H:i:s', strtotime('+10 minutes'))
                 ]);
 
                 if ($ve) {

@@ -1,6 +1,6 @@
 <?php
 namespace App\Controllers;
-
+use function App\Core\view;
 use App\Services\Sc_DonHang;
 require __DIR__ . '/../../api/PHPMailer/src/Exception.php';
 require __DIR__ . '/../../api/PHPMailer/src/PHPMailer.php';
@@ -10,6 +10,9 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 class Ctrl_DonHang {
+    public function index() {
+        return view('customer.ve-cua-toi');
+    }
     public function themDonHang() {
         header('Content-Type: application/json'); 
         $service = new Sc_DonHang();
@@ -36,6 +39,32 @@ class Ctrl_DonHang {
             exit;
         }
     }
+    public function docDonHang() {
+        $service = new Sc_DonHang();
+        try {
+            $donhang = $service->doc();
+            if ($donhang) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Lấy đơn hàng thành công',
+                    'data' => $donhang
+                ]);
+                exit;
+            }
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Không tìm thấy đơn hàng'
+            ]);
+            exit;
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
 
     public function guiDonHang() {
         header('Content-Type: application/json; charset=utf-8');
@@ -57,10 +86,10 @@ class Ctrl_DonHang {
         $email = $user['email'];
         $ten = $user['ho_ten'] ?? 'Khách hàng';
 
-        $donHang = $data['don_hang'] ?? [];
+        $don_hang = $data['don_hang'] ?? [];
         $phim = $data['phim'] ?? [];
         $ve = $data['ve'] ?? []; 
-        $thuc_an = $data['thuc_an'] ?? 'Không'; 
+        $thuc_an = $data['thuc_an'] ?? [];
 
         // Danh sách ghế
         $so_ghe_text = '';
@@ -72,14 +101,18 @@ class Ctrl_DonHang {
         $so_ghe_text = rtrim($so_ghe_text, ', ');
 
         // Danh sách thức ăn kèm
-        $thuc_an_text = implode(' + ', $thuc_an);
-
-        $ma_ve = $donHang['ma_ve'] ?? 'Chưa có';
+        $thuc_an_text = '';
+        foreach($thuc_an as $ta) {
+            $thuc_an_text .= ($ta['ten'] ?? '') . ', ';
+        }
+        $thuc_an_text = $thuc_an ? implode(', ', array_column($thuc_an, 'ten')) : 'Không';
 
         // Tạo QR code URL từ QuickChart.io
-        $qrUrl = 'https://quickchart.io/qr?text=' . urlencode($ma_ve) . '&size=300';
+        $ma_ve = $don_hang['ma_ve'];
+        $qr_code = 'https://quickchart.io/qr?text=' . urlencode($ma_ve) . '&size=300';
 
         try {
+            $PHPMAILER_KEY = $_ENV['PHPMAILER_KEY'];
             $mail = new PHPMailer(true);
             $mail->SMTPDebug = 0;
             $mail->CharSet = "utf-8";
@@ -87,7 +120,7 @@ class Ctrl_DonHang {
             $mail->Host       = 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
             $mail->Username   = 'tuandungnguyen800@gmail.com';
-            $mail->Password   = 'oeke ldzf ssso avls';
+            $mail->Password   = $PHPMAILER_KEY;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = 587;
 
@@ -112,7 +145,7 @@ class Ctrl_DonHang {
                         <div style="text-align:center; margin:20px auto; padding:20px; border:2px dashed #d32f2f; border-radius:12px; background:#fff7f7; max-width:350px;">
                             <p style="margin:5px 0; font-size:14px; color:#555;">Vui lòng xuất trình mã QR này tại quầy để nhận vé</p>
                             <div style="margin:15px 0;">
-                                <img src="'.$qrUrl.'" alt="QR Code" width="200" style="border:1px solid #ddd; padding:10px; border-radius:8px; background:#fff;" />
+                                <img src="'.$qr_code.'" alt="QR Code" width="200" style="border:1px solid #ddd; padding:10px; border-radius:8px; background:#fff;" />
                             </div>
                             <p style="margin:0; font-size:16px; font-weight:bold; letter-spacing:2px; color:#333;">
                                 Mã đặt vé: <span style="color:#d32f2f;">'.$ma_ve.'</span>
@@ -166,12 +199,6 @@ class Ctrl_DonHang {
                                 <td style="padding:10px; border-bottom:1px solid #eee;">'.$email.'</td>
                             </tr>
                         </table>
-
-                        <h3 style="margin-top:20px; color:#d32f2f; border-bottom:2px solid #d32f2f; padding-bottom:5px;">Chính sách hoàn vé</h3>
-                        <div style="font-size:14px; color:#555; background:#fff; padding:15px; border-radius:8px; line-height:1.6;">
-                            EPIC CINEMAS <b>không</b> hỗ trợ đổi trả đối với các vé xem phim đã mua thành công qua ứng dụng. 
-                            Trường hợp giao dịch của bạn đang <b>chờ xử lý</b>, vui lòng liên hệ tổng đài tại số 1900 1818 để được hỗ trợ kịp thời.
-                        </div>
                     </div>
 
                     <div style="background:#f2f2f2; text-align:center; padding:10px; font-size:12px; color:#666;">

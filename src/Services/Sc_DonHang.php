@@ -30,5 +30,20 @@ class Sc_DonHang {
         }
         return false;
     }
+
+    public function doc() {
+        $user = $_SESSION['user'];
+        $idKhachHang = $user['id'];
+
+        $donhang = DonHang::where('user_id', $idKhachHang)
+                    ->whereIn('trang_thai', [0, 2]) 
+                    ->with([
+                        'suatChieu.phongChieu.rapChieuPhim',
+                        'suatChieu.phim'
+                    ])
+                    ->get();
+
+        return $donhang;
+    }
     
 }

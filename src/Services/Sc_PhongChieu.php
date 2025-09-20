@@ -142,10 +142,18 @@
 
         public function chiTiet($idSuatChieu)
         {
+            $now = date('Y-m-d H:i:s');
             // Lấy vé của suất chiếu kèm thông tin ghế và loại ghế
             $ves = Ve::with('ghe.loaiGhe')
-                ->where('suat_chieu_id', $idSuatChieu)
-                ->get();
+            ->where('suat_chieu_id', $idSuatChieu)
+            ->where(function($q) use ($now) {
+                $q->where('trang_thai', '!=', 'giu_cho')
+                ->orWhere(function($q2) use ($now) {
+                    $q2->where('trang_thai', 'giu_cho')
+                        ->where('het_han_giu', '>', $now); // chỉ lấy khi có hạn giữ hợp lệ
+                });
+            })
+            ->get();
 
             // Lấy suất chiếu kèm phòng chiếu, sơ đồ ghế, loại ghế, phim và rạp
             $suat = SuatChieu::with([

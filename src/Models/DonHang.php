@@ -17,13 +17,23 @@ class DonHang extends Model
         'qr_code',
         'tong_tien',
         'phuong_thuc_thanh_toan',
-        'trang_thai',
+        'trang_thai', //2: Đã thanh toán, 1: Chờ thanh toán 0: Đã hủy
         'ngay_dat',
     ];
 
     public function user()
     {
         return $this->belongsTo(KhachHang::class, 'user_id', 'id');
+    }
+
+    public function suatChieu()
+    {
+        return $this->belongsTo(SuatChieu::class, 'suat_chieu_id', 'id');
+    }
+
+    public function chiTietDonHang()
+    {
+        return $this->hasMany(ChiTietDonHang::class, 'donhang_id', 'id');
     }
 
     public function ve()

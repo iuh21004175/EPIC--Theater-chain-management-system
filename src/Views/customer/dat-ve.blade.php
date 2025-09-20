@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Nhóm theo loại chiếu trong rạp
             const groupedByLoai = {};
             suats.forEach(suat => {
-                const loaiChieu = suat.phong_chieu.loai_phongchieu || "Không xác định";
+                const loaiChieu = (suat.phong_chieu.loai_phongchieu || "Không xác định").toUpperCase();
                 if (!groupedByLoai[loaiChieu]) groupedByLoai[loaiChieu] = [];
                 groupedByLoai[loaiChieu].push(suat);
             });
