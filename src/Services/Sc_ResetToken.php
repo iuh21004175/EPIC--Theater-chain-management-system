@@ -10,6 +10,5 @@
             $token->save();
             return $token;
         }
-
     }
 ?>

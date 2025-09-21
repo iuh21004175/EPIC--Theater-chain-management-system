@@ -39,6 +39,18 @@ class Ctrl_DonHang {
             exit;
         }
     }
+
+    public function capNhatTrangThaiDonHang(){
+        $input = json_decode(file_get_contents('php://input'), true);
+        $id = $input['id'] ?? null;
+        if(!$id) { echo json_encode(['success'=>false,'message'=>'Thiếu id']); exit; }
+
+        $service = new Sc_DonHang();
+        $result = $service->capNhat($id); // gán trang_thai = 0
+        echo json_encode(['success'=>$result,'message'=>$result?'Cập nhật thành công':'Thất bại']);
+        exit;
+    }
+
     public function docDonHang() {
         $service = new Sc_DonHang();
         try {

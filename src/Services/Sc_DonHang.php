@@ -10,6 +10,8 @@ class Sc_DonHang {
         $input = json_decode(file_get_contents('php://input'), true);
         $tong_tien = $input['tong_tien'] ?? 0;
         $suat_chieu_id = $input['suat_chieu_id'] ?? null;
+        $thequatang_id = $input['thequatang_id'] ?? null;
+        $the_qua_tang_su_dung = $input['the_qua_tang_su_dung'] ?? null;
         $phuong_thuc_thanh_toan = $input['phuong_thuc_thanh_toan'] ?? 1;
         $trang_thai = $input['trang_thai'] ?? 1;
         $ma_ve = $input['ma_ve'] ?? null;
@@ -17,6 +19,8 @@ class Sc_DonHang {
         $donhang = DonHang::create([
             'user_id' => $user_id,
             'suat_chieu_id' => $suat_chieu_id,
+            'thequatang_id' => $thequatang_id,
+            'the_qua_tang_su_dung' => $the_qua_tang_su_dung,
             'ma_ve' => $ma_ve,
             'qr_code' => $qr_code,
             'tong_tien' => $tong_tien,
@@ -36,14 +40,26 @@ class Sc_DonHang {
         $idKhachHang = $user['id'];
 
         $donhang = DonHang::where('user_id', $idKhachHang)
-                    ->whereIn('trang_thai', [0, 2]) 
+                    ->whereIn('trang_thai', [0, 2])
                     ->with([
                         'suatChieu.phongChieu.rapChieuPhim',
-                        'suatChieu.phim'
+                        'suatChieu.phim',
+                        'theQuaTang'
                     ])
+                    ->orderBy('id', 'desc') 
                     ->get();
 
         return $donhang;
     }
+
+    public function capNhat($id){
+        $donHang = DonHang::find($id);
+        if($donHang){
+            $donHang->trang_thai = 0;
+            return $donHang->save();
+        }
+        return false;
+    }
+
     
 }

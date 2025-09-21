@@ -147,9 +147,9 @@
             $ves = Ve::with('ghe.loaiGhe')
             ->where('suat_chieu_id', $idSuatChieu)
             ->where(function($q) use ($now) {
-                $q->where('trang_thai', '!=', 'giu_cho')
+                 $q->whereIn('trang_thai', [1,2,3]) // 0 là hủy vé
                 ->orWhere(function($q2) use ($now) {
-                    $q2->where('trang_thai', 'giu_cho')
+                    $q2->where('trang_thai', 1)
                         ->where('het_han_giu', '>', $now); // chỉ lấy khi có hạn giữ hợp lệ
                 });
             })
@@ -181,7 +181,7 @@
                         'phu_thu' => $ghe->loaiGhe->phu_thu,
                         'mo_ta'   => $ghe->loaiGhe->mo_ta,
                     ] : null,
-                    'trang_thai' => $ve ? $ve->trang_thai : 'trong',
+                    'trang_thai' => $ve ? $ve->trang_thai : 3,
                 ];
             })->values();
 

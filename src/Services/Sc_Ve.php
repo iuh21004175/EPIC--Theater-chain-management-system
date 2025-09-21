@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Models\Ve;
+use App\Models\DonHang;
 
 class Sc_Ve {
     public function them() {
@@ -40,4 +41,10 @@ class Sc_Ve {
 
         return !empty($veCreated) ? $veCreated : false;
     }
+    public function capNhat($donhang_id) {
+        $updated = Ve::where('donhang_id', $donhang_id)
+                    ->update(['trang_thai' => 0]);
+        return $updated > 0;
+    }
+
 }

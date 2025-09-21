@@ -18,6 +18,7 @@ use App\Controllers\Ctrl_DuyetSuatChieu;
 use App\Controllers\Ctrl_GiaoDich;
 use App\Controllers\Ctrl_PhanCong;
 use App\Controllers\Ctrl_ChiTietDonHang;
+use App\Controllers\Ctrl_TheQuaTang;
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
     $r->addRoute('POST', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'themTaiKhoan', ['Admin']]);
@@ -101,7 +102,11 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/tao-chi-tiet-don-hang', [Ctrl_ChiTietDonHang::class, 'themChiTietDonHang']);
     $r->addRoute('GET', '/doc-don-hang', [Ctrl_DonHang::class, 'docDonHang']);
     $r->addRoute('GET', '/doc-chi-tiet-don-hang/{id}', [Ctrl_ChiTietDonHang::class, 'docChiTietDonHang']);
-     
+    $r->addRoute('GET', '/doc-the-qua-tang', [Ctrl_TheQuaTang::class, 'docTheQuaTang']);
+    $r->addRoute('PUT', '/sua-gia-tri-the', [Ctrl_TheQuaTang::class, 'suaGiaTriThe']);
+    $r->addRoute('POST', '/tao-the-qua-tang', [Ctrl_TheQuaTang::class, 'taoTheQuaTang']);
+    $r->addRoute('PUT', '/cap-nhat-trang-thai-don-hang', [Ctrl_DonHang::class, 'capNhatTrangThaiDonHang']);
+    $r->addRoute('PUT', '/cap-nhat-trang-thai-ve', [Ctrl_Ve::class, 'capNhatTrangThai']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
