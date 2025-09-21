@@ -64,44 +64,53 @@
 
   // Render danh sách
   function renderVoucher(list) {
-    listVoucher.innerHTML = '';
-    if (!list || list.length === 0) {
-      emptyVoucher.classList.remove('hidden');
-      countVoucher.textContent = 0;
-      return;
-    }
-    emptyVoucher.classList.add('hidden');
-
-    list.forEach(vc => {
-      const expired = vc.ngay_het_han ? new Date(vc.ngay_het_han) < new Date() : false;
-      const statusLabel = expired ? 'Hết hạn' : (vc.trang_thai == 1 ? 'Đang hoạt động' : 'Đã sử dụng');
-      const statusColor = expired ? 'text-red-600' : (vc.trang_thai == 1 ? 'text-green-600' : 'text-gray-500');
-
-      const card = document.createElement('div');
-      card.className = 'border rounded-lg p-4 bg-white shadow-sm relative overflow-hidden';
-
-      // Watermark nếu đã sử dụng
-      let watermark = '';
-      if (vc.trang_thai == 0 || expired) {
-        watermark = `<div class="absolute inset-0 flex items-center justify-center bg-white/80 text-2xl font-bold text-gray-500 rotate-[-20deg]">ĐÃ SỬ DỤNG</div>`;
+      listVoucher.innerHTML = '';
+      if (!list || list.length === 0) {
+          emptyVoucher.classList.remove('hidden');
+          countVoucher.textContent = 0;
+          return;
       }
+      emptyVoucher.classList.add('hidden');
 
-      card.innerHTML = `
-        ${watermark}
-        <div class="relative z-10">
-          <div class="font-semibold text-lg">${vc.ten || 'Không xác định'}</div>
-          <div class="text-sm text-gray-500">Mã: ${vc.ma_code || '-'}</div>
-          <div class="text-sm text-gray-500">Giá trị: ${Number(vc.gia_tri || 0).toLocaleString()} ₫</div>
-          <div class="text-sm text-gray-500">Phát hành: ${vc.ngay_phat_hanh ? new Date(vc.ngay_phat_hanh).toLocaleDateString('vi-VN') : '-'}</div>
-          <div class="text-sm text-gray-500">Hết hạn: ${vc.ngay_het_han ? new Date(vc.ngay_het_han).toLocaleDateString('vi-VN') : '-'}</div>
-          <div class="mt-1 text-sm font-semibold ${statusColor}">${statusLabel}</div>
-          ${vc.ghi_chu ? `<p class="mt-2 text-gray-600 text-sm">${vc.ghi_chu}</p>` : ''}
-        </div>
-      `;
-      listVoucher.appendChild(card);
-    });
+      const now = new Date();
 
-    countVoucher.textContent = list.length;
+      list.forEach(vc => {
+          const expireDate = vc.ngay_het_han ? new Date(vc.ngay_het_han) : null;
+          let remainingText = '';
+          let watermark = '';
+
+          if (vc.trang_thai == 0 || (expireDate && expireDate < now)) {
+              // Hết hạn hoặc đã sử dụng
+              watermark = `<div class="absolute inset-0 flex items-center justify-center bg-white/80 text-2xl font-bold text-gray-500 rotate-[-20deg]">ĐÃ SỬ DỤNG</div>`;
+              remainingText = expireDate ? `Hết hạn` : 'Đã sử dụng';
+          } else if (expireDate) {
+              // Tính số ngày còn lại
+              const diffTime = expireDate - now;
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              remainingText = `Còn lại ${diffDays} ngày`;
+          } else {
+              remainingText = 'Không giới hạn';
+          }
+
+          const card = document.createElement('div');
+          card.className = 'border rounded-lg p-4 bg-white shadow-sm relative overflow-hidden';
+
+          card.innerHTML = `
+              ${watermark}
+              <div class="relative z-10">
+                  <div class="font-semibold text-lg">${vc.ten || 'Không xác định'}</div>
+                  <div class="text-sm text-gray-500">Mã: ${vc.ma_code || '-'}</div>
+                  <div class="text-sm text-gray-500">Giá trị: ${Number(vc.gia_tri || 0).toLocaleString()} ₫</div>
+                  <div class="text-sm text-gray-500">Phát hành: ${vc.ngay_phat_hanh ? new Date(vc.ngay_phat_hanh).toLocaleDateString('vi-VN') : '-'}</div>
+                  <div class="text-sm text-gray-500">Hết hạn: ${expireDate ? expireDate.toLocaleDateString('vi-VN') : '-'}</div>
+                  <div class="mt-1 text-sm font-semibold text-blue-600">${remainingText}</div>
+                  ${vc.ghi_chu ? `<p class="mt-2 text-gray-600 text-sm">${vc.ghi_chu}</p>` : ''}
+              </div>
+          `;
+          listVoucher.appendChild(card);
+      });
+
+      countVoucher.textContent = list.length;
   }
 
   // Lọc voucher

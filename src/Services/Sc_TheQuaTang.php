@@ -2,19 +2,22 @@
 namespace App\Services;
 
 use App\Models\TheQuaTang;
-
+use Carbon\Carbon;
 class Sc_TheQuaTang {
-    public function doc(){
+    public function doc() {
         $user = $_SESSION['user'];
         $idKhachHang = $user['id'];
+
+        $now = Carbon::now();
 
         $theQuaTang = TheQuaTang::where('khach_hang_id', $idKhachHang)
             ->where('trang_thai', 1)
             ->where('gia_tri', '>', 0)
+            ->where('ngay_het_han', '>', $now) // chỉ lấy vé còn hạn
             ->get();
+
         return $theQuaTang;
     }
-
     public function sua($data){
         $theQuaTang = TheQuaTang::find($data['id']);
         if ($theQuaTang) {

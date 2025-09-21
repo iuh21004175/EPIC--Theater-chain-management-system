@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <!-- Overlay hover -->
             <div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-3 
                         opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
-                <a href="${baseUrl}/dat-ve/${slugify(phim.ten_phim)}-${encoded}"
+                <a href="${baseUrl}/dat-ve-online/${slugify(phim.ten_phim)}-${encoded}"
                     class="flex items-center justify-center w-[140px] h-[40px] rounded-lg text-white font-semibold 
                             bg-red-600 hover:bg-red-500 transition-all duration-300">
                     🎟 Mua vé
