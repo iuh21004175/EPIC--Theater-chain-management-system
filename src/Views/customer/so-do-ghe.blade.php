@@ -88,6 +88,7 @@ const salt = "{{ $_ENV['URL_SALT'] }}";
 let selectedSeats = [];
 let selectedFood = [];
 let suatChieuData = null;
+let selectedGiftCard = null;
 
 // Giải mã base64 và lấy id phòng
 function base64Decode(str) {
@@ -207,9 +208,9 @@ async function loadSeats() {
             seat.textContent = ghe.so_ghe;
             seat.className = "flex items-center justify-center w-12 h-12 text-sm font-bold rounded-xl cursor-pointer transition transform hover:scale-105 select-none shadow-md";
 
-            if (ghe.trang_thai === "giu_cho") {
+            if (ghe.trang_thai === 1) {
                 seat.classList.add("bg-gray-400", "text-white", "cursor-not-allowed", "shadow-inner");
-            } else if (ghe.trang_thai === "da_dat") {
+            } else if (ghe.trang_thai === 2) {
                 seat.style.backgroundColor = "white"; 
                 seat.innerHTML = "🎟️";
                 seat.classList.add("text-white", "cursor-not-allowed", "shadow-inner");
@@ -236,132 +237,193 @@ async function loadSeats() {
             thanhToanContainer.classList.remove("hidden");
             giftCardContainer.classList.remove("hidden");
             // Load đồ ăn theo rạp
-            loadFood(data.phong.id_rapphim)
+            loadFood(data.phong.id_rapphim);
+            loadGiftCards();
         });
         function random9Digits() { return Math.floor(100000000 + Math.random() * 900000000); }
         // Nút thanh toán
         document.getElementById("btnThanhToan").addEventListener("click", async () => {
-        try {
-            const totalSeats = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
-            const totalFood = selectedFood.reduce((sum, f) => sum + f.gia * f.quantity, 0);
-            const total = totalSeats + totalFood;;
+            try {
+                const totalSeats = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
+                const totalFood = selectedFood.reduce((sum, f) => sum + f.gia * f.quantity, 0);
+                const totalBefore = totalSeats + totalFood;
 
-            // Tạo đơn hàng
-            const maVe = random9Digits();
-            const resDH = await fetch(`${baseUrl}/api/tao-don-hang`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    suat_chieu_id: suatChieuData.suat_chieu.id,
-                    tong_tien: total,
-                    ma_ve: maVe
-                })
-            }); 
-            const jDH = await resDH.json();
-            if (!jDH.success) throw new Error(jDH.message);
-            const donhangId = jDH.data.id;
+                // Trừ gift card nếu có
+                let total = totalBefore;
+                let usedGiftAmount = 0;
+                
+                if (selectedGiftCard) {
+                    usedGiftAmount = selectedGiftCard.used; // số tiền dùng
+                    total = totalBefore - usedGiftAmount;
+                    if (total < 0) total = 0;
+                }
 
-            // Tạo vé
-            const resVe = await fetch(`${baseUrl}/api/tao-ve`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    donhang_id: donhangId,
-                    suat_chieu_id: suatChieuData.suat_chieu.id,
-                    seats: selectedSeats.map(s => ({ ghe_id: s.ghe_id }))
-                })
-            });
-            const jVe = await resVe.json();
-            if (!jVe.success) throw new Error(jVe.message);
+                const trangThai = (total === 0) ? 2 : 1; // 2 = đã đặt, 1 = giữ chỗ
+                // Tạo đơn hàng
+                const maVe = random9Digits();
+                const resDH = await fetch(`${baseUrl}/api/tao-don-hang`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        suat_chieu_id: suatChieuData.suat_chieu.id,
+                        thequatang_id: selectedGiftCard ? selectedGiftCard.id : null,
+                        the_qua_tang_su_dung: usedGiftAmount,
+                        tong_tien: totalBefore, // tổng trước khi giảm
+                        ma_ve: maVe,
+                        trang_thai: trangThai
+                    })
+                });
+                const jDH = await resDH.json();
+                if (!jDH.success) throw new Error(jDH.message);
+                const donhangId = jDH.data.id;
 
-            // Tạo chi tiết đơn hàng
-            for (const f of selectedFood) {
-                const resSP = await fetch(`${baseUrl}/api/tao-chi-tiet-don-hang`, {
+                const trangThaiVe = (total === 0) ? 2 : 1; 
+                // Tạo vé
+                const resVe = await fetch(`${baseUrl}/api/tao-ve`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         donhang_id: donhangId,
-                        sanpham_id: f.id,
-                        so_luong: f.quantity,
-                        don_gia: f.gia,
-                        thanh_tien: f.gia * f.quantity
+                        suat_chieu_id: suatChieuData.suat_chieu.id,
+                        trang_thai: trangThaiVe,
+                        seats: selectedSeats.map(s => ({ ghe_id: s.ghe_id }))
                     })
                 });
+                const jVe = await resVe.json();
+                if (!jVe.success) throw new Error(jVe.message);
 
-                const jSP = await resSP.json();
-                if (!jSP.success) {
-                    throw new Error(jSP.message || "Lỗi lưu chi tiết đơn hàng");
-                }
-            }
-
-            // Hiển thị QR
-            foodContainer.classList.add("hidden");
-            qrContainer.classList.remove("hidden");
-            qrImage.src = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${total}&des=DH${donhangId}`;
-            startCountdown(300, donhangId);
-            // Kiểm tra trạng thái thanh toán
-            const interval = setInterval(async () => {
-                try {
-                    const res = await fetch(`${baseUrl}/api/lay-trang-thai`, {
+                // Tạo chi tiết đơn hàng
+                for (const f of selectedFood) {
+                    const resSP = await fetch(`${baseUrl}/api/tao-chi-tiet-don-hang`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ donhang_id: donhangId })
+                        body: JSON.stringify({
+                            donhang_id: donhangId,
+                            sanpham_id: f.id,
+                            so_luong: f.quantity,
+                            don_gia: f.gia,
+                            thanh_tien: f.gia * f.quantity
+                        })
                     });
-                    const status = await res.json();
-                    if (status.payment_status === "Paid") {
-                        // Hiển thị thông báo thành công
-                        movieInfo.classList.add("hidden");
-                        qrContainer.classList.add("hidden");
-                        foodContainer.classList.add("hidden");
-                        success_pay_box.classList.remove("hidden");
+                    const jSP = await resSP.json();
+                    if (!jSP.success) throw new Error(jSP.message || "Lỗi lưu chi tiết đơn hàng");
+                }
 
-                        clearInterval(interval);
+                // Nếu có gift card thì cập nhật DB
+                if (selectedGiftCard && usedGiftAmount > 0) {
+                    const remaining = selectedGiftCard.amount - usedGiftAmount;
+                    await fetch(`${baseUrl}/api/sua-gia-tri-the`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            id: selectedGiftCard.id,
+                            gia_tri: remaining   // cập nhật còn lại chứ không phải số đã dùng
+                        })
+                    });
+                }
 
-                        // Gửi mail xác nhận
+                if (total === 0) {
+                    // Trường hợp thanh toán = 0 (chỉ dùng gift card) → hiển thị thành công ngay
+                    movieInfo.classList.add("hidden");
+                    qrContainer.classList.add("hidden");
+                    foodContainer.classList.add("hidden");
+                    success_pay_box.classList.remove("hidden");
+
+                    // Gửi mail xác nhận luôn
+                    await fetch(`${baseUrl}/api/gui-don-hang`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            don_hang: { ma_ve: maVe },
+                            phim: {
+                                rap: suatChieuData.rap.ten,
+                                ma_ve: maVe,
+                                dia_chi: suatChieuData.rap.dia_chi,
+                                ten_phim: suatChieuData.phim.ten_phim,
+                                phong: suatChieuData.phong.ten,
+                                suat_chieu:
+                                    new Date(suatChieuData.suat_chieu.bat_dau).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
+                                    " " +
+                                    new Date(suatChieuData.suat_chieu.bat_dau).toLocaleDateString("vi-VN", {
+                                        weekday: "long",
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric"
+                                    })
+                            },
+                            ve: selectedSeats.map(s => ({ so_ghe: s.so_ghe, gia: s.gia })),
+                            thuc_an: selectedFood.map(f => ({
+                                ten: f.ten,
+                                so_luong: f.quantity,
+                                gia: f.gia,
+                                tong: f.gia * f.quantity
+                            }))
+                        })
+                    });
+                } else {
+                    // Vẫn phải thanh toán → hiện QR như bình thường
+                    foodContainer.classList.add("hidden");
+                    qrContainer.classList.remove("hidden");
+                    qrImage.src = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${total}&des=DH${donhangId}`;
+                    startCountdown(300, donhangId);
+
+                    const interval = setInterval(async () => {
                         try {
-                            const mailRes = await fetch(`${baseUrl}/api/gui-don-hang`, {
+                            const res = await fetch(`${baseUrl}/api/lay-trang-thai`, {
                                 method: "POST",
                                 headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    don_hang: {
-                                        ma_ve: maVe
-                                    },
-                                    phim: {
-                                        rap: suatChieuData.rap.ten,
-                                        ma_ve: maVe,
-                                        dia_chi: suatChieuData.rap.dia_chi,
-                                        ten_phim: suatChieuData.phim.ten_phim,
-                                        phong: suatChieuData.phong.ten,
-                                        suat_chieu: new Date(suatChieuData.suat_chieu.bat_dau)
-                                            .toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) +
-                                            ' ' +
-                                            new Date(suatChieuData.suat_chieu.bat_dau)
-                                            .toLocaleDateString('vi-VN', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })
-                                    },
-                                    ve: selectedSeats.map(s => ({ so_ghe: s.so_ghe, gia: s.gia })),
-                                    thuc_an: selectedFood.map(f => ({
-                                        ten: f.ten,
-                                        so_luong: f.quantity,
-                                        gia: f.gia,
-                                        tong: f.gia * f.quantity
-                                    }))
-                                })
+                                body: JSON.stringify({ donhang_id: donhangId })
                             });
-                            const mailJson = await mailRes.json();
-                            console.log(mailJson.message);
-                        } catch (e) {
-                            console.error("Lỗi gửi mail:", e);
-                        }
-                    }
-                } catch (e) {
-                    console.log("Lỗi check trạng thái:", e);
-                }
-            }, 1000);
+                            const status = await res.json();
+                            if (status.payment_status === "Paid") {
+                                movieInfo.classList.add("hidden");
+                                qrContainer.classList.add("hidden");
+                                foodContainer.classList.add("hidden");
+                                success_pay_box.classList.remove("hidden");
+                                clearInterval(interval);
 
-        } catch (e) {
-            console.error("Lỗi thanh toán:", e);
-        }
+                                // Gửi mail sau khi thanh toán
+                                await fetch(`${baseUrl}/api/gui-don-hang`, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        don_hang: { ma_ve: maVe },
+                                        phim: {
+                                            rap: suatChieuData.rap.ten,
+                                            ma_ve: maVe,
+                                            dia_chi: suatChieuData.rap.dia_chi,
+                                            ten_phim: suatChieuData.phim.ten_phim,
+                                            phong: suatChieuData.phong.ten,
+                                            suat_chieu:
+                                                new Date(suatChieuData.suat_chieu.bat_dau).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) +
+                                                " " +
+                                                new Date(suatChieuData.suat_chieu.bat_dau).toLocaleDateString("vi-VN", {
+                                                    weekday: "long",
+                                                    day: "2-digit",
+                                                    month: "2-digit",
+                                                    year: "numeric"
+                                                })
+                                        },
+                                        ve: selectedSeats.map(s => ({ so_ghe: s.so_ghe, gia: s.gia })),
+                                        thuc_an: selectedFood.map(f => ({
+                                            ten: f.ten,
+                                            so_luong: f.quantity,
+                                            gia: f.gia,
+                                            tong: f.gia * f.quantity
+                                        }))
+                                    })
+                                });
+                            }
+                        } catch (e) {
+                            console.log("Lỗi check trạng thái:", e);
+                        }
+                    }, 1000);
+                }
+            } catch (e) {
+                console.error("Lỗi thanh toán:", e);
+            }
         });
+
             
         } catch (err) {
             seatMap.innerHTML = `<p class="text-red-500">Lỗi khi tải dữ liệu: ${err.message}</p>`;
@@ -371,48 +433,82 @@ async function loadSeats() {
 // Load danh sách thẻ quà tặng từ DB
 async function loadGiftCards() {
     try {
-        const res = await fetch(`${baseUrl}/api/gift-cards`); // API trả về danh sách thẻ
+        const res = await fetch(`${baseUrl}/api/doc-the-qua-tang`);
         const json = await res.json();
         if (!json.success || !json.data) return;
 
         const select = document.getElementById("giftCardSelect");
+        if (!select) {
+            console.error("Không tìm thấy #giftCardSelect trong DOM");
+            return;
+        }
+
+        // xóa option cũ (nếu có)
+        select.innerHTML = '<option value="">Chọn thẻ quà tặng</option>';
+
         json.data.forEach(card => {
             const option = document.createElement("option");
-            option.value = card.id;           // id thẻ
-            option.textContent = `${card.ten} - Giảm ${card.gia_tri.toLocaleString()} ₫`;
-            option.dataset.value = card.gia_tri; // lưu giá trị giảm
+            option.value = card.id;
+            option.textContent = card.ten
+                ? `${card.ten} - Giảm ${Number(card.gia_tri).toLocaleString()} ₫`
+                : `Giảm ${Number(card.gia_tri).toLocaleString()} ₫`;
+            option.dataset.value = String(card.gia_tri);
             select.appendChild(option);
         });
 
         select.addEventListener("change", () => {
-            const val = select.selectedOptions[0].dataset.value || 0;
-            applyGift(parseInt(val));
+            const opt = select.selectedOptions[0];
+            if (!opt || !opt.value) {
+                // hủy chọn thẻ
+                selectedGiftCard = null;
+                applyGift(null, 0);
+                return;
+            }
+            const id = opt.value;
+            const val = parseInt(opt.dataset.value, 10) || 0;
+            applyGift(id, val);
         });
-
     } catch (e) {
         console.error("Lỗi load gift card:", e);
     }
 }
 
+
 // Áp dụng thẻ quà tặng
-function applyGift(amount) {
-    const totalPriceEl = document.getElementById("totalPrice");
+function applyGift(cardId, amount) {
     const totalSeats = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
     const totalFood = selectedFood.reduce((sum, f) => sum + f.gia * f.quantity, 0);
-    let total = totalSeats + totalFood;
+    const totalBefore = totalSeats + totalFood;
 
-    if (amount > 0) {
-        total -= amount;
-        document.getElementById("giftMsg").textContent = `Đã áp dụng thẻ quà tặng giảm ${amount.toLocaleString()} ₫`;
+    let total = totalBefore;
+    let used = 0; 
+
+    if (amount > 0 && cardId) {
+        if (amount >= totalBefore) {
+            used = totalBefore;
+            total = 0;
+        } else {
+            used = amount;
+            total = totalBefore - amount;
+        }
+
+        document.getElementById("giftMsg").textContent =
+            `Đã áp dụng thẻ quà tặng giảm ${used.toLocaleString()} ₫`;
+
+        selectedGiftCard = {
+            id: cardId,
+            amount: amount,     // giá trị gốc
+            used: used,         // đã dùng
+            remaining: amount - used // số dư còn lại
+        };
     } else {
         document.getElementById("giftMsg").textContent = "";
+        selectedGiftCard = null;
     }
 
-    totalPriceEl.textContent = `${total.toLocaleString()} ₫`;
+    document.getElementById("totalPrice").textContent = `${total.toLocaleString()} ₫`;
 }
 
-// Gọi loadGiftCards sau khi render movieInfo
-loadGiftCards();
 
 // Toggle ghế
 async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl, continueContainer) {
@@ -528,7 +624,6 @@ async function loadFood(idRap) {
             const div = document.createElement("div");
             div.className = "flex justify-between items-center mb-4 p-2 border rounded-lg shadow-sm";
 
-            // Tạo nội dung
             div.innerHTML = `
                 <div class="flex items-center gap-3">
                     <img src="${urlMinio}/${sp.hinh_anh}" alt="${sp.ten}" class="w-16 h-16 object-cover rounded">
@@ -537,19 +632,59 @@ async function loadFood(idRap) {
                         <div class="text-sm text-gray-500">${sp.gia.toLocaleString()} ₫</div>
                     </div>
                 </div>
-                <button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    onclick="addFood(${sp.id}, ${sp.gia}, \`${sp.ten}\`)">
-                    Thêm
-                </button>
+                <div class="flex items-center gap-2">
+                    <button class="px-3 py-1 bg-gray-300 rounded minusBtn">-</button>
+                    <span class="font-bold quantity">0</span>
+                    <button class="px-3 py-1 bg-gray-300 text-white rounded plusBtn">+</button>
+                </div>
             `;
+
+            const minusBtn = div.querySelector(".minusBtn");
+            const plusBtn = div.querySelector(".plusBtn");
+            const quantityEl = div.querySelector(".quantity");
+
+            let quantity = 0;
+
+            plusBtn.addEventListener("click", () => {
+                quantity++;
+                quantityEl.textContent = quantity;
+
+                // update selectedFood
+                const existing = selectedFood.find(f => f.id === sp.id);
+                if (existing) {
+                    existing.quantity = quantity;
+                } else {
+                    selectedFood.push({ id: sp.id, ten: sp.ten, gia: sp.gia, quantity });
+                }
+                updateSelectedSeats(
+                    document.getElementById("selectedSeatsContainer"),
+                    document.getElementById("totalPrice")
+                );
+            });
+
+            minusBtn.addEventListener("click", () => {
+                if (quantity > 0) {
+                    quantity--;
+                    quantityEl.textContent = quantity;
+
+                    const existing = selectedFood.find(f => f.id === sp.id);
+                    if (existing) {
+                        existing.quantity = quantity;
+                        if (quantity === 0) {
+                            selectedFood = selectedFood.filter(f => f.id !== sp.id);
+                        }
+                    }
+                    updateSelectedSeats(
+                        document.getElementById("selectedSeatsContainer"),
+                        document.getElementById("totalPrice")
+                    );
+                }
+            });
+
             foodContainer.appendChild(div);
         });
-
     } catch (e) {
-        console.error("Lỗi load đồ ăn:", e);
-        const p = document.createElement("p");
-        p.textContent = "Lỗi khi tải sản phẩm";
-        foodContainer.appendChild(p);
+        console.error("Lỗi load food:", e);
     }
 }
 
@@ -618,6 +753,7 @@ function addFood(id, gia, ten) {
 }
 
 loadSeats();
+loadGiftCards();
 </script>
 
 </body>

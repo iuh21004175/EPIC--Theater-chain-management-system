@@ -15,7 +15,7 @@ class Ve extends Model
         'suat_chieu_id',
         'ghe_id',
         'khach_hang_id',
-        'trang_thai',
+        'trang_thai', // 0: Đã hủy 2: Đã đặt 1: Giữ chỗ 3: Trống 
         'het_han_giu',
         'ngay_tao',
     ];

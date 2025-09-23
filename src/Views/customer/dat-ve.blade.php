@@ -71,8 +71,13 @@
 
         <form class="mb-6 space-y-4 p-4 border rounded-lg shadow-sm bg-white" id="commentForm">
           <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">T</div>
-            <span class="font-semibold text-gray-800">Tuan Dung</span>
+                <?php
+                    $user = $_SESSION['user']; 
+                    $hoten = $user['ho_ten'];
+                ?>
+            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold"><?php echo strtoupper($hoten[0]); ?></div>
+
+            <span class="font-semibold text-gray-800"><?php echo htmlspecialchars($hoten); ?></span>
           </div>
 
           <div class="flex items-center gap-2">
@@ -88,15 +93,17 @@
           </div>
 
           <textarea placeholder="Viết bình luận của bạn..." name="comment" rows="3"
-            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400" required></textarea>
+            class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"></textarea>
 
           <div class="mt-4 flex justify-end">
             <button type="submit"
-              class="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow hover:bg-red-600">Gửi bình luận</button>
+              class="btn-gui px-6 py-2 bg-red-500 text-white font-semibold rounded-lg shadow hover:bg-red-600">Gửi bình luận</button>
           </div>
         </form>
 
-        <div id="commentList" class="space-y-4"></div>
+        <div id="commentList" class="space-y-4">
+            <p class="text-gray-500">Đang tải bình luận...</p>
+        </div>
       </div>
     </section>
 
@@ -122,14 +129,13 @@
   </div>
 </div>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}";
     const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
     const salt = "{{ $_ENV['URL_SALT'] }}";
 
-    // --- DOM elements ---
+    // DOM elements
     const trailerModal = document.getElementById("trailerModal");
     const closeModal = document.getElementById("closeModal");
     const trailerIframe = document.getElementById("trailerIframe");
@@ -140,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const suatChieuDiv = document.getElementById('suatChieu');
     const stars = document.querySelectorAll('#starRating button');
     const ratingValue = document.getElementById('ratingValue');
-
-    // Rating
+    const commentForm = document.getElementById('commentForm');
+    const commentList = document.getElementById('commentList');
 
     let currentRating = 5;
 
@@ -167,9 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateStars(currentRating);
 
-    // Trailer Modal
-
-    // đóng modal trailer
+    // Trailer modal
     closeModal.addEventListener("click", () => {
         trailerModal.classList.add("hidden");
         trailerIframe.src = "";
@@ -184,94 +188,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getYouTubeEmbedUrl(url) {
         if (!url) return "";
-        // match dạng full youtube hoặc rút gọn
         const regex = /(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/;
         const match = url.match(regex);
-        if (match && match[1]) {
-            return "https://www.youtube.com/embed/" + match[1];
-        }
-        return url; // fallback nếu không khớp
-    }
-    
-
-    // Day Tabs
-
-    const visibleDays = 7;
-    let currentStartIndex = 0;
-    let activeIndex = -1;
-    const allDays = [];
-
-    const today = new Date();
-    for (let i = 0; i < 30; i++) {
-        const d = new Date(today);
-        d.setDate(today.getDate() + i);
-        allDays.push(d);
+        if (match && match[1]) return "https://www.youtube.com/embed/" + match[1];
+        return url;
     }
 
-    function formatDate(d) {
-        return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2);
-    }
-
-    function formatWeekday(d) {
-        return ["CN", "T2", "T3", "T4", "T5", "T6", "T7"][d.getDay()];
-    }
-
-    function renderDayTabs() {
-        dayTabs.innerHTML = '';
-        for (let i = currentStartIndex; i < currentStartIndex + visibleDays; i++) {
-            if (!allDays[i]) continue;
-            const btn = document.createElement('button');
-            btn.className = 'flex-shrink-0 text-center px-4 py-2 rounded-lg border border-gray-300 font-semibold text-gray-700 hover:bg-red-500 hover:text-white transition-colors';
-            btn.innerHTML = `${formatWeekday(allDays[i])}<br>${formatDate(allDays[i])}`;
-            btn.dataset.index = i;
-
-            if (activeIndex === -1 && i === 0) {
-                btn.classList.add('bg-red-600', 'text-white');
-                activeIndex = 0;
-            } else if (i === activeIndex) {
-                btn.classList.add('bg-red-600', 'text-white');
-            }
-
-            dayTabs.appendChild(btn);
-        }
-    }
-
-    dayTabs.addEventListener('click', e => {
-        const btn = e.target.closest('button');
-        if (!btn) return;
-
-        dayTabs.querySelectorAll('button').forEach(b => {
-            b.classList.remove('bg-red-600', 'text-white');
-            b.classList.add('text-gray-700', 'border-gray-300');
-        });
-
-        btn.classList.add('bg-red-600', 'text-white');
-        activeIndex = parseInt(btn.dataset.index);
-        loadSuatChieu();
-    });
-
-    nextBtn.addEventListener('click', () => {
-        if (currentStartIndex + visibleDays < allDays.length) {
-            currentStartIndex++;
-            renderDayTabs();
-        }
-    });
-
-    prevBtn.addEventListener('click', () => {
-        if (currentStartIndex > 0) {
-            currentStartIndex--;
-            renderDayTabs();
-        }
-    });
-
-    renderDayTabs();
-
-    function getSelectedDate() {
-        return activeIndex >= 0 ? allDays[activeIndex].toISOString().split('T')[0] : today.toISOString().split('T')[0];
-    }
-
-    // Load Rạp
-
+    // Load rạp
     function loadRap() {
         if (!rapSelect) return;
         fetch(baseUrl + "/api/rap-phim-khach")
@@ -294,23 +217,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 rapSelect.innerHTML = '<option value="">Lỗi tải rạp</option>';
             });
     }
-
     loadRap();
 
-    // Load Phim & Suất chiếu
-    function base64Decode(str) {
-        return decodeURIComponent(escape(atob(str)));
-    }
+    function base64Decode(str) { return decodeURIComponent(escape(atob(str))); }
+    function base64Encode(str) { return btoa(unescape(encodeURIComponent(str))); }
 
-    function base64Encode(str) {
-        return btoa(unescape(encodeURIComponent(str)));
-    }
     const pathParts = window.location.pathname.split("/");
     const slugWithId = pathParts[pathParts.length - 1];  
     const encodedId = slugWithId.split("-").pop();
     const decoded = base64Decode(encodedId); 
     const idPhim = decoded.replace(salt, "");   
-    
+
     let allSuatChieu = [];
 
     function renderSuatChieu() {
@@ -322,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Nhóm theo rạp 
         const groupedByRap = {};
         filtered.forEach(suat => {
             const rapName = suat.phong_chieu.rap_chieu_phim.ten || "Không xác định";
@@ -330,9 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
             groupedByRap[rapName].push(suat);
         });
 
-        // Render 
         suatChieuDiv.innerHTML = Object.entries(groupedByRap).map(([rapName, suats]) => {
-            // Nhóm theo loại chiếu trong rạp
             const groupedByLoai = {};
             suats.forEach(suat => {
                 const loaiChieu = (suat.phong_chieu.loai_phongchieu || "Không xác định").toUpperCase();
@@ -343,68 +257,39 @@ document.addEventListener('DOMContentLoaded', () => {
             const loaiHtml = Object.entries(groupedByLoai).map(([loaiChieu, suatsLoai]) => {
                 const suatHtml = suatsLoai.map(suat => {
                     const batDau = new Date(suat.batdau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-                    return `<button type="button" 
-                                    class="suat-btn px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors"
-                                    data-suat-id="${suat.id}"
-                                    data-phong-id="${suat.phong_chieu.id}"
-                                    data-rap-id="${suat.phong_chieu.rap_chieu_phim.id}">
-                                ${batDau}
-                            </button>`;
+                    return `<button type="button" class="suat-btn px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors"
+                        data-suat-id="${suat.id}" data-phong-id="${suat.phong_chieu.id}" data-rap-id="${suat.phong_chieu.rap_chieu_phim.id}">${batDau}</button>`;
                 }).join(' ');
-
-
-                return `
-                    <div class="flex items-center mb-2">
-                        <span class="font-medium mr-4 min-w-[80px]">${loaiChieu}</span>
-                        <div class="flex flex-wrap gap-2">${suatHtml}</div>
-                    </div>`;
+                return `<div class="flex items-center mb-2"><span class="font-medium mr-4 min-w-[80px]">${loaiChieu}</span><div class="flex flex-wrap gap-2">${suatHtml}</div></div>`;
             }).join('');
 
-            return `
-                <div class="bg-gray-50 p-4 rounded-xl shadow-sm mb-6">
-                    <h4 class="text-lg font-semibold mb-4" data-phong-id="${suats[0].phong_chieu.id}">${rapName}</h4>
-                    ${loaiHtml}
-                </div>
-                <hr class="border-t-2 border-grey-500 w-full mx-auto mb-10">
-                `;
+            return `<div class="bg-gray-50 p-4 rounded-xl shadow-sm mb-6"><h4 class="text-lg font-semibold mb-4" data-phong-id="${suats[0].phong_chieu.id}">${rapName}</h4>${loaiHtml}</div><hr class="border-t-2 border-grey-500 w-full mx-auto mb-10">`;
         }).join('');
-        // Gắn sự kiện đổi màu khi click
+
         document.querySelectorAll('.suat-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                // Xóa màu của tất cả các button khác
                 document.querySelectorAll('.suat-btn').forEach(b => {
                     b.classList.remove('bg-red-600', 'text-white');
                     b.classList.add('bg-white', 'text-gray-700');
                 });
-                // Đổi màu button hiện tại
                 btn.classList.remove('bg-white', 'text-gray-700');
                 btn.classList.add('bg-red-600', 'text-white');
 
-                // Lấy id suất chiếu
                 const suatId = btn.dataset.suatId;
-                const phongId = btn.dataset.phongId;
-                const rapId = btn.dataset.rapId;
                 const encoded = base64Encode(suatId + salt);
-                console.log("Chọn suất chiếu ID:", suatId);
-                console.log("Chọn suất chiếu ID:", rapId);
-                // Chuyển trang
+
                 fetch(`${baseUrl}/api/check-login`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
-                    } else {
-                        alert("Vui lòng đăng nhập!");
-                    }
-                })
-                .catch(err => {
-                    console.error("Lỗi check login:", err);
-                    alert("Không thể xác thực đăng nhập, vui lòng thử lại.");
-                });
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
+                        } else {
+                            alert("Vui lòng đăng nhập!");
+                        }
+                    }).catch(err => { console.error(err); alert("Không thể xác thực đăng nhập"); });
             });
         });
     }
-
 
     function loadSuatChieu() {
         const selectedDate = getSelectedDate();
@@ -413,8 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(data => {
                 allSuatChieu = Array.isArray(data.data) ? data.data : [];
                 renderSuatChieu();
-            })
-            .catch(err => console.error("Lỗi load suất chiếu:", err));
+            }).catch(err => console.error("Lỗi load suất chiếu:", err));
     }
 
     function loadThongTinPhim(phim) {
@@ -422,20 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="relative w-full h-72 md:h-80 lg:h-96 bg-black">
                 <img src="${urlMinio}/${phim.poster_url}" alt="${phim.ten_phim}" class="w-full h-full object-cover opacity-70">
                 <div class="absolute inset-0 flex items-center justify-center">
-                    <button type="button" 
-                        data-url="${getYouTubeEmbedUrl(phim.trailer_url)}"
-                        class="trailer-btn flex items-center justify-center w-[320px] h-[100px]  rounded-lg text-white font-semibold px-4 py-2 text-sm transition-all duration-300">
-                         <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" 
-                            class="w-12 h-12 mr-3" role="img" xmlns="http://www.w3.org/2000/svg" 
-                            viewBox="0 0 512 512">
-                            <path fill="currentColor" 
-                                d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 
-                                147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 
-                                4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 
-                                11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5 
-                                -16.7-4.7-24.3-.5z"></path>
-                        </svg>
-                    </button>
+                    <button type="button" data-url="${getYouTubeEmbedUrl(phim.trailer_url)}" class="trailer-btn flex items-center justify-center w-[320px] h-[100px] rounded-lg text-white font-semibold px-4 py-2 text-sm transition-all duration-300"> <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" class="w-12 h-12 mr-3" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"> <path fill="currentColor" d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 147.1c-7.6 4.2-12.3 12.3-12.3 20.9V344c0 8.7 4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5 -16.7-4.7-24.3-.5z"></path> </svg> </button>
                 </div>
             </div>
             <div class="container mx-auto max-w-4xl px-4 mt-6 relative">
@@ -447,10 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <h1 class="text-3xl md:text-4xl font-bold">${phim.ten_phim} <span class="text-sm px-2 py-1 bg-red-600 text-white font-bold rounded">${phim.do_tuoi}</span></h1>
                         <p><strong>Thời lượng:</strong> ${phim.thoi_luong} phút | <strong>Khởi chiếu:</strong> ${new Date(phim.ngay_cong_chieu).toLocaleDateString("vi-VN")}</p>
                         <div class="flex items-center mt-2">
-                            <svg class="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 576 512">
-                                <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/>
-                            </svg>
-                            <span class="text-gray-800 font-semibold text-sm md:text-base">4.6 (300 votes)</span>
+                            <svg class="w-5 h-5 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 576 512"> <path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"/> </svg>
+                            <span id="averageRating" class="text-gray-800 font-semibold text-sm md:text-base">0.0 (0 votes)</span>
                         </div>
                         <p><strong>Quốc gia:</strong> ${phim.quoc_gia}</p>
                         <p><strong>Thể loại:</strong> ${phim.the_loai.map(t=>t.the_loai.ten).join(", ")}</p>
@@ -462,27 +331,86 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         document.getElementById('thongTinPhim').innerHTML = html;
 
-                document.querySelectorAll(".trailer-btn").forEach(btn => {
-                    btn.addEventListener("click", () => {
-                        const url = btn.getAttribute("data-url");
-                        if (url) {
-                            trailerIframe.src = url + (url.includes("?") ? "&" : "?") + "autoplay=1";
-                            trailerModal.classList.remove("hidden");
-                        }
-                    });
-                });
+        document.querySelectorAll(".trailer-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const url = btn.getAttribute("data-url");
+                if (url) {
+                    trailerIframe.src = url + (url.includes("?") ? "&" : "?") + "autoplay=1";
+                    trailerModal.classList.remove("hidden");
+                }
+            });
+        });
     }
 
     function loadNoiDungPhim(phim) {
-        const html = `
-            <div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
-                <h3 class="text-xl font-bold mb-2">Nội dung phim</h3>
-                <p class="text-gray-700">${phim.mo_ta}</p>
-            </div>`;
+        const html = `<div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
+            <h3 class="text-xl font-bold mb-2">Nội dung phim</h3>
+            <p class="text-gray-700">${phim.mo_ta}</p>
+        </div>`;
         document.getElementById('noiDungPhim').innerHTML = html;
     }
 
-    // Load thông tin phim khi mở trang
+    function loadDanhSachCmt(danhGia) {
+        const commentList = document.getElementById('commentList');
+        const averageRatingSpan = document.getElementById('averageRating');
+
+        if (!danhGia || danhGia.length === 0) {
+            commentList.innerHTML = '<p class="text-gray-500">Chưa có bình luận nào.</p>';
+            if (averageRatingSpan) averageRatingSpan.textContent = '0.0 (0 votes)';
+            return;
+        }
+
+        const totalStars = danhGia.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
+        const avgStars = (totalStars / danhGia.length).toFixed(1);
+        if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${danhGia.length} votes)`;
+
+        const html = danhGia.map(cmt => {
+            const stars = '★'.repeat(cmt.so_sao) + '☆'.repeat(5 - cmt.so_sao);
+            const ngayGui = new Date(cmt.created_at || cmt.ngay_tao).toLocaleString('vi-VN', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+            return `<div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
+                        ${cmt.khach_hang.ho_ten.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-800">${cmt.khach_hang.ho_ten}</p>
+                        <div class="flex text-sm text-yellow-400">${stars}</div>
+                    </div>
+                </div>
+                <p class="text-gray-700">${cmt.cmt}</p>
+                <p class="text-gray-400 text-xs mt-1">${ngayGui}</p>
+            </div>`;
+        }).join('');
+
+        commentList.innerHTML = html;
+    }
+
+    commentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const comment = commentForm.querySelector('textarea[name="comment"]').value;
+        try {
+            const res = await fetch(`${baseUrl}/api/them-danh-gia`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ phim_id: idPhim, so_sao: parseInt(ratingValue.textContent), cmt: comment })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Gửi đánh giá thành công!');
+                commentForm.querySelector('textarea[name="comment"]').value = '';
+                currentRating = 5; updateStars(currentRating);
+
+                const resDanhGia = await fetch(baseUrl + "/api/doc-danh-gia");
+                const dataDanhGia = await resDanhGia.json();
+                if (dataDanhGia.success) loadDanhSachCmt(dataDanhGia.data);
+            } else alert('Lỗi: ' + data.message);
+        } catch (err) { console.error(err); alert('Lỗi server'); }
+    });
+
+    // Load thông tin phim + suất chiếu + bình luận
     fetch(`${baseUrl}/api/dat-ve/${idPhim}`)
         .then(res => res.json())
         .then(data => {
@@ -490,12 +418,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadThongTinPhim(data.data);
                 loadNoiDungPhim(data.data);
                 loadSuatChieu();
+
+                // Load danh sách đánh giá
+                fetch(baseUrl + "/api/doc-danh-gia")
+                    .then(res => res.json())
+                    .then(data => { if (data.success) loadDanhSachCmt(data.data); });
             }
-        })
-        .catch(err => console.error("Lỗi load phim:", err));
+        }).catch(err => console.error(err));
+
+    // --- Day Tabs ---
+    const visibleDays = 7;
+    let currentStartIndex = 0;
+    let activeIndex = -1;
+    const allDays = [];
+    const today = new Date();
+    for (let i=0;i<30;i++){ const d=new Date(today); d.setDate(today.getDate()+i); allDays.push(d); }
+
+    function formatDate(d){ return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2);}
+    function formatWeekday(d){ return ["CN","T2","T3","T4","T5","T6","T7"][d.getDay()]; }
+
+    function renderDayTabs(){
+        dayTabs.innerHTML='';
+        for(let i=currentStartIndex;i<currentStartIndex+visibleDays;i++){
+            if(!allDays[i]) continue;
+            const btn=document.createElement('button');
+            btn.className='flex-shrink-0 text-center px-4 py-2 rounded-lg border border-gray-300 font-semibold text-gray-700 hover:bg-red-500 hover:text-white transition-colors';
+            btn.innerHTML=`${formatWeekday(allDays[i])}<br>${formatDate(allDays[i])}`;
+            btn.dataset.index=i;
+            if(activeIndex===-1 && i===0){ btn.classList.add('bg-red-600','text-white'); activeIndex=0; }
+            else if(i===activeIndex){ btn.classList.add('bg-red-600','text-white'); }
+            dayTabs.appendChild(btn);
+        }
+    }
+
+    function getSelectedDate(){ return activeIndex>=0 ? allDays[activeIndex].toISOString().split('T')[0] : today.toISOString().split('T')[0]; }
+
+    dayTabs.addEventListener('click', e=>{
+        const btn = e.target.closest('button'); if(!btn) return;
+        dayTabs.querySelectorAll('button').forEach(b=>{ b.classList.remove('bg-red-600','text-white'); b.classList.add('text-gray-700','border-gray-300'); });
+        btn.classList.add('bg-red-600','text-white'); activeIndex=parseInt(btn.dataset.index); loadSuatChieu();
+    });
+
+    nextBtn.addEventListener('click',()=>{ if(currentStartIndex+visibleDays<allDays.length){ currentStartIndex++; renderDayTabs(); } });
+    prevBtn.addEventListener('click',()=>{ if(currentStartIndex>0){ currentStartIndex--; renderDayTabs(); } });
+    renderDayTabs();
+
 });
 </script>
-
-
 </body>
 </html>

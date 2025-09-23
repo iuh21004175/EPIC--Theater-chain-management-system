@@ -154,7 +154,8 @@
                             Xin chào, <?= htmlspecialchars($user['ho_ten']) ?>
                         </div>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/thong-tin-ca-nhan" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Thông tin cá nhân</a>
-                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/ve-cua-toi" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Vé của tôi</a>
+                        <a href="{{ $_ENV['URL_WEB_BASE'] }}/ve-cua-toi" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Vé của tôi</a>
+                        <a href="{{ $_ENV['URL_WEB_BASE'] }}/the-qua-tang" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Thẻ quà tặng</a>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/doi-mat-khau" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đổi mật khẩu</a>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đăng xuất</a>
                         <!-- <form method="POST" action="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat">

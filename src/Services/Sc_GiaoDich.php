@@ -51,7 +51,7 @@ class Sc_GiaoDich
                         echo "Updated DonHang ID {$donhangId} to trang_thai=2\n";
 
                         Ve::where('donhang_id', $donhangId)
-                          ->update(['trang_thai' => 'da_dat']);
+                          ->update(['trang_thai' => 2]);
                         echo "Updated Ve of DonHang ID {$donhangId} to 'da_dat'\n";
                     } else {
                         echo "DonHang ID {$donhangId} not found\n";

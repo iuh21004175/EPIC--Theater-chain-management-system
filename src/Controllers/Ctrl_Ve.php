@@ -30,4 +30,15 @@ class Ctrl_Ve {
             exit;
         }
     }
+
+    public function capNhatTrangThai(){
+        $body = json_decode(file_get_contents('php://input'), true);
+        $id = $body['donhang_id'] ?? null;
+        if(!$id){ echo json_encode(['success'=>false,'message'=>'Thiếu id vé']); exit; }
+
+        $service = new Sc_Ve();
+        $result = $service->capNhat($id); 
+        echo json_encode(['success'=>$result,'message'=>$result?'Cập nhật vé thành công':'Thất bại']);
+        exit;
+    }
 }

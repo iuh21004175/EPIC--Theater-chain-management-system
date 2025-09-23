@@ -5,6 +5,7 @@ use App\Controllers\Ctrl_RapPhim;
 use App\Controllers\Ctrl_KhachHang;
 use App\Controllers\Ctrl_Ghe;
 use App\Controllers\Ctrl_DonHang;
+use App\Controllers\Ctrl_TheQuaTang;
 use function App\Core\view;
 
 // Vai trò: Khách hàng thành viên, Khách hàng vãng lại
@@ -16,12 +17,14 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'indexKhachHang']);
     $r->addRoute('GET', '/lich-chieu', [Ctrl_Phim::class, 'lichChieu']);
     $r->addRoute('GET', '/dat-ve/{id}', [Ctrl_Phim::class, 'datVe']);
+    $r->addRoute('GET', '/dat-ve-online/{id}', [Ctrl_Phim::class, 'datVeOnline']);
     $r->addRoute('GET', '/rap/{id}', [Ctrl_RapPhim::class, 'rapKhachHang']);
     $r->addRoute('GET', '/tin-tuc', [Ctrl_Phim::class, 'tinTuc']);
     $r->addRoute('GET', '/tin-tuc/{name}', [Ctrl_Phim::class, 'chiTietTinTuc']);
     $r->addRoute('GET', '/reset-password', [Ctrl_XacThucCustomer::class, 'resetPassword']);
     $r->addRoute('GET', '/so-do-ghe/{id}', [Ctrl_Ghe::class, 'soDoGhe']);
     $r->addRoute('GET', '/ve-cua-toi', [Ctrl_DonHang::class, 'index']);
+    $r->addRoute('GET', '/the-qua-tang', [Ctrl_TheQuaTang::class, 'index']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

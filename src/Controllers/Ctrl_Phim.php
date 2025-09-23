@@ -16,6 +16,9 @@
         public function datVe(){
             return view('customer.dat-ve');
         }
+        public function datVeOnline(){
+            return view('customer.dat-ve-online');
+        }
         public function tinTuc(){
             return view('customer.tin-tuc');
         }

@@ -13,6 +13,8 @@ class DonHang extends Model
         'id',
         'user_id',
         'suat_chieu_id',
+        'thequatang_id',
+        'the_qua_tang_su_dung',
         'ma_ve',
         'qr_code',
         'tong_tien',
@@ -39,5 +41,10 @@ class DonHang extends Model
     public function ve()
     {
         return $this->hasMany(Ve::class, 'donhang_id', 'id');
+    }
+
+    public function theQuaTang()
+    {
+        return $this->belongsTo(TheQuaTang::class, 'thequatang_id', 'id');
     }
 }
