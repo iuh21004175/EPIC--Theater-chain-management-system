@@ -37,17 +37,48 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <div class="flex items-center">
-                <svg class="h-8 w-8 text-red-600 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
-                </svg>
-                <h1 class="text-xl font-bold text-gray-900">EPIC CINEMA</h1>
-            </div>
-            <div class="flex items-center">
-                <span class="mr-4 text-gray-600">Xin chào, {{$_SESSION['UserInternal']['Ten'] ? $_SESSION['UserInternal']['Ten'] : $_SESSION['UserInternal']['VaiTro']}}</span>
-                <a href="{{$_ENV['URL_INTERNAL_BASE']}}/dang-xuat" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm">Đăng xuất</a>
+    <header class="bg-white shadow-sm z-10">
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{{$_ENV['URL_INTERNAL_BASE']}}/bang-dieu-khien" class="flex items-center">
+                        <svg class="h-8 w-8 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+                        </svg>
+                        <span class="ml-2 text-xl font-bold text-gray-900">EPIC CINEMA</span>
+                    </a>
+                </div>
+
+                <!-- User Menu -->
+                <div class="flex items-center">
+                    <div class="relative ml-3">
+                        <div>
+                            <button type="button" class="flex items-center max-w-xs text-sm rounded-full focus:outline-none focus:shadow-outline" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                <span class="mr-2 text-gray-700">{{$_SESSION['UserInternal']['Ten'] ? $_SESSION['UserInternal']['Ten'] : $_SESSION['UserInternal']['VaiTro']}}</span>
+                                <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+
+                        <!-- Dropdown menu - hidden by default -->
+                        <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" id="user-menu">
+                            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/thong-tin-ca-nhan" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                Thông tin cá nhân
+                            </a>
+                            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/doi-mat-khau" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                Đổi mật khẩu
+                            </a>
+                            <div class="border-t border-gray-100"></div>
+                            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/dang-xuat" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100" role="menuitem">
+                                Đăng xuất
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -58,15 +89,6 @@
         
         <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
             @if($_SESSION['UserInternal']['VaiTro'] == 'Admin')
-            <!-- Quản lý rạp phim -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/rap-phim" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý danh sách rạp phim">
-                <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 rounded-full mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                    </svg>
-                </div>
-                <span class="text-xs text-center font-medium text-gray-700">Rạp phim</span>
-            </a>
             <!-- Quản lý banner -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/banner" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý banner">
                 <div class="w-12 h-12 flex items-center justify-center bg-sky-100 rounded-full mb-3">
@@ -86,7 +108,15 @@
                 <span class="text-xs text-center font-medium text-gray-700">Tài khoản</span>
             </a>
             @elseif($_SESSION['UserInternal']['VaiTro'] == 'Quản lý chuỗi rạp')
-             
+            <!-- Quản lý rạp phim -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/rap-phim" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý danh sách rạp phim">
+                <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Rạp phim</span>
+            </a>
             <!-- Quản lý phim -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/phim" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Quản lý phim">
                 <div class="w-12 h-12 flex items-center justify-center bg-red-100 rounded-full mb-3">
@@ -269,5 +299,19 @@
             
         </div>
     </main>
+    <script>
+        // Toggle User Menu
+        document.getElementById('user-menu-button').addEventListener('click', function() {
+            document.getElementById('user-menu').classList.toggle('hidden');
+        });
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            const userMenuButton = document.getElementById('user-menu-button');
+            if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>

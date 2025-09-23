@@ -13,6 +13,14 @@
         {
             return view('internal.bang-dieu-khien');
         }
+        public function pageQuenMatKhau()
+        {
+            return view('internal.quen-mat-khau');
+        }
+        public function pageDoiMatKhau()
+        {
+            return view('internal.doi-mat-khau');
+        }
         public function dangNhap()
         {
             try{
@@ -36,6 +44,42 @@
             session_destroy();
             header('Location: ' . $_ENV['URL_INTERNAL_BASE'] . '/');
             exit();
+        }
+        public function xacThucEmailLayLaiMatKhau()
+        {
+            try {
+                $scXacThuc = new Sc_XacThucInternal();
+                $scXacThuc->scXacThucEmailLayLaiMatKhau();
+                return [
+                    'success'  => true,
+                    'message'  => 'Mật khẩu mới đã được gửi đến email của bạn. Vui lòng kiểm tra hộp thư đến.',
+                    'href'     => $_ENV['URL_INTERNAL_BASE'] . '/'
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success'  => false,
+                    'message' => 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+                    'error'   => $e->getMessage()
+                ];
+            }
+        }
+        public function doiMatKhau()
+        {
+            try {
+                $scXacThuc = new Sc_XacThucInternal();
+                $scXacThuc->scDoiMatKhau();
+                return [
+                    'success'  => true,
+                    'message'  => 'Đổi mật khẩu thành công.',
+                    'href'     => $_ENV['URL_INTERNAL_BASE'] . '/'
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success'  => false,
+                    'message' => 'Đã xảy ra lỗi. Vui lòng thử lại sau.',
+                    'error'   => $e->getMessage()
+                ];
+            }
         }
     }
 ?>

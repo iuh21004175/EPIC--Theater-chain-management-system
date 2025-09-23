@@ -2,6 +2,7 @@
     namespace App\Controllers;
     use function App\Core\view;
     use App\Services\Sc_PhanCong;
+    use App\Services\Sc_GoogleCloud;
     class Ctrl_PhanCong {
         // Properties and methods for the Ctrl_PhanCong class
         public function index() {

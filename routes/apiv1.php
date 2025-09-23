@@ -18,17 +18,20 @@ use App\Controllers\Ctrl_DuyetSuatChieu;
 use App\Controllers\Ctrl_GiaoDich;
 use App\Controllers\Ctrl_PhanCong;
 use App\Controllers\Ctrl_ChiTietDonHang;
+use App\Controllers\Ctrl_Banner;
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
+    $r->addRoute('POST', '/nhan-vien-quen-mat-khau', [Ctrl_XacThucInternal::class, 'xacThucEmailLayLaiMatKhau']);
+    $r->addRoute('POST', '/doi-mat-khau', [Ctrl_XacThucInternal::class, 'doiMatKhau', ['Nhân viên', 'Quản lý rạp']]);
     $r->addRoute('POST', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'themTaiKhoan', ['Admin']]);
     $r->addRoute('GET', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'docTaiKhoan', ['Admin']]);
     $r->addRoute('GET', '/tai-khoan/{id:\d+}', [Ctrl_TaiKhoanInternal::class, 'docTaiKhoan', ['Admin']]);
     $r->addRoute('PUT', '/tai-khoan/{id:\d+}/phan-cong', [Ctrl_TaiKhoanInternal::class, 'phanCongTaiKhoan', ['Admin']]);
     $r->addRoute('PUT', '/tai-khoan/{id:\d+}', [Ctrl_TaiKhoanInternal::class, 'suaTaiKhoan', ['Admin']]);
-    $r->addRoute('POST', '/rap-phim', [Ctrl_RapPhim::class, 'themRapPhim', ['Admin']]);
-    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'docRapPhim', ['Admin', 'Quản lý chuỗi rạp']]);
-    $r->addRoute('GET', '/rap-phim/{id:\d+}/trang-thai', [Ctrl_RapPhim::class, 'thayDoiTrangThai', ['Admin']]);
-    $r->addRoute('POST', '/rap-phim/{id:\d+}', [Ctrl_RapPhim::class, 'suaRapPhim', ['Admin']]);
+    $r->addRoute('POST', '/rap-phim', [Ctrl_RapPhim::class, 'themRapPhim', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'docRapPhim', ['Quản lý chuỗi rạp', 'Admin']]);
+    $r->addRoute('GET', '/rap-phim/{id:\d+}/trang-thai', [Ctrl_RapPhim::class, 'thayDoiTrangThai', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('POST', '/rap-phim/{id:\d+}', [Ctrl_RapPhim::class, 'suaRapPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/nhan-vien', [Ctrl_NhanVien::class, 'themNhanVien', ['Quản lý rạp']]);
     $r->addRoute('GET', '/nhan-vien', [Ctrl_NhanVien::class, 'docNhanVien', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/nhan-vien/{id:\d+}', [Ctrl_NhanVien::class, 'suaNhanVien', ['Quản lý rạp']]);
@@ -72,6 +75,14 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'docViTri', ['Quản lý rạp']]);
     $r->addRoute('POST', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'themViTri', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/vi-tri-cong-viec/{id:\d+}', [Ctrl_PhanCong::class, 'suaViTri', ['Quản lý rạp']]);
+    $r->addRoute('POST', '/banner', [Ctrl_Banner::class, 'them', ['Admin']]);
+    $r->addRoute('GET', '/banner', [Ctrl_Banner::class, 'docTatCa', ['Admin']]);
+    $r->addRoute('GET', '/banner/side-show', [Ctrl_Banner::class, 'docSideShow']);
+    $r->addRoute('PUT', '/banner/{id:\d+}', [Ctrl_Banner::class, 'suaAnh', ['Admin']]);
+    $r->addRoute('PUT', '/banner/{id:\d+}/trang-thai', [Ctrl_Banner::class, 'thayDoiTrangThai', ['Admin']]);
+    $r->addRoute('DELETE', '/banner/{id:\d+}', [Ctrl_Banner::class, 'xoa', ['Admin']]);
+    $r->addRoute('PUT', '/banner/cap-nhat-side-show', [Ctrl_Banner::class, 'sapXep', ['Admin']]);
+    
     // Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('POST', '/dang-nhap-khach-hang', [Ctrl_XacThucCustomer::class, 'dangNhap']);

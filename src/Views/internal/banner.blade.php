@@ -8,7 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-<script src="{{$_ENV['URL_INTERNAL_BASE']}}/js/banner.js" defer></script>
+<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/banner.js" defer></script>
 <style>
     /* Styles for sortable items */
     .sortable-chosen {
@@ -64,7 +64,7 @@
     <div class="mb-8">
         <h2 class="text-lg font-medium text-gray-800 mb-4">Xem trước Slideshow</h2>
         <div class="border border-gray-300 rounded-lg p-4 bg-gray-100">
-            <div class="relative h-64 bg-gray-200 rounded overflow-hidden">
+            <div class="relative bg-gray-200 rounded overflow-hidden mx-auto" style="width:1200px; height:600px; max-width:100%;">
                 <!-- Preview slideshow will be shown here -->
                 <div id="slideshow-preview" class="w-full h-full flex items-center justify-center text-gray-500">
                     <span id="no-banners-message" class="text-center">
@@ -97,12 +97,7 @@
     <div class="mb-8">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-medium text-gray-800">Sắp xếp thứ tự hiển thị</h2>
-            <button id="save-order-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                Lưu thứ tự
-            </button>
+            
         </div>
         
         <div class="bg-gray-50 p-4 rounded-lg border border-gray-300">
@@ -128,23 +123,12 @@
                             Hình ảnh
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Tiêu đề
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Đường dẫn
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Thời gian hiển thị
-                        </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Trạng thái
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Thao tác
-                        </th>
+                        <!-- XÓA cột thao tác -->
                     </tr>
                 </thead>
-                <tbody id="banner-list" class="bg-white divide-y divide-gray-200">
+                <tbody id="banner-list" class="bg-white divide-y divide-gray-200" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
                     <!-- Banner items will be added here dynamically -->
                     <tr id="no-banners-row" class="text-center">
                         <td colspan="6" class="px-6 py-8 text-gray-500">
@@ -173,47 +157,6 @@
             <input type="hidden" id="banner-id" name="banner-id">
             
             <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="banner-title">
-                    Tiêu đề
-                </label>
-                <input type="text" id="banner-title" name="banner-title" 
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                       placeholder="Nhập tiêu đề banner">
-                <p id="title-error" class="text-red-500 text-xs italic mt-1 hidden">Vui lòng nhập tiêu đề banner</p>
-            </div>
-            
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="banner-link">
-                    Đường dẫn liên kết
-                </label>
-                <input type="text" id="banner-link" name="banner-link" 
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                       placeholder="https://example.com/trang-dich">
-                <p id="link-error" class="text-red-500 text-xs italic mt-1 hidden">Vui lòng nhập đường dẫn hợp lệ</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="banner-start-date">
-                        Ngày bắt đầu
-                    </label>
-                    <input type="text" id="banner-start-date" name="banner-start-date" 
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline date-picker" 
-                           placeholder="Chọn ngày bắt đầu">
-                    <p id="start-date-error" class="text-red-500 text-xs italic mt-1 hidden">Vui lòng chọn ngày bắt đầu</p>
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="banner-end-date">
-                        Ngày kết thúc
-                    </label>
-                    <input type="text" id="banner-end-date" name="banner-end-date" 
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline date-picker" 
-                           placeholder="Chọn ngày kết thúc">
-                    <p id="end-date-error" class="text-red-500 text-xs italic mt-1 hidden">Vui lòng chọn ngày kết thúc hợp lệ</p>
-                </div>
-            </div>
-            
-            <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">
                     Hình ảnh banner
                 </label>
@@ -237,9 +180,17 @@
                 </div>
                 <p id="image-error" class="text-red-500 text-xs italic mt-1 hidden">Vui lòng tải lên hình ảnh banner</p>
             </div>
+
+            <div class="mb-4 hidden" id="modal-status-row">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Trạng thái hiện tại</label>
+                <span id="modal-banner-status" class="inline-block px-3 py-1 rounded-full text-xs font-semibold"></span>
+            </div>
             
             <div class="flex justify-between mt-6">
-                <div>
+                <div class="flex gap-2">
+                    <button type="button" id="change-status-banner" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Thay đổi trạng thái
+                    </button>
                     <button type="button" id="delete-banner" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hidden">
                         Xóa
                     </button>
@@ -249,7 +200,7 @@
                         Hủy
                     </button>
                     <button type="button" id="save-banner" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                        Thêm
+                        Lưu
                     </button>
                 </div>
             </div>
@@ -266,13 +217,9 @@
         
         <div class="mb-6">
             <p class="text-gray-700">Bạn có chắc chắn muốn xóa banner này? Hành động này không thể hoàn tác.</p>
-            
-            <div class="mt-4 flex items-center bg-gray-100 p-3 rounded-lg">
-                <img id="delete-preview" class="h-16 w-24 object-cover rounded mr-3" src="" alt="Banner thumbnail">
-                <div>
-                    <p id="delete-title" class="font-medium"></p>
-                    <p id="delete-dates" class="text-sm text-gray-600"></p>
-                </div>
+
+            <div class="mt-4 flex justify-center bg-gray-100 p-3 rounded-lg">
+                <img id="delete-preview" class="w-56 max-h-48 object-contain rounded mr-4 bg-white border" src="" alt="Banner thumbnail">
             </div>
         </div>
         

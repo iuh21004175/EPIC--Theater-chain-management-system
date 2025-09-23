@@ -42,7 +42,11 @@
                 </div>
             </div>
 
-            <div class="text-sm text-yellow-600 my-3 text-center">Lưu ý: Đây là trang đăng nhập nội bộ <b>EPIC CINEMA</b></div>
+            <div class="flex">
+                <a href="{{$_ENV['URL_INTERNAL_BASE']}}/quen-mat-khau" class="text-sm text-red-600 hover:underline">
+                    Quên mật khẩu?
+                </a>
+            </div>
 
             <div>
                 <button type="submit" 

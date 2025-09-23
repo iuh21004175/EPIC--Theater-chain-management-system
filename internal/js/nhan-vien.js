@@ -36,32 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordError = document.getElementById('password-error');
     
     // Sample data for testing (would be fetched from server in production)
-    let employees = [
-        {
-            id: 1,
-            name: 'Nguyễn Văn A',
-            phone: '0123456789',
-            email: 'nguyenvana@example.com',
-            username: 'nguyenvana',
-            status: 'active'
-        },
-        {
-            id: 2,
-            name: 'Trần Thị B',
-            phone: '0987654321',
-            email: 'tranthib@example.com',
-            username: 'tranthib',
-            status: 'active'
-        },
-        {
-            id: 3,
-            name: 'Lê Văn C',
-            phone: '0369852147',
-            email: 'levanc@example.com',
-            username: 'levanc',
-            status: 'inactive'
-        }
-    ];
+    let employees = [];
     
     // Variables for status change
     let changingEmployeeId = null;
@@ -689,9 +664,19 @@ document.addEventListener('DOMContentLoaded', function() {
             // Numbered buttons
             for (let i = 1; i <= totalPages; i++) {
                 const pageButton = document.createElement('button');
-                pageButton.classList.add('px-4', 'py-2', 'mr-2', 'text-sm', 'font-medium', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2', 'focus:ring-indigo-500');
+                pageButton.classList.add(
+                    'px-4', 'py-2', 'mr-2', 'text-sm', 'font-medium', 'rounded-md', 
+                    'focus:outline-none', 'focus:ring-2', 'focus:ring-offset-2', 'focus:ring-indigo-500'
+                );
                 pageButton.textContent = i;
-                pageButton.disabled = i === currentPage;
+                if (i === currentPage) {
+                    // Trang hiện tại: active
+                    pageButton.classList.add('bg-blue-600', 'text-white', 'border', 'border-blue-600');
+                    pageButton.disabled = true;
+                } else {
+                    pageButton.classList.add('bg-white', 'text-gray-700', 'border', 'border-gray-300', 'hover:bg-gray-50');
+                    pageButton.disabled = false;
+                }
                 pageButton.addEventListener('click', () => {
                     currentPage = i;
                     loadEmployees();

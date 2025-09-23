@@ -54,6 +54,7 @@
                     $query->where('id_vaitro', 4); // Role id for staff
                 })
                 ->where('id_rapphim', $idRapPhim)
+                ->orderBy('created_at', 'desc')
                 ->skip(($page - 1) * $perPage)
                 ->take($perPage)
                 ->get();

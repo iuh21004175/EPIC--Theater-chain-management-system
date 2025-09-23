@@ -39,103 +39,65 @@
         <div class="bg-white shadow rounded-lg p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-bold">Lịch phân công tuần này</h3>
-                <button id="btn-open-phancong-modal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                    Phân công
-                </button>
+                <div class="flex gap-2">
+                    <!-- <button id="btn-quick-phancong" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                        Phân công nhanh
+                    </button> -->
+                    <button id="btn-open-phancong-modal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                        Phân công
+                    </button>
+                </div>
             </div>
             <div class="flex items-center gap-4 mb-4">
                 <button id="prev-week" class="px-3 py-1 rounded border bg-white hover:bg-gray-100">&lt; Tuần trước</button>
                 <span id="week-range" class="font-semibold text-blue-700"></span>
                 <button id="next-week" class="px-3 py-1 rounded border bg-white hover:bg-gray-100">Tuần sau &gt;</button>
             </div>
-            <div id="date-nav-container" class="grid grid-cols-7 gap-1 mb-6"></div>
                 
             <div id="phancong-schedule-list" class="overflow-x-auto">
-                <!-- JS sẽ render bảng phân công tuần tại đây -->
-            </div>
-        </div>
-
-        <!-- Modal phân công cho 1 tuần -->
-        <div id="phancong-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
-            <div class="bg-white rounded-lg shadow-lg w-full max-w-5xl p-6 relative"> <!-- Đổi max-w-3xl thành max-w-5xl -->
-                <button id="btn-close-phancong-modal" class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl">&times;</button>
-                <h4 class="text-lg font-bold mb-4">Phân công nhân viên cho tuần <span id="modal-week-range"></span></h4>
-                <div class="mb-4 flex justify-end">
-                    <button id="btn-auto-phancong" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        Phân công tự động
-                    </button>
-                </div>
-                <form id="phancong-form-modal">
-                    <!-- Bảng phân công ca làm việc -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full border text-center" id="phancong-shift-table">
-                            <thead>
-                                <tr>
-                                    <th class="border px-2 py-1 bg-gray-100">Ca / Ngày</th>
-                                    <th class="border px-2 py-1" id="header-mon"></th>
-                                    <th class="border px-2 py-1" id="header-tue"></th>
-                                    <th class="border px-2 py-1" id="header-wed"></th>
-                                    <th class="border px-2 py-1" id="header-thu"></th>
-                                    <th class="border px-2 py-1" id="header-fri"></th>
-                                    <th class="border px-2 py-1" id="header-sat"></th>
-                                    <th class="border px-2 py-1" id="header-sun"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="border px-2 py-1 font-semibold bg-gray-50">Ca sáng</td>
-                                    @for($i=0;$i<7;$i++)
-                                    <td class="border px-2 py-6 align-top">
-                                        <div class="min-h-[64px] min-w-[120px] flex flex-col gap-2 items-center" id="cell-morning-{{$i}}">
-                                            <!-- Danh sách nhân viên sẽ được JS render vào đây -->
-                                            <button type="button"
-                                                class="add-nv-btn w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white text-2xl"
-                                                data-shift="morning" data-day="{{$i}}" title="Thêm nhân viên">
-                                                +
-                                            </button>
-                                        </div>
-                                    </td>
-                                    @endfor
-                                </tr>
-                                <tr>
-                                    <td class="border px-2 py-1 font-semibold bg-gray-50">Ca chiều</td>
-                                    @for($i=0;$i<7;$i++)
-                                    <td class="border px-2 py-6 align-top">
-                                        <div class="min-h-[64px] min-w-[120px] flex flex-col gap-2 items-center" id="cell-afternoon-{{$i}}">
-                                            <!-- Danh sách nhân viên sẽ được JS render vào đây -->
-                                            <button type="button"
-                                                class="add-nv-btn w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white text-2xl"
-                                                data-shift="afternoon" data-day="{{$i}}" title="Thêm nhân viên">
-                                                +
-                                            </button>
-                                        </div>
-                                    </td>
-                                    @endfor
-                                </tr>
-                                <tr>
-                                    <td class="border px-2 py-1 font-semibold bg-gray-50">Ca tối</td>
-                                    @for($i=0;$i<7;$i++)
-                                    <td class="border px-2 py-6 align-top">
-                                        <div class="min-h-[64px] min-w-[120px] flex flex-col gap-2 items-center" id="cell-evening-{{$i}}">
-                                            <!-- Danh sách nhân viên sẽ được JS render vào đây -->
-                                            <button type="button"
-                                                class="add-nv-btn w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-blue-500 hover:text-white text-2xl"
-                                                data-shift="evening" data-day="{{$i}}" title="Thêm nhân viên">
-                                                +
-                                            </button>
-                                        </div>
-                                    </td>
-                                    @endfor
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="mt-4 flex justify-end">
-                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                            Lưu phân công tuần
-                        </button>
-                    </div>
-                </form>
+                <table class="min-w-full border text-center bg-white rounded-lg shadow">
+                    <thead>
+                        <tr>
+                            <th class="border px-4 py-4 bg-gray-100 text-base font-bold sticky left-0 z-10">Ca / Ngày</th>
+                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-mon"></th>
+                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-tue"></th>
+                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-wed"></th>
+                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-thu"></th>
+                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-fri"></th>
+                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-sat"></th>
+                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-sun"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border px-4 py-8 font-semibold bg-gray-50 text-base sticky left-0 z-10">Ca sáng</td>
+                            @for($i=0;$i<7;$i++)
+                            <td class="border px-4 py-12 align-top min-h-[96px] min-w-[140px] bg-white hover:bg-gray-50 transition-colors duration-150"
+                                id="main-cell-morning-{{$i}}">
+                                <!-- JS sẽ render nội dung phân công ca sáng tại đây -->
+                            </td>
+                            @endfor
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-8 font-semibold bg-gray-50 text-base sticky left-0 z-10">Ca chiều</td>
+                            @for($i=0;$i<7;$i++)
+                            <td class="border px-4 py-12 align-top min-h-[96px] min-w-[140px] bg-white hover:bg-gray-50 transition-colors duration-150"
+                                id="main-cell-afternoon-{{$i}}">
+                                <!-- JS sẽ render nội dung phân công ca chiều tại đây -->
+                            </td>
+                            @endfor
+                        </tr>
+                        <tr>
+                            <td class="border px-4 py-8 font-semibold bg-gray-50 text-base sticky left-0 z-10">Ca tối</td>
+                            @for($i=0;$i<7;$i++)
+                            <td class="border px-4 py-12 align-top min-h-[96px] min-w-[140px] bg-white hover:bg-gray-50 transition-colors duration-150"
+                                id="main-cell-evening-{{$i}}">
+                                <!-- JS sẽ render nội dung phân công ca tối tại đây -->
+                            </td>
+                            @endfor
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

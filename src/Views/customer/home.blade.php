@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Trang chủ - EPIC CINEMAS</title>
   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
+  <script src="{{$_ENV['URL_WEB_BASE']}}/js/banner.js"></script>
   <style>
     @keyframes slide {
       0%   { transform: translateX(0); }
@@ -23,7 +24,7 @@
 <main>
   <!-- Banner -->
   <section class="relative w-full h-72 md:h-80 lg:h-96 overflow-hidden rounded-xl shadow-lg">
-    <div class="w-full h-full flex animate-slide">
+    <div class="w-full h-full flex animate-slide" id="bannerContainer" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
       <img src="https://res.cloudinary.com/dtkm5uyx1/image/upload/v1756787663/mua-do-500_1755156035605_amofs8.jpg"
            class="w-full h-full object-cover flex-shrink-0">
       <img src="https://picsum.photos/1200/600?1"

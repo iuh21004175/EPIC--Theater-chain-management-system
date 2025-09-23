@@ -21,6 +21,8 @@ use function App\Core\view;
 // Vai trò: Quản trị viên, Nhân viên, Khách hàng
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/dang-nhap', [Ctrl_XacThucInternal::class, 'index']);
+    $r->addRoute('GET', '/quen-mat-khau', [Ctrl_XacThucInternal::class, 'pageQuenMatKhau']);
+    $r->addRoute('GET', '/doi-mat-khau', [Ctrl_XacThucInternal::class, 'pageDoiMatKhau']);
     $r->addRoute('GET', '/', [Ctrl_XacThucInternal::class, 'index']);
     $r->addRoute('GET', '/dang-xuat', [Ctrl_XacThucInternal::class, 'dangXuat']);
     $r->addRoute('GET', '/bang-dieu-khien', [Ctrl_XacThucInternal::class, 'pageBangDieuKhien']);
@@ -31,7 +33,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/gan-ngay', [Ctrl_GanNgay::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/banner', [Ctrl_Banner::class, 'index', ['Admin']]);
     $r->addRoute('GET', '/tai-khoan', [Ctrl_TaiKhoanInternal::class, 'index', ['Admin']]);
-    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'index', ['Admin']]);
+    $r->addRoute('GET', '/rap-phim', [Ctrl_RapPhim::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/phong-chieu', [Ctrl_PhongChieu::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/nhan-vien', [Ctrl_NhanVien::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'index', ['Quản lý rạp']]);
