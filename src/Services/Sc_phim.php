@@ -118,15 +118,9 @@
                 throw new \Exception('Lỗi khi thêm phim: ' . $e->getMessage());
             }
         }
-<<<<<<< Updated upstream
+
         public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null){
             $query = Phim::with(['TheLoai.TheLoai']);
-
-=======
-        public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null){
-            $query = Phim::with(['TheLoai.TheLoai']); // Đúng tên quan hệ
-            
->>>>>>> Stashed changes
             if($tuKhoaTimKiem){
                 $query->where(function($q) use ($tuKhoaTimKiem) {
                     $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
