@@ -104,15 +104,17 @@
                 throw new \Exception('Lỗi khi thêm phim: ' . $e->getMessage());
             }
         }
-        public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null){
-            $query = Phim::with(['TheLoai.TheLoai']); // Đúng tên quan hệ
+        public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null){
+            $query = Phim::with(['TheLoai.TheLoai']);
 
             if($tuKhoaTimKiem){
-                $query->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
-                    ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
-                    ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
+                $query->where(function($q) use ($tuKhoaTimKiem) {
+                    $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
+                      ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
+                      ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
+                });
             }
-            if($trangThai){
+            if($trangThai !== null && $trangThai !== '') {
                 $query->where('trang_thai', $trangThai);
             }
             if($theLoaiId){
@@ -120,6 +122,14 @@
                     $q->where('theloai_id', $theLoaiId);
                 });
             }
+            if($idRap){
+                // Lấy danh sách id_phim đã thuộc rạp này
+                $phimIdsDaPhanPhoi = \App\Models\PhanPhoiPhim::where('id_rapphim', $idRap)->pluck('id_phim')->toArray();
+                if (!empty($phimIdsDaPhanPhoi)) {
+                    $query->whereNotIn('id', $phimIdsDaPhanPhoi);
+                }
+            }
+
             $pageSize = 10;
             $total = $query->count();
             $totalPages = ceil($total / $pageSize);
@@ -133,7 +143,26 @@
                 'current_page' => $page
             ];
         }
-
+        public function themPhanPhoiPhim(){
+            $data = json_decode(file_get_contents('php://input'), true);
+            $idRap = $data['id_rap'] ?? null;
+            $phimId = $data['phim_id'] ?? [];
+            $phim = PhanPhoiPhim::create([
+                'id_phim' => $phimId,
+                'id_rapphim' => $idRap,
+            ]);
+            if(!$phim){
+                throw new \Exception('Lỗi khi thêm phân phối phim');
+            }
+        }
+        public function xoaPhanPhoiPhim(){
+            $data = json_decode(file_get_contents('php://input'), true);
+            $idRap = $data['id_rap'] ?? null;
+            $phimId = $data['phim_id'] ?? [];
+            PhanPhoiPhim::where('id_rapphim', $idRap)
+                        ->where('id_phim', $phimId)
+                        ->delete();
+        }
         public function docPhimKH($tuKhoaTimKiem = null, $theLoaiId = null)
         {
             $query = Phim::with(['TheLoai.TheLoai']); // load quan hệ

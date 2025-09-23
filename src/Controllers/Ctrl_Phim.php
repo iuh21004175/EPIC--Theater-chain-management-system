@@ -115,7 +115,7 @@
             $service = new Sc_Phim();
             try {
                 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                $result = $service->docPhim($page, $_GET['tuKhoaTimKiem'] ?? null, $_GET['trangThai'] ?? null, $_GET['theLoaiId'] ?? null);
+                $result = $service->docPhim($page, $_GET['tuKhoaTimKiem'] ?? null, $_GET['trangThai'] ?? null, $_GET['theLoaiId'] ?? null, $_GET['idRap'] ?? null);
                 return [
                     'success' => true,
                     'data' => $result['data'],
@@ -236,6 +236,38 @@
                 return [
                     'success' => false,
                     'message' => 'Lỗi khi tải danh sách phim theo rạp: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function themPhanPhoi(){
+            $service = new Sc_Phim();
+            try {
+                $service->themPhanPhoiPhim();
+                return [
+                    'success' => true,
+                    'message' => 'Thêm phân phối phim thành công'
+                ];
+               
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi thêm phân phối phim: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function xoaPhanPhoi(){
+            $service = new Sc_Phim();
+            try {
+                $service->xoaPhanPhoiPhim();
+                return [
+                    'success' => true,
+                    'message' => 'Xóa phân phối phim thành công'
+                ];
+               
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi xóa phân phối phim: ' . $e->getMessage()
                 ];
             }
         }

@@ -45,7 +45,9 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/phim/', [Ctrl_Phim::class, 'docPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/phim/{id:\d+}', [Ctrl_Phim::class, 'suaPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/phim/{id:\d+}/phan-phoi', [Ctrl_Phim::class, 'phanPhoiPhim', ['Quản lý chuỗi rạp']]);
-        $r->addRoute('GET', '/phan-phoi-phim/{id:\d+}', [Ctrl_Phim::class, 'docPhimTheoRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/phan-phoi-phim/{id:\d+}', [Ctrl_Phim::class, 'docPhimTheoRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('PUT', '/phan-phoi-phim/them', [Ctrl_Phim::class, 'themPhanPhoi', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('PUT', '/phan-phoi-phim/xoa', [Ctrl_Phim::class, 'xoaPhanPhoi', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/ghe', [Ctrl_Ghe::class, 'themGhe', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/ghe', [Ctrl_Ghe::class, 'docGhe', ['Quản lý chuỗi rạp', 'Quản lý rạp']]);
     $r->addRoute('PUT', '/ghe/{id:\d+}', [Ctrl_Ghe::class, 'suaGhe', ['Quản lý chuỗi rạp']]);

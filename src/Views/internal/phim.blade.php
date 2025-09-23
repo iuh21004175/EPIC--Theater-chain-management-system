@@ -90,6 +90,41 @@
     .modal-body::-webkit-scrollbar-thumb:hover {
         background-color: rgba(156, 163, 175, 0.8);
     }
+
+    /* Thêm CSS cho phần phân phối phim */
+    .movie-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: grab;
+        border: 1px solid #e5e7eb;
+        transition: box-shadow 0.2s;
+    }
+    .movie-card.dragging {
+        opacity: 0.5;
+        box-shadow: 0 0 0 2px #3b82f6;
+    }
+    .movie-card .poster {
+        width: 48px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    .rap-item.selected {
+        background: #e0f2fe;
+        font-weight: bold;
+    }
+    .rap-item .count {
+        background: #f87171;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0 8px;
+        font-size: 12px;
+        margin-left: 6px;
+    }
 </style>
 @endsection
 
@@ -273,7 +308,6 @@
                                     <span class="sr-only">Next</span>
                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-                                    </svg>
                                 </a>
                             </nav>
                         </div>
@@ -389,31 +423,61 @@
 
     <!-- Tab: Phân phối phim -->
     <div id="tab-phanphoi" class="tab-content">
-        <div class="flex flex-col md:flex-row gap-6">
-            <!-- Sidebar: Danh sách rạp -->
-            <div class="md:w-1/4 w-full bg-white rounded-lg shadow p-4 mb-4 md:mb-0">
-                <div class="font-semibold text-gray-800 text-base mb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17l4 4 4-4m0-5V3m-8 9v6a2 2 0 002 2h8a2 2 0 002-2v-6"></path>
-                    </svg>
-                    Danh sách rạp phim
+        <div class="flex gap-6">
+        <!-- Cột 1: Kho phim -->
+        <div class="w-1/3 bg-white rounded-lg shadow p-4 flex flex-col">
+            <h2 class="text-lg font-semibold mb-4 text-gray-800" id="movie-stock-title"></h2>
+            <div class="mb-4">
+                <input type="text" id="search-movie" class="w-full border rounded px-3 py-2" placeholder="Tìm kiếm phim...">
+                <div class="flex gap-2 mt-2">
+                    <select id="filter-movie-status" class="border rounded px-2 py-1">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="1">Đang chiếu</option>
+                        <option value="0">Sắp chiếu</option>
+                    </select>
+                    <select id="filter-movie-genre" class="border rounded px-2 py-1">
+                        <option value="">Tất cả thể loại</option>
+                        <!-- JS render -->
+                    </select>
+                    <select id="filter-movie-rating" class="border rounded px-2 py-1">
+                        <option value="">Tất cả nhãn</option>
+                        <option value="P">P</option>
+                        <option value="C13">C13</option>
+                        <option value="C16">C16</option>
+                        <option value="C18">C18</option>
+                    </select>
                 </div>
-                <ul id="sidebar-rap-list" class="space-y-2" data-url="{{$_ENV['URL_WEB_BASE']}}">
-                    <!-- JS sẽ render danh sách rạp ở đây -->
-                </ul>
             </div>
-            <!-- Nội dung: Danh sách phim của rạp đang chọn -->
-            <div class="flex-1 bg-white rounded-lg shadow p-4">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="font-semibold text-gray-800 text-base" id="rap-title">Chọn rạp để phân phối phim</span>
-                    <button id="btn-open-phanphoi-modal" class="ml-auto bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">Phân phối phim mới</button>
-                </div>
-                <div id="phim-of-rap-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-url="{{$_ENV['URL_WEB_BASE']}}">
-                    <!-- JS sẽ render danh sách phim đã phân phối ở đây -->
-                </div>
+            <div id="movie-stock-list" class="flex-1 overflow-y-auto space-y-3 pr-2" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
+                <!-- JS render card phim -->
+            </div>
+            <div id="movie-stock-pagination" class="flex items-center justify-center gap-1 mt-4"></div>
+        </div>
+
+        <!-- Cột 2: Danh sách rạp -->
+        <div class="w-1/4 bg-white rounded-lg shadow p-4 flex flex-col">
+            <div class="mb-4">
+                <input type="text" id="search-rap" class="w-full border rounded px-3 py-2" placeholder="Tìm kiếm rạp...">
+            </div>
+            <div id="rap-list" class="flex-1 overflow-y-auto space-y-2 pr-2" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                <!-- JS render danh sách rạp, mỗi rạp có checkbox và số lượng phim -->
+            </div>
+            <button id="btn-bulk-phanphoi" class="mt-4 w-full bg-blue-600 text-white py-2 rounded hidden">
+                Phân phối cho <span id="bulk-rap-count">0</span> rạp đã chọn
+            </button>
+        </div>
+
+        <!-- Cột 3: Chi tiết phân phối của rạp -->
+        <div class="w-2/5 bg-white rounded-lg shadow p-4 flex flex-col">
+            <div class="flex items-center mb-4">
+                <span class="font-semibold text-lg" id="selected-rap-title">Chọn rạp để xem chi tiết phân phối</span>
+            </div>
+            <div id="rap-phim-list" class="flex-1 overflow-y-auto space-y-3 pr-2 min-h-[120px]" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
+                <!-- JS render danh sách phim đã phân phối cho rạp -->
             </div>
         </div>
     </div>
+    
 </div>
 
 <!-- Add Movie Modal -->
@@ -838,6 +902,29 @@
             <div class="aspect-w-16">
                 <iframe id="youtube-iframe" class="w-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal phân phối phim (dùng cho kéo-thả hoặc nút bulk) -->
+<div id="phanphoi-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg p-6 w-full max-w-md">
+        <h3 class="text-lg font-bold mb-4">Phân phối phim</h3>
+        <div class="mb-3">
+            <span id="phanphoi-modal-movie-title" class="font-semibold"></span>
+        </div>
+        <div class="mb-3">
+            <label class="block mb-1">Ngày bắt đầu</label>
+            <input type="date" id="phanphoi-start-date" class="border rounded px-2 py-1 w-full">
+        </div>
+        <div class="mb-3">
+            <label class="block mb-1">Ngày kết thúc</label>
+            <input type="date" id="phanphoi-end-date" class="border rounded px-2 py-1 w-full">
+        </div>
+        <div class="flex justify-end gap-2">
+            <button id="btn-cancel-phanphoi" class="bg-gray-300 px-4 py-2 rounded">Hủy</button>
+            <button id="btn-save-phanphoi" class="bg-blue-600 text-white px-4 py-2 rounded">Lưu</button>
         </div>
     </div>
 </div>
