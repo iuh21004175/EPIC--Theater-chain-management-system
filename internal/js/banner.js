@@ -59,10 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
     closeModalBtn.addEventListener('click', closeModal);
     cancelBannerBtn.addEventListener('click', closeModal);
     uploadArea.addEventListener('click', triggerFileInput);
-    uploadArea.addEventListener('dragover', handleDragOver);
-    uploadArea.addEventListener('drop', handleDrop);
     bannerImageInput.addEventListener('change', handleFileSelect);
-    changeImageBtn.addEventListener('click', triggerFileInput);
+    changeImageBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        triggerFileInput();
+    });
     saveBannerBtn.addEventListener('click', handleSaveBanner);
     deleteBannerBtn.addEventListener('click', openDeleteModal);
     cancelDeleteBtn.addEventListener('click', closeDeleteModal);
@@ -99,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const spinner = Spinner.show({ target: bannerModal, overlay: true, text: 'Đang cập nhật...' });
         try {
             const res = await fetch(`${API_BASE}/${id}`, {
-                method: 'PUT',
+                method: 'POST',
                 body: formData
             });
             return await res.json();

@@ -80,7 +80,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/banner', [Ctrl_Banner::class, 'them', ['Admin']]);
     $r->addRoute('GET', '/banner', [Ctrl_Banner::class, 'docTatCa', ['Admin']]);
     $r->addRoute('GET', '/banner/side-show', [Ctrl_Banner::class, 'docSideShow']);
-    $r->addRoute('PUT', '/banner/{id:\d+}', [Ctrl_Banner::class, 'suaAnh', ['Admin']]);
+    $r->addRoute('POST', '/banner/{id:\d+}', [Ctrl_Banner::class, 'suaAnh', ['Admin']]);
     $r->addRoute('PUT', '/banner/{id:\d+}/trang-thai', [Ctrl_Banner::class, 'thayDoiTrangThai', ['Admin']]);
     $r->addRoute('DELETE', '/banner/{id:\d+}', [Ctrl_Banner::class, 'xoa', ['Admin']]);
     $r->addRoute('PUT', '/banner/cap-nhat-side-show', [Ctrl_Banner::class, 'sapXep', ['Admin']]);

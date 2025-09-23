@@ -20,18 +20,29 @@
             if (!$banner) {
                 throw new \Exception("Banner không tồn tại.");
             }
+            if(!isset($_FILES['AnhUrl'])) {
+                throw new \Exception("Không tìm thấy file upload với tên AnhUrl");
+            }
             $bucket = "banner";
-            getS3Client()->putObject([
-                'Bucket' => $bucket,
-                'Key'    => "banner_".time().".".pathinfo($_FILES['AnhUrl']['name'], PATHINFO_EXTENSION),
-                'SourceFile' => $_FILES['AnhUrl']['tmp_name'],
-            ]);
-            getS3Client()->deleteObject([
-                'Bucket' => $bucket,
-                'Key'    => $banner->anh_url
-            ]);
-            $banner->anh_url = $bucket."/"."banner_".time().".".pathinfo($_FILES['AnhUrl']['name'], PATHINFO_EXTENSION);
-            $banner->save();
+
+            // Chỉ xử lý nếu có file mới
+            if (isset($_FILES['AnhUrl']) && $_FILES['AnhUrl']['tmp_name']) {
+                $newKey = "banner_".time().".".pathinfo($_FILES['AnhUrl']['name'], PATHINFO_EXTENSION);
+                getS3Client()->putObject([
+                    'Bucket' => $bucket,
+                    'Key'    => $newKey,
+                    'SourceFile' => $_FILES['AnhUrl']['tmp_name'],
+                ]);
+                // Xóa ảnh cũ
+                getS3Client()->deleteObject([
+                    'Bucket' => $bucket,
+                    'Key'    => $banner->anh_url
+                ]);
+                $banner->anh_url = $bucket . "/" . $newKey;
+                $banner->save();
+            }
+            
+            
         }
         public function xoa($id){
             $banner = Banner::find($id);

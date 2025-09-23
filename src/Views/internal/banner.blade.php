@@ -176,7 +176,7 @@
                             Thay đổi hình ảnh
                         </button>
                     </div>
-                    <input type="file" id="banner-image" name="banner-image" accept="image/*" class="hidden">
+                    <input type="file" id="banner-image" name="AnhUrl" accept="image/*" class="hidden">
                 </div>
                 <p id="image-error" class="text-red-500 text-xs italic mt-1 hidden">Vui lòng tải lên hình ảnh banner</p>
             </div>

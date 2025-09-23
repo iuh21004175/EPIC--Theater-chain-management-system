@@ -30,8 +30,7 @@
                 $scBanner->suaAnh($argc['id']);
                 return [
                     'success' => true,
-                    'message' => 'Cập nhật ảnh banner thành công!',
-                    'redirect' => './banner'
+                    'message' => 'Cập nhật ảnh banner thành công!'
                 ];
             } catch (\Exception $e) {
                 return [
