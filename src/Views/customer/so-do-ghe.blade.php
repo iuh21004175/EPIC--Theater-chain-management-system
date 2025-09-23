@@ -522,6 +522,7 @@ async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl,
         if (!gia) {
             const ngay = seat.dataset.ngay;
             const dinhDangPhim = seat.dataset.dinhdang;
+            console.log(dinhDangPhim);
             const loaiGheId = seat.dataset.loaighe_id;
             try {
                 const res = await fetch(`${baseUrl}/api/tinh-gia-ve/${loaiGheId}/${ngay}/${dinhDangPhim}`);

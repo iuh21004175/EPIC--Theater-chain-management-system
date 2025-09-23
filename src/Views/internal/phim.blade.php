@@ -625,6 +625,17 @@
                                required>
                         <p class="text-red-500 text-xs italic hidden" id="movie-release-date-error">Vui lòng chọn ngày công chiếu.</p>
                     </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="movie-video">
+                            Link video (MP4)
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                               id="movie-video" 
+                               placeholder="Nhập link video nếu phim cho xem online">
+                        <p class="text-xs text-gray-500 mt-1">Ví dụ: https://example.com/video.mp4</p>
+                    </div>
+
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="movie-country">
                             Quốc gia <span class="text-red-500">*</span>
@@ -782,6 +793,17 @@
                                type="date"
                                required>
                     </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-video">
+                            Link video (MP4)
+                        </label>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                               id="edit-movie-video" 
+                               placeholder="Nhập link video nếu phim cho xem online">
+                        <p class="text-xs text-gray-500 mt-1">Ví dụ: https://example.com/video.mp4</p>
+                    </div>
+                    
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-country">
                             Quốc gia <span class="text-red-500">*</span>

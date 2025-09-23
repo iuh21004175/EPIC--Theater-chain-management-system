@@ -249,15 +249,26 @@ async function openTicketDetail(id) {
 // Hiển thị modal chi tiết vé
 
 function openModalDetail(ve){
-  if(!ve){modalBody.innerHTML='<p class="text-center text-gray-500">Không có thông tin vé.</p>'; modal.classList.remove('hidden'); return;}
+  if(!ve){
+    modalBody.innerHTML='<p class="text-center text-gray-500">Không có thông tin vé.</p>';
+    modal.classList.remove('hidden');
+    return;
+  }
+
   const isCancelled = ve.trang_thai===0;
+  const startTime = ve.ve?.[0]?.suat_chieu?.batdau ? new Date(ve.ve[0].suat_chieu.batdau) : null;
+  const now = new Date();
+  const canCancel = !isCancelled && startTime && startTime > now;
+
   let html = `
     <div class="relative ${isCancelled?'modal-cancelled':''} space-y-2 p-2 max-h-[80vh] overflow-y-auto">
       ${isCancelled?`<div class="modal-cancelled-overlay"><span>Đã hoàn vé</span></div>`:''}
       <div class="p-3 bg-white rounded shadow">
         <h5 class="font-bold text-lg flex items-center gap-2">
           ${ve.ve?.[0]?.suat_chieu?.phim?.ten_phim||'Không xác định'}
-          <span class="inline-block px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded">${ve.ve?.[0]?.suat_chieu?.phim?.do_tuoi||'C'}</span>
+          <span class="inline-block px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded">
+            ${ve.ve?.[0]?.suat_chieu?.phim?.do_tuoi||'C'}
+          </span>
         </h5>
       </div>
       <div class="p-3 bg-white rounded shadow text-sm text-gray-700 grid grid-cols-2 gap-4">
@@ -267,8 +278,8 @@ function openModalDetail(ve){
           <p><span class="font-semibold">Loại phòng:</span> ${(ve.ve?.[0]?.suat_chieu?.phong_chieu?.loai_phongchieu||'-').toUpperCase()}</p>
         </div>
         <div class="space-y-1">
-          <p><span class="font-semibold">Ngày chiếu:</span> ${ve.ve?.[0]?.suat_chieu?.batdau?new Date(ve.ve[0].suat_chieu.batdau).toLocaleDateString('vi-VN',{ weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' }):'-'}</p>
-          <p><span class="font-semibold">Thời gian:</span> ${ve.ve?.[0]?.suat_chieu?.batdau?new Date(ve.ve[0].suat_chieu.batdau).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'-'} - ${ve.ve?.[0]?.suat_chieu?.ketthuc?new Date(ve.ve[0].suat_chieu.ketthuc).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'-'}</p>
+          <p><span class="font-semibold">Ngày chiếu:</span> ${startTime?startTime.toLocaleDateString('vi-VN',{ weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' }):'-'}</p>
+          <p><span class="font-semibold">Thời gian:</span> ${startTime?startTime.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'-'} - ${ve.ve?.[0]?.suat_chieu?.ketthuc?new Date(ve.ve[0].suat_chieu.ketthuc).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}):'-'}</p>
           <p><span class="font-semibold">Tổng tiền:</span> ${Number(ve.tong_tien||0).toLocaleString()} ₫</p>
         </div>
       </div>
@@ -298,12 +309,18 @@ function openModalDetail(ve){
           <img src="${ve.qr_code||''}" alt="QR Code" class="w-24 h-24 ${ve.qr_code?'':'hidden'}">
         </div>
       </div>
-      ${!isCancelled?`<div class="p-2 bg-white rounded shadow text-sm"><button id="btnCancelTicket" class="w-full bg-red-600 text-white px-3 py-2 rounded">Hoàn vé</button></div>`:''}
+      ${canCancel ? `
+        <div class="p-2 bg-white rounded shadow text-sm">
+          <button id="btnCancelTicket" class="w-full bg-red-600 text-white px-3 py-2 rounded">Hoàn vé</button>
+        </div>` : ''
+      }
     </div>
   `;
+
   modalBody.innerHTML=html;
   modal.classList.remove('hidden');
 
+  // Gắn sự kiện hủy vé nếu có nút
   const btnCancelTicket = document.getElementById('btnCancelTicket');
   btnCancelTicket?.addEventListener('click', async () => {
     if(!confirm("LƯU Ý: Số tiền đã thanh toán sẽ được hoàn lại vào Thẻ quà tặng EPIC.\nBạn có chắc muốn hoàn vé này?")) return;
@@ -344,6 +361,7 @@ function openModalDetail(ve){
     }
   });
 }
+
 
 // Đóng modal
 function closeModal(){ modal.classList.add('hidden'); }

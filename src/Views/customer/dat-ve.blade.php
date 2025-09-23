@@ -71,13 +71,13 @@
 
         <form class="mb-6 space-y-4 p-4 border rounded-lg shadow-sm bg-white" id="commentForm">
           <div class="flex items-center gap-4">
-                <?php
+                <?php if (isset($_SESSION['user'])): 
                     $user = $_SESSION['user']; 
                     $hoten = $user['ho_ten'];
                 ?>
-            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold"><?php echo strtoupper($hoten[0]); ?></div>
-
-            <span class="font-semibold text-gray-800"><?php echo htmlspecialchars($hoten); ?></span>
+                <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold"><?php echo strtoupper($hoten[0]); ?></div>
+                <span class="font-semibold text-gray-800"><?php echo htmlspecialchars($hoten); ?></span>
+                <?php endif; ?>
           </div>
 
           <div class="flex items-center gap-2">
@@ -232,6 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderSuatChieu() {
         const selectedDate = getSelectedDate();
+        console.log("Ngày đã chọn:", selectedDate);
         const filtered = allSuatChieu.filter(suat => suat.batdau.split(" ")[0] === selectedDate);
 
         if (!filtered.length) {
@@ -391,6 +392,22 @@ document.addEventListener('DOMContentLoaded', () => {
     commentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const comment = commentForm.querySelector('textarea[name="comment"]').value;
+
+        // Kiểm tra login trước khi gửi
+        try {
+            const loginCheck = await fetch(`${baseUrl}/api/check-login`);
+            const loginData = await loginCheck.json();
+
+            if (loginData.status !== "success") {
+                alert("Vui lòng đăng nhập để gửi bình luận!");
+                return;
+            }
+        } catch(err) {
+            console.error(err);
+            alert("Không thể xác thực đăng nhập");
+            return;
+        }
+        
         try {
             const res = await fetch(`${baseUrl}/api/them-danh-gia`, {
                 method: 'POST',
@@ -403,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 commentForm.querySelector('textarea[name="comment"]').value = '';
                 currentRating = 5; updateStars(currentRating);
 
-                const resDanhGia = await fetch(baseUrl + "/api/doc-danh-gia");
+                const resDanhGia = await fetch(`${baseUrl}/api/doc-danh-gia/${idPhim}`);
                 const dataDanhGia = await resDanhGia.json();
                 if (dataDanhGia.success) loadDanhSachCmt(dataDanhGia.data);
             } else alert('Lỗi: ' + data.message);
@@ -420,7 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadSuatChieu();
 
                 // Load danh sách đánh giá
-                fetch(baseUrl + "/api/doc-danh-gia")
+                fetch(baseUrl + "/api/doc-danh-gia/" + idPhim)
                     .then(res => res.json())
                     .then(data => { if (data.success) loadDanhSachCmt(data.data); });
             }

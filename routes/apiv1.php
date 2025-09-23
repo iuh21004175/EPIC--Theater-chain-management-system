@@ -89,6 +89,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     
     // Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
+    $r->addRoute('GET', '/google', [Ctrl_XacThucCustomer::class, 'googleLogin']);
+    $r->addRoute('GET', '/google-callback', [Ctrl_XacThucCustomer::class, 'googleCallback']);
     $r->addRoute('POST', '/dang-nhap-khach-hang', [Ctrl_XacThucCustomer::class, 'dangNhap']);
     $r->addRoute('GET', '/check-login', [Ctrl_XacThucCustomer::class, 'checkLogin']);
     $r->addRoute('GET', '/thong-tin-ca-nhan', [Ctrl_KhachHang::class, 'thongTinKhachHang']);
@@ -101,6 +103,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/reset-pass', [Ctrl_XacThucCustomer::class, 'ResetPass']);
     $r->addRoute('GET', '/loai-phim', [Ctrl_Phim::class, 'docTheLoaiPhim']);
     $r->addRoute('GET', '/phim', [Ctrl_Phim::class, 'docPhimKH']);
+    $r->addRoute('GET', '/phim-online', [Ctrl_Phim::class, 'docPhimKHOnline']);
     $r->addRoute('GET', '/dat-ve/{id}', [Ctrl_Phim::class, 'docChiTietPhim']);
     $r->addRoute('GET', '/phim-moi', [Ctrl_Phim::class, 'docPhimMoiNhat']);
     $r->addRoute('GET', '/suat-chieu-khach', [Ctrl_SuatChieu::class, 'docSuatChieuKH']);
@@ -122,7 +125,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('PUT', '/cap-nhat-trang-thai-don-hang', [Ctrl_DonHang::class, 'capNhatTrangThaiDonHang']);
     $r->addRoute('PUT', '/cap-nhat-trang-thai-ve', [Ctrl_Ve::class, 'capNhatTrangThai']);
     $r->addRoute('POST', '/them-danh-gia', [Ctrl_DanhGia::class, 'themDanhGia']);
-    $r->addRoute('GET', '/doc-danh-gia', [Ctrl_DanhGia::class, 'docDanhGia']);
+    $r->addRoute('GET', '/doc-danh-gia/{id}', [Ctrl_DanhGia::class, 'docDanhGia']);
+    $r->addRoute('GET', '/phim-dien-anh', [Ctrl_Phim::class, 'docPhim']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

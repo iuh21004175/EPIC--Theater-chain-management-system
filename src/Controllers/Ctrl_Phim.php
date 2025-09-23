@@ -153,6 +153,26 @@
                 ];
             }
         }
+        public function docPhimKHOnline()
+        {
+            $service = new Sc_Phim();
+            try {
+                $result = $service->docPhimKHOnline(
+                    $_GET['tuKhoaTimKiem'] ?? null,
+                    $_GET['theLoaiId'] ?? null
+                );
+
+                return [
+                    'success' => true,
+                    'data' => $result['data']
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải danh sách phim: ' . $e->getMessage()
+                ];
+            }
+        }
 
         public function docPhimMoiNhat() {
             $service = new Sc_Phim();

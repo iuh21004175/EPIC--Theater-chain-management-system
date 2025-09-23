@@ -4,10 +4,13 @@ use function App\Core\view;
 use App\Services\Sc_DanhGia;
 
 class Ctrl_DanhGia {
-    public function docDanhGia(){
+    public function docDanhGia($args)
+    {
+        $idPhim = is_array($args) ? ($args['id'] ?? null) : $args;
+
         $service = new Sc_DanhGia();
         try {
-            $result = $service->doc();
+            $result = $service->docTheoPhim((int)$idPhim); 
             return ['success' => true, 'data' => $result];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()];
