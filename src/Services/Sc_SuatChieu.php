@@ -369,17 +369,45 @@
             ->values();
             return $phimList;
         }
-        public function docNhatKy(){
+        public function docNhatKy($idRapPhim = null){
             // Lấy ngày cách đây 7 ngày
             $bayNgayTruoc = Carbon::now()->subDays(7)->toDateString();
-        
-            // Lấy nhật ký trong 7 ngày gần nhất
-            $nhatKy = LogSuatChieu::whereDate('created_at', '>=', $bayNgayTruoc)
-                ->orderBy('created_at', 'desc')
-                ->get();
-        
+
+            $query = LogSuatChieu::whereDate('created_at', '>=', $bayNgayTruoc);
+
+            // Nếu truyền id rạp phim, chỉ lấy nhật ký của các suất chiếu thuộc rạp đó
+            if ($idRapPhim) {
+                $query->whereHas('suatChieu.phongChieu', function($q) use ($idRapPhim) {
+                    $q->where('id_rapphim', $idRapPhim);
+                });
+            }
+            else if(isset($_SESSION['UserInternal']['ID_RapPhim'])){
+                $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+                $query->whereHas('suatChieu.phongChieu', function($q) use ($idRapPhim) {
+                    $q->where('id_rapphim', $idRapPhim);
+                });
+            }
+
+            $nhatKy = $query->orderBy('created_at', 'desc')->get();
+
             return $nhatKy;
         }
-
+        public function danhDauDaXem($idRapPhim){ // Đánh dấu quản lý chuỗi rạp đã xem
+            $nhatKy = LogSuatChieu::whereHas('suatChieu.phongChieu', function($q) use ($idRapPhim) {
+                $q->where('id_rapphim', $idRapPhim);
+            })
+            ->where('da_xem', 0)
+            ->update(['da_xem' => 1]);
+            return $nhatKy;
+        }
+        public function danhDauRapDaXem(){// Đánh đau quản lý rạp đã xem
+            $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+            $nhatKy = LogSuatChieu::whereHas('suatChieu.phongChieu', function($q) use ($idRapPhim) {
+                $q->where('id_rapphim', $idRapPhim);
+            })
+            ->where('rap_da_xem', 0)
+            ->update(['rap_da_xem' => 1]);
+            return $nhatKy;
+        }
     }
 ?>

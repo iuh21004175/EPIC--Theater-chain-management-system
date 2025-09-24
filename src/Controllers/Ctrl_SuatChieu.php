@@ -171,7 +171,8 @@
         public function docNhatKy(){
             $service = new Sc_SuatChieu();
             try{
-                $result = $service->docNhatKy();
+                $idRap = $_REQUEST['idRap'] ?? null;
+                $result = $service->docNhatKy($idRap);
                 return [
                     'success' => true,
                     'message' => 'Đọc nhật ký suất chiếu thành công',
@@ -182,6 +183,39 @@
                 return [
                     'success' => false,
                     'message' => 'Lỗi khi đọc nhật ký suất chiếu: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function quanLyRapXemNhatKy(){
+            $service = new Sc_SuatChieu();
+            try{
+                $service->danhDauRapDaXem();
+                return [
+                    'success' => true,
+                    'message' => 'Đọc nhật ký suất chiếu theo quản lý rạp thành công',
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi đọc nhật ký suất chiếu theo quản lý rạp: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function quanLyChuoiXemNhatKy(){
+            $service = new Sc_SuatChieu();
+            try{
+                $idRap = $_REQUEST['idRap'];
+                $service->danhDauDaXem($idRap);
+                return [
+                    'success' => true,
+                    'message' => 'Đọc nhật ký suất chiếu theo quản lý chuỗi thành công',
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi đọc nhật ký suất chiếu theo quản lý chuỗi: ' . $e->getMessage()
                 ];
             }
         }

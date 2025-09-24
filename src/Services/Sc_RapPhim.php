@@ -25,9 +25,9 @@ use Carbon\Carbon;
         public function doc(){
             $rapPhim = RapPhim::all();
             foreach ($rapPhim as $item) {
-                $item->so_suat_chua_xem = SuatChieu::whereHas('phongChieu', function($query) use ($item) {
+                $item->so_suat_chua_duyet = SuatChieu::whereHas('phongChieu', function($query) use ($item) {
                     $query->where('id_rapphim', $item->id);
-                })->where('da_xem', 0)
+                })->whereIn('tinh_trang', [0, 3]) // 0 Là chưa duyệt, 3 là chờ duyệt lại
                 ->where('batdau', '>=', Carbon::now())
                 ->count();
             }

@@ -46,6 +46,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             Nhật ký
+            <span id="log-badge" class="ml-2 inline-block min-w-[20px] px-1.5 py-0.5 rounded-full bg-red-600 text-white text-xs font-bold align-middle hidden"></span>
         </button>
     </div>
 

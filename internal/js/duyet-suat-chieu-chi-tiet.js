@@ -1,6 +1,7 @@
 import Spinner from './util/spinner.js';
 
 let currentWeekStart;
+let nhatKyData = [];
 
 document.addEventListener('DOMContentLoaded', function() {
     const showtimeListing = document.getElementById('showtime-listing');
@@ -451,6 +452,95 @@ document.addEventListener('DOMContentLoaded', function() {
             loadShowtimes(newDateAPI);
         });
     }
+
+    function fetchNhatKy() {
+        const logBadge = document.getElementById('log-badge');
+        fetch(`${showtimeListing.dataset.url}/api/nhat-ky-suat-chieu?idRap=${rapId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && Array.isArray(data.data)) {
+                    nhatKyData = data.data;
+                    // Đếm số nhật ký mới
+                    const soMoi = nhatKyData.filter(item => item.da_xem == 0).length;
+                    if (logBadge) {
+                        if (soMoi > 0) {
+                            logBadge.textContent = soMoi;
+                            logBadge.classList.remove('hidden');
+                        } else {
+                            logBadge.classList.add('hidden');
+                        }
+                    }
+                }
+            });
+    }
+    fetchNhatKy();
+
+    const btnLog = document.getElementById('btn-log');
+    const logModal = document.getElementById('log-modal');
+    const btnCloseLog = document.getElementById('btn-close-log');
+
+    btnLog.addEventListener('click', () => {
+        // Gọi API đánh dấu đã xem nhật ký
+        fetch(`${showtimeListing.dataset.url}/api/nhat-ky-suat-chieu/chuoi-rap-da-xem?idRap=${rapId}`, {
+            method: 'PUT'
+        }).then(() => {
+            const logBadge = document.getElementById('log-badge');
+            if (logBadge) logBadge.classList.add('hidden');
+        });
+
+        logModal.classList.remove('hidden');
+        const logContent = document.getElementById('log-content');
+        if (!logContent) return;
+        if (!nhatKyData.length) {
+            logContent.innerHTML = '<div class="text-gray-500 text-center">Chưa có nhật ký.</div>';
+            return;
+        }
+        const actionColors = {
+            0: 'bg-blue-50 text-blue-700',     // Tạo
+            1: 'bg-yellow-50 text-yellow-800', // Cập nhật
+            2: 'bg-red-50 text-red-700',       // Xóa
+            3: 'bg-green-50 text-green-700',   // Duyệt
+            4: 'bg-gray-100 text-gray-700',    // Từ chối
+            default: 'bg-gray-50 text-gray-700'
+        };
+        const rows = nhatKyData.map(item => {
+            const time = new Date(item.created_at);
+            const timeStr = `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')} ${time.getDate().toString().padStart(2, '0')}/${(time.getMonth()+1).toString().padStart(2, '0')}/${time.getFullYear()}`;
+            const batdauStr = item.batdau
+                ? ' - ' + (() => {
+                    const d = new Date(item.batdau);
+                    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                })()
+                : '';
+            const hanhDong = ({
+                0: 'Tạo',
+                1: 'Cập nhật',
+                2: 'Xóa',
+                3: 'Duyệt',
+                4: 'Từ chối'
+            })[item.hanh_dong] ?? 'Khác';
+            const colorClass = actionColors[item.hanh_dong] || actionColors.default;
+            const phim = item.ten_phim ? ` - ${item.ten_phim}` : '';
+            const batdau = item.batdau ? `${batdauStr}` : '';
+            const isNew = item.da_xem == 0;
+            return `
+                <div class="py-2 border-b last:border-0 ${colorClass}">
+                    <div class="text-sm flex flex-wrap items-center">
+                        <span class="font-medium">${hanhDong}</span>${phim}${batdau}
+                        ${isNew ? '<span class="ml-2 inline-block px-2 py-0.5 text-xs rounded bg-yellow-400 text-white align-middle">Mới</span>' : ''}
+                    </div>
+                    <div class="text-xs text-gray-500">${timeStr}</div>
+                </div>
+            `;
+        }).join('');
+        logContent.innerHTML = `<div>${rows}</div>`;
+    });
+    btnCloseLog.addEventListener('click', () => {
+        logModal.classList.add('hidden');
+    });
+    logModal.addEventListener('click', (e) => {
+        if (e.target === logModal) logModal.classList.add('hidden');
+    });
 });
 
 

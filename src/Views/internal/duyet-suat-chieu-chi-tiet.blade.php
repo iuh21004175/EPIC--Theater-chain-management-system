@@ -19,7 +19,7 @@
         <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
         </svg>
-        <span class="ml-1 text-gray-500 hover:text-gray-700 text-sm font-medium">Duyệt suất chiếu</span>
+        <span class="ml-1 text-gray-500 hover:text-gray-700 text-sm font-medium">Danh sách rạp</span>
     </div>
 </li>
 <li>
@@ -27,21 +27,27 @@
         <svg class="flex-shrink-0 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
         </svg>
-        <span class="ml-1 text-gray-500 hover:text-gray-700 text-sm font-medium">Chi tiết rạp</span>
+        <span class="ml-1 text-gray-500 hover:text-gray-700 text-sm font-medium">Duyệt suất chiếu</span>
     </div>
 </li>
 @endsection
 
 @section('content')
 <div class="bg-white rounded-lg shadow-md p-6">
-    <div class="flex items-center gap-4 mb-4">
-        <div>
-            <h1 class="text-xl font-bold text-gray-900">Duyệt suất chiếu</h1>
-            <p id="cinema-name" class="text-sm text-gray-600 mt-1" data-soSuatChuaXem="{{$rapPhim['so_suat_chua_xem'] ?? 0}}">
-                Rạp: <span class="font-medium">{{$rapPhim['ten']}}</span>
-            </p>
-        </div>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold text-gray-900">Duyệt suất chiếu</h1>
+        <button id="btn-log" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-md flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2a2 2 0 012-2h2a2 2 0 012 2v2m-6 4h6a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Nhật ký
+            <span id="log-badge" class="ml-2 inline-block min-w-[20px] px-1.5 py-0.5 rounded-full bg-red-600 text-white text-xs font-bold align-middle hidden"></span>
+        </button>
     </div>
+    <p id="cinema-name" class="text-sm text-gray-600 mt-1" data-soSuatChuaXem="{{$rapPhim['so_suat_chua_xem'] ?? 0}}">
+        Rạp: <span class="font-medium">{{$rapPhim['ten']}}</span>
+    </p>
+
     <!-- Tổng suất chiếu theo tình trạng của cả tuần -->
     <div class="flex items-center gap-2 mb-6 justify-center">
         <span class="bg-yellow-200 text-yellow-900 text-sm font-semibold px-3 py-1 rounded-full">
@@ -114,6 +120,23 @@
                     <button id="btn-cancel-reject" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-md">Hủy</button>
                     <button id="btn-confirm-reject" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md">Xác nhận</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay modal for log -->
+    <div id="log-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-xl font-bold text-gray-900">Nhật ký thao tác</h2>
+                <button id="btn-close-log" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="overflow-y-auto px-6 py-4 flex-1 max-h-[60vh]" id="log-content">
+                <div class="text-gray-500 text-center">Đang tải nhật ký...</div>
             </div>
         </div>
     </div>

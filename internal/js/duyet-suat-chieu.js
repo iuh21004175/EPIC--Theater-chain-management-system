@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const icon = isHighlight
                         ? `<svg class="inline h-4 w-4 mr-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>`
                         : '';
-                    const badgeText = `${icon}${cinema.so_suat_chua_xem} suất chiếu mới`;
+                    const badgeText = `${icon}${cinema.so_suat_chua_duyet} suất chiếu chưa duyệt`;
 
                     const card = document.createElement('div');
                     card.className = 'border rounded-lg p-4 flex items-center justify-between bg-gray-50 hover:bg-gray-100 cursor-pointer transition';

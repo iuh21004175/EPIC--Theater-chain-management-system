@@ -60,7 +60,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/suat-chieu/kiem-tra-hop-le', [Ctrl_SuatChieu::class, 'kiemTraSuatChieuHopLe', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/suat-chieu/{id:\d+}', [Ctrl_SuatChieu::class, 'suaSuatChieu', ['Quản lý rạp']]);
     $r->addRoute('DELETE', '/suat-chieu/{id:\d+}', [Ctrl_SuatChieu::class, 'xoaSuatChieu', ['Quản lý rạp']]);
-    $r->addRoute('GET', '/suat-chieu/chua-xem/{id_rap:\d+}', [Ctrl_DuyetSuatChieu::class, 'docSuatChieuChuaXem', ['Quản lý chuỗi rạp']]);
+    // $r->addRoute('GET', '/suat-chieu/chua-xem/{id_rap:\d+}', [Ctrl_DuyetSuatChieu::class, 'docSuatChieuChuaXem', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/duyet-suat-chieu/{id:\d+}/duyet', [Ctrl_DuyetSuatChieu::class, 'duyetSuatChieu', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/duyet-suat-chieu/{id:\d+}/tu-choi', [Ctrl_DuyetSuatChieu::class, 'tuChoiSuatChieu', ['Quản lý chuỗi rạp']]);
     $r->addRoute(['POST', 'PUT'], '/gan-ngay', [Ctrl_GanNgay::class, 'ganNgay', ['Quản lý chuỗi rạp']]);
@@ -75,7 +75,9 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/san-pham', [Ctrl_SanPhamAnUong::class, 'docSanPham', ['Quản lý rạp']]);
     $r->addRoute('GET', '/san-pham/{id:\d+}', [Ctrl_SanPhamAnUong::class, 'docSanPham', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/san-pham/{id:\d+}', [Ctrl_SanPhamAnUong::class, 'suaSanPham', ['Quản lý rạp']]);
-    $r->addRoute('GET', '/nhat-ky-suat-chieu', [Ctrl_SuatChieu::class, 'docNhatKy', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/nhat-ky-suat-chieu', [Ctrl_SuatChieu::class, 'docNhatKy', ['Quản lý rạp', 'Quản lý chuỗi rạp']]);
+    $r->addRoute('PUT', '/nhat-ky-suat-chieu/rap-da-xem', [Ctrl_SuatChieu::class, 'quanLyRapXemNhatKy', ['Quản lý rạp']]);
+    $r->addRoute('PUT', '/nhat-ky-suat-chieu/chuoi-rap-da-xem', [Ctrl_SuatChieu::class, 'quanLyChuoiXemNhatKy', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'docViTri', ['Quản lý rạp']]);
     $r->addRoute('POST', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'themViTri', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/vi-tri-cong-viec/{id:\d+}', [Ctrl_PhanCong::class, 'suaViTri', ['Quản lý rạp']]);
