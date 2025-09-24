@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <ol class="list-reset flex">
               <li><a href="${baseUrl}" class="text-blue-600 hover:underline">Trang chủ</a></li>
               <li><span class="mx-2">/</span></li>
-              <li><a href="${baseUrl}/tin-tuc" class="text-blue-600 hover:underline">Phim</a></li>
+              <li><a href="${baseUrl}/tin-tuc" class="text-blue-600 hover:underline">Góc điện ảnh</a></li>
               <li><span class="mx-2">/</span></li>
               <li class="text-gray-500">${phim.ten_phim}</li>
             </ol>

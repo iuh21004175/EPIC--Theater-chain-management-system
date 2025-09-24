@@ -18,33 +18,33 @@
   <!-- Thể loại -->
   <div class="flex-1 min-w-[120px]">
     <select id="theLoaiMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-      <option value="">Thể loại</option>
+      <option value="">Tất cả thể loại</option>
     </select>
   </div>
 
   <!-- Quốc gia -->
   <div class="flex-1 min-w-[120px]">
-    <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-      <option value="">Quốc gia</option>
-      <option value="viet-nam">Việt Nam</option>
-      <option value="my">Mỹ</option>
-      <option value="han-quoc">Hàn Quốc</option>
+    <select id="doTuoiMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+      <option value="">Tất cả độ tuổi</option>
+      <option value="p">P (Phù hợp mọi lứa tuổi)</option>
+      <option value="c13">C13 (Trên 13 tuổi)</option>
+      <option value="c16">C16 (Trên 16 tuổi)</option>
+      <option value="c18">C18 (Trên 18 tuổi)</option>
     </select>
   </div>
 
   <!-- Năm -->
   <div class="flex-1 min-w-[120px]">
-    <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+    <select id="namMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
       <option value="">Năm</option>
       <option value="2025">2025</option>
       <option value="2024">2024</option>
-      <option value="2023">2023</option>
     </select>
   </div>
 
   <!-- Đang chiếu / Sắp chiếu -->
   <div class="flex-1 min-w-[140px]">
-    <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+    <select id="dangSapChieuMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
       <option value="">Đang chiếu / Sắp chiếu</option>
       <option value="dang-chieu">Đang chiếu</option>
       <option value="sap-chieu">Sắp chiếu</option>
@@ -80,14 +80,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.querySelector(".phim-container");
     const paginationContainer = document.getElementById("pagination");
     const theLoaiMenu = document.getElementById("theLoaiMenu");
+    const doTuoiMenu = document.getElementById("doTuoiMenu");
+    const namMenu = document.getElementById("namMenu");
+    const dangSapChieuMenu = document.getElementById("dangSapChieuMenu");
 
+    let currentDoTuoi = "";
     let currentPage = 1;
     let currentTuKhoa = "";
     let currentLoai = "";
+    let currentYear = "";
+    let currentTrangThai = ""; 
 
     function slugify(str) {
-        return str
-            .toLowerCase()
+        return str.toLowerCase()
             .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "");
@@ -100,16 +105,17 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderPhim(phim) {
         const encoded = base64Encode(phim.id + salt);
         const html = `
-        <a href="${baseUrl}/tin-tuc/${slugify(phim.ten_phim)}-${encoded}" class="bg-white rounded-lg shadow-md flex mb-6 block no-underline">
-            <img src="${urlMinio}/${phim.poster_url}" alt="${phim.ten_phim}" class="w-48 h-32 flex-shrink-0 object-cover rounded-l-lg">
+        <a href="${baseUrl}/tin-tuc/${slugify(phim.ten_phim)}-${encoded}" 
+           class="bg-white rounded-lg shadow-md flex mb-6 block no-underline">
+            <img src="${urlMinio}/${phim.poster_url}" alt="${phim.ten_phim}" 
+                 class="w-48 h-32 flex-shrink-0 object-cover rounded-l-lg">
             <div class="p-4 flex flex-col justify-between flex-1">
                 <div>
                     <h2 class="text-lg font-semibold text-gray-800">${phim.ten_phim}</h2>
                     <p class="text-gray-600 text-sm mt-2 line-clamp-2">${phim.mo_ta}</p>
                 </div>
             </div>
-        </a>
-        `;
+        </a>`;
         container.insertAdjacentHTML("beforeend", html);
     }
 
@@ -121,25 +127,29 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.className = `px-3 py-1 rounded border ${i === currentPage ? 'bg-red-500 text-white' : 'bg-white text-gray-800'}`;
             btn.addEventListener('click', () => {
                 currentPage = i;
-                loadPhim(currentTuKhoa, currentLoai, currentPage);
+                loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
             });
             paginationContainer.appendChild(btn);
         }
     }
 
-    async function loadPhim(tuKhoa = "", theLoaiId = "", page = 1) {
-        container.innerHTML = '<p class="text-gray-500">Đang tải...</p>';
+    async function loadPhim(tuKhoa = "", theLoaiId = "", doTuoi = "", page = 1, year = "", trangThai = "") {
+        container.innerHTML = '<p class="text-gray-500">Đang tải...</p>'; 
 
         try {
             const url = new URL(baseUrl + "/api/phim-dien-anh");
             if (tuKhoa) url.searchParams.append("tuKhoaTimKiem", tuKhoa);
             if (theLoaiId) url.searchParams.append("theLoaiId", theLoaiId);
+            if (doTuoi) url.searchParams.append("doTuoi", doTuoi);
+            if (year) url.searchParams.append("year", year);
+            if (trangThai) url.searchParams.append("dangChieu", trangThai); 
             url.searchParams.append("page", page);
 
             const res = await fetch(url);
             const data = await res.json();
 
             container.innerHTML = '';
+
             if (data.success && data.data.length > 0) {
                 data.data.forEach(phim => renderPhim(phim));
                 renderPagination(data.pagination.total_pages, data.pagination.current_page);
@@ -151,6 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
             container.innerHTML = '<p class="text-red-500">Lỗi khi tải dữ liệu phim.</p>';
         }
     }
+
 
     // Load thể loại vào select
     async function loadTheLoai() {
@@ -173,17 +184,36 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Khi chọn thể loại
+    // Event listeners
     theLoaiMenu.addEventListener("change", () => {
         currentLoai = theLoaiMenu.value;
         currentPage = 1;
-        loadPhim(currentTuKhoa, currentLoai, currentPage);
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
     });
 
-    // Khởi tạo
+    doTuoiMenu.addEventListener("change", () => {
+        currentDoTuoi = doTuoiMenu.value;
+        currentPage = 1;
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+    });
+
+    namMenu.addEventListener("change", () => {
+        currentYear = namMenu.value;
+        currentPage = 1;
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+    });
+
+    dangSapChieuMenu.addEventListener("change", () => {
+        currentTrangThai = dangSapChieuMenu.value;
+        currentPage = 1;
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+    });
+
+    // Init
     loadTheLoai();
     loadPhim();
 });
+
 </script>
 
 </body>

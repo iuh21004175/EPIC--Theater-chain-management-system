@@ -50,31 +50,47 @@
 
         <!-- Search & Filter -->
         <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-10">
-            <!-- Search box -->
-            <div class="flex w-full md:w-auto">
-                <input 
-                    id="search-input"
-                    type="text" 
-                    placeholder="Tìm kiếm theo tên phim, đạo diễn, diễn viên..."
-                    class="w-full md:w-96 pl-4 pr-2 py-2 border border-gray-300 rounded-l-full bg-white 
-                           focus:border-red-600 focus:outline-none transition"
-                />
-                <button id="search-btn" 
-                    class="bg-red-600 text-white px-4 rounded-r-full hover:bg-red-700 transition">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+        <!-- Search box -->
+        <div class="flex w-full md:w-auto">
+            <input 
+                id="search-input"
+                type="text" 
+                placeholder="Tìm kiếm theo tên phim, đạo diễn, diễn viên..."
+                class="w-full md:w-96 pl-4 pr-2 py-2 border border-gray-300 rounded-l-full bg-white 
+                    focus:border-red-600 focus:outline-none transition"
+            />
+            <button id="search-btn" 
+                class="bg-red-600 text-white px-4 rounded-r-full hover:bg-red-700 transition">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </div>
+
+        <!-- Filters: gộp 2 select vào 1 flex để sát nhau -->
+        <div class="flex w-full md:w-auto gap-2"> <!-- giảm gap -->
+            <div class="relative w-full md:w-56">
+                <select id="doTuoi"
+                    class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-l-full bg-white 
+                        focus:border-red-600 focus:ring-0 outline-none transition">
+                    <option value="">Tất cả độ tuổi</option>
+                    <option value="p">P (Phù hợp mọi lứa tuổi)</option>
+                    <option value="c13">C13 (Trên 13 tuổi)</option>
+                    <option value="c16">C16 (Trên 16 tuổi)</option>
+                    <option value="c18">C18 (Trên 18 tuổi)</option>
+                </select>
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">▾</span>
             </div>
 
-            <!-- Filter -->
             <div class="relative w-full md:w-56">
                 <select id="the-loai"
-                    class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-full bg-white 
-                           focus:border-red-600 focus:ring-0 outline-none transition">
+                    class="appearance-none w-full pl-4 pr-8 py-2 border border-gray-300 rounded-r-full bg-white 
+                        focus:border-red-600 focus:ring-0 outline-none transition">
                     <option value="">Tất cả thể loại</option>
                 </select>
                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">▾</span>
             </div>
         </div>
+    </div>
+
 
         <!-- Phim -->
         <section id="all-movies" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"></section>
@@ -112,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("search-input");
     const searchBtn = document.getElementById("search-btn");
     const theLoaiMenu = document.getElementById("the-loai");
+    const doTuoi = document.getElementById("doTuoi");
 
     document.getElementById("buy-coban").addEventListener("click", () => {
         allMovies.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -166,11 +183,12 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
     }
 
-    async function loadPhim(tuKhoa = "", theLoaiId = "") {
+    async function loadPhim(tuKhoa = "", theLoaiId = "", doTuoiVal = "") {
         try {
             const url = new URL(baseUrl + "/api/phim-online");
             if (tuKhoa) url.searchParams.append("tuKhoaTimKiem", tuKhoa);
             if (theLoaiId) url.searchParams.append("theLoaiId", theLoaiId);
+            if (doTuoiVal) url.searchParams.append("doTuoi", doTuoiVal);
 
             const res = await fetch(url);
             const result = await res.json();
@@ -233,8 +251,12 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(err => console.error("Lỗi load thể loại:", err));
 
-    searchBtn.addEventListener("click", () => loadPhim(searchInput.value, theLoaiMenu.value));
-    theLoaiMenu.addEventListener("change", () => loadPhim(searchInput.value, theLoaiMenu.value));
+    function filterHandler() {
+        loadPhim(searchInput.value, theLoaiMenu.value, doTuoi.value);
+    }
+    searchBtn.addEventListener("click", filterHandler);
+    theLoaiMenu.addEventListener("change", filterHandler);
+    doTuoi.addEventListener("change", filterHandler);
 
     // Load phim khi trang được tải
     loadPhim();

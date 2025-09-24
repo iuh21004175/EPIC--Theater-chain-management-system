@@ -6,10 +6,15 @@
   <title>Sơ đồ ghế</title>
   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+<body class="bg-gray-50 text-gray-800 font-sans">
+@include('customer.layout.header')
 
-<div class="flex flex-col md:flex-row gap-6 max-w-6xl w-full px-4">
+<div id="thongTinPhim" class="flex flex-col md:flex-row max-w-6xl mx-auto px-4 mt-10">
+    
+</div>
 
+<div class="flex flex-col md:flex-row max-w-6xl mx-auto px-4 mt-10 mb-10">
+    
     <!-- Bên trái: Sơ đồ ghế -->
     <div id="leftContainer" class="flex-1 transition-opacity duration-500">
         <div class="w-full text-white text-center py-3 rounded-lg mb-6 
@@ -39,7 +44,7 @@
             </div>
         </div>
         </div>
-</div>
+    </div>
 
     <!-- Chọn đồ ăn -->
     <div id="foodContainer" class="flex-1 transition-opacity duration-500 bg-white rounded-lg shadow-lg p-6 hidden">
@@ -70,7 +75,7 @@
         <!-- Nội dung sẽ render bằng JS -->
     </div>
 </div>
-
+@include('customer.layout.footer')
 <script>
 const seatMap = document.getElementById("seatMap");
 const chuthichContainer = document.getElementById("chuthich");
@@ -80,10 +85,9 @@ const qrContainer = document.getElementById("qrContainer");
 const qrImage = document.getElementById("qrImage");
 const success_pay_box = document.getElementById("success_pay_box");
 const leftContainer = document.getElementById("leftContainer");
+const thongTinPhim = document.getElementById("thongTinPhim");
 
-const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
 const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}";
-const salt = "{{ $_ENV['URL_SALT'] }}";
 
 let selectedSeats = [];
 let selectedFood = [];
@@ -120,8 +124,21 @@ const idPhong = decoded.replace(salt, "");
 
 const apiUrl = `${baseUrl}/api/so-do-ghe/${idPhong}`;
 
+
+    function slugify(str) {
+        return str
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // bỏ dấu tiếng Việt
+            .replace(/[^a-z0-9]+/g, "-") // thay ký tự đặc biệt thành "-"
+            .replace(/^-+|-+$/g, ""); // bỏ dấu - thừa
+    }
+
+    function base64Encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
 // Load sơ đồ ghế
 async function loadSeats() {
+    
     try {
         const res = await fetch(apiUrl);
         const json = await res.json();
@@ -132,7 +149,18 @@ async function loadSeats() {
 
         const data = json.data;
         suatChieuData = data;
-
+        const encoded = base64Encode(data.phim.id + salt);
+        thongTinPhim.innerHTML = `
+            <nav class="text-gray-600 text-sm mb-4" aria-label="Breadcrumb">
+                <ol class="list-reset flex">
+                    <li><a href="${baseUrl}" class="text-blue-600 hover:underline">Trang chủ</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li><a href="${baseUrl}/dat-ve/${slugify(data.phim.ten_phim)}-${encoded}" class="text-blue-600 hover:underline">Đặt vé</a></li>
+                    <li><span class="mx-2">/</span></li>
+                    <li class="text-gray-500">${data.phim.ten_phim}</li>
+                </ol>
+            </nav>
+        `;
         // Render thông tin phim
         movieInfo.innerHTML = `
             <div class="flex gap-4">
@@ -140,7 +168,7 @@ async function loadSeats() {
                 <div class="flex-1 flex flex-col justify-between">
                     <div>
                         <h2 class="text-lg font-bold">${data.phim.ten_phim}</h2>
-                        <p class="text-gray-500">2D Phụ Đề - 
+                        <p class="text-gray-500">${data.phong.loai_phongchieu.toUpperCase() } Phụ Đề - 
                             <span class="bg-red-500 text-white px-2 rounded">${data.phim.do_tuoi}</span>
                         </p>
                     </div>
@@ -553,7 +581,7 @@ function updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueConta
 
     // Nếu chưa chọn ghế và chưa chọn sản phẩm
     if (selectedSeats.length === 0 && selectedFood.length === 0) {
-        selectedSeatsContainer.innerHTML = '<div class="text-gray-500 text-sm">Chưa chọn ghế hoặc sản phẩm</div>';
+        selectedSeatsContainer.innerHTML = '<div class="text-gray-500 text-sm">Chưa chọn ghế</div>';
         continueContainer.classList.add("hidden");
     } else {
         // Xử lý ghế: gom nhóm theo giá

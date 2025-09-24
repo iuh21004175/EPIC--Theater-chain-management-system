@@ -115,7 +115,7 @@
             $service = new Sc_Phim();
             try {
                 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                $result = $service->docPhim($page, $_GET['tuKhoaTimKiem'] ?? null, $_GET['trangThai'] ?? null, $_GET['theLoaiId'] ?? null, $_GET['idRap'] ?? null);
+                $result = $service->docPhim($page, $_GET['tuKhoaTimKiem'] ?? null, $_GET['trangThai'] ?? null, $_GET['theLoaiId'] ?? null, $_GET['idRap'] ?? null, $_GET['doTuoi'] ?? null, $_GET['year'] ?? null, $_GET['dangChieu'] ?? null);
                 return [
                     'success' => true,
                     'data' => $result['data'],
@@ -139,7 +139,8 @@
             try {
                 $result = $service->docPhimKH(
                     $_GET['tuKhoaTimKiem'] ?? null,
-                    $_GET['theLoaiId'] ?? null
+                    $_GET['theLoaiId'] ?? null,
+                    $_GET['doTuoi'] ?? null
                 );
 
                 return [
@@ -159,7 +160,8 @@
             try {
                 $result = $service->docPhimKHOnline(
                     $_GET['tuKhoaTimKiem'] ?? null,
-                    $_GET['theLoaiId'] ?? null
+                    $_GET['theLoaiId'] ?? null,
+                    $_GET['doTuoi'] ?? null
                 );
 
                 return [

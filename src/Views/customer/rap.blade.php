@@ -159,7 +159,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // -------------------
   // Load phim theo rạp + ngày
   async function fetchPhimTheoRap(idRap, ngay) {
     try {
@@ -167,28 +166,44 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       const listPhim = document.getElementById('listPhim');
       listPhim.innerHTML = '';
-      if (data.success && data.data) {
+
+      if (data.success && data.data && data.data.length > 0) {
         data.data.forEach(phim => {
           const phimHTML = `
-            <div class="group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer" data-movie="${phim.id}" data-name="${phim.ten_phim}">
-              <img src="${urlMinio}/${phim.poster_url}" alt="${phim.ten_phim}" class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500">
+            <div class="group relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition cursor-pointer" 
+                data-movie="${phim.id}" data-name="${phim.ten_phim}">
+              <img src="${urlMinio}/${phim.poster_url}" 
+                  alt="${phim.ten_phim}" 
+                  class="w-full h-72 object-cover group-hover:scale-105 transition-transform duration-500">
               <p class="mb-5 mt-3 text-center font-bold text-gray-800">${phim.ten_phim}</p>
             </div>
           `;
           listPhim.insertAdjacentHTML('beforeend', phimHTML);
         });
         attachMovieClickEvents();
+      } else {
+        // Nếu không có phim thì hiện thông báo
+        listPhim.innerHTML = `
+          <div class="col-span-full py-10 text-gray-500 font-semibold">
+            Hiện tại chưa có phim nào được chiếu trong ngày này.
+          </div>
+        `;
       }
     } catch (err) {
       console.error('Lỗi load phim theo rạp:', err);
+      const listPhim = document.getElementById('listPhim');
+      listPhim.innerHTML = `
+        <div class="col-span-full text-center py-10 text-red-500 font-semibold">
+          Lỗi khi tải danh sách phim. Vui lòng thử lại sau.
+        </div>
+      `;
     }
   }
 
-  // -------------------
   // Load suất chiếu theo phim
   function loadSuatChieu(idPhim, movieName) {
     const selectedDate = getSelectedDate();
-    fetch(`${baseUrl}/api/suat-chieu-khach?ngay=${selectedDate}&id_phim=${idPhim}`)
+    fetch(`${baseUrl}/api/suat-chieu-khach?ngay=${selectedDate}&id_phim=${idPhim}&id_rapphim=${idRap}`)
       .then(res => res.json())
       .then(data => {
         const suatChieu = Array.isArray(data.data) ? data.data : [];
@@ -198,59 +213,92 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderSuatChieu(suatChieu, movieName) {
-    const loadSuatChieuEl = document.getElementById('loadSuatChieu');
+      const loadSuatChieuEl = document.getElementById('loadSuatChieu');
 
-    if (!suatChieu || suatChieu.length === 0) {
-        loadSuatChieuEl.innerHTML = `<p class="text-gray-500 font-semibold">Chưa có phim chiếu trong ngày.</p>`;
-    } else {
-        // Sắp xếp theo giờ bắt đầu tăng dần
-        suatChieu.sort((a, b) => new Date(a.batdau) - new Date(b.batdau));
+      if (!suatChieu || suatChieu.length === 0) {
+          loadSuatChieuEl.innerHTML = `<p class="text-gray-500 font-semibold">Chưa có suất chiếu trong ngày.</p>`;
+          loadSuatChieuEl.classList.remove('hidden');
+          return;
+      }
 
-        let html = `<div class="showtimes mt-4 bg-gray-50 p-4 rounded-lg shadow-inner">
-                        <h3 class="font-semibold mb-2">Suất chiếu: ${movieName}</h3>
-                        <div class="flex gap-2 flex-wrap">`;
+      // Nhóm theo Rạp
+      const groupedByRap = {};
+      suatChieu.forEach(suat => {
+          const rapName = suat.phong_chieu.rap_chieu_phim.ten || "Không xác định";
+          if (!groupedByRap[rapName]) groupedByRap[rapName] = [];
+          groupedByRap[rapName].push(suat);
+      });
 
-        suatChieu.forEach(suat => {
-            const gioChieu = new Date(suat.batdau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-            html += `<button 
-                        class="px-3 py-1 bg-white border rounded-lg hover:bg-red-600 hover:text-white transition suat-btn"
-                        data-suat-id="${suat.id}"
-                        data-phong-id="${suat.phong_chieu.id}"
-                        data-rap-id="${suat.phong_chieu.rap_chieu_phim.id}">
-                        ${gioChieu}
-                     </button>`;
-        });
+      // Render HTML
+      let html = `<div class="showtimes mt-4 bg-gray-50 p-4 rounded-lg shadow-inner">
+                      <h3 class="font-semibold mb-4">Suất chiếu: ${movieName}</h3>`;
 
-        html += `</div></div>`;
-        loadSuatChieuEl.innerHTML = html;
+      html += Object.entries(groupedByRap).map(([rapName, suats]) => {
+          // Nhóm theo loại phòng chiếu
+          const groupedByLoai = {};
+          suats.forEach(suat => {
+              const loaiChieu = (suat.phong_chieu.loai_phongchieu || "Không xác định").toUpperCase();
+              if (!groupedByLoai[loaiChieu]) groupedByLoai[loaiChieu] = [];
+              groupedByLoai[loaiChieu].push(suat);
+          });
 
-        // Gắn sự kiện click cho từng nút suất chiếu
-        const salt = "{{ $_ENV['URL_SALT'] }}"; // nếu dùng server blade
-        document.querySelectorAll('.suat-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const suatId = btn.dataset.suatId;
-                const phongId = btn.dataset.phongId;
-                const rapId = btn.dataset.rapId;
+          // Render loại phòng
+          const loaiHtml = Object.entries(groupedByLoai).map(([loaiChieu, suatsLoai]) => {
+              // Sắp xếp theo giờ bắt đầu
+              suatsLoai.sort((a, b) => new Date(a.batdau) - new Date(b.batdau));
 
-                // encode base64
-                function base64Encode(str) {
-                    return btoa(unescape(encodeURIComponent(str)));
-                }
-                const encoded = base64Encode(suatId + salt);
+              const suatHtml = suatsLoai.map(suat => {
+                  const gioChieu = new Date(suat.batdau).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                  return `<button 
+                              type="button"
+                              class="suat-btn px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors"
+                              data-suat-id="${suat.id}"
+                              data-phong-id="${suat.phong_chieu.id}"
+                              data-rap-id="${suat.phong_chieu.rap_chieu_phim.id}">
+                              ${gioChieu}
+                          </button>`;
+              }).join(' ');
 
-                console.log("Chọn suất chiếu ID:", suatId);
-                console.log("Chọn phòng chiếu ID:", phongId);
-                console.log("Chọn rạp ID:", rapId);
+              return `<div class="flex items-center mb-2">
+                          <span class="font-medium mr-4 min-w-[80px]">${loaiChieu}</span>
+                          <div class="flex flex-wrap gap-2">${suatHtml}</div>
+                      </div>`;
+          }).join('');
 
-                // Chuyển trang
-                window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
-            });
-        });
-    }
+          return `<div class="bg-white p-4 rounded-xl shadow mb-6">
+                      ${loaiHtml}
+                  </div>`;
+      }).join('');
 
-    loadSuatChieuEl.classList.remove('hidden');
-    loadSuatChieuEl.scrollIntoView({behavior: "smooth"});
-}
+      html += `</div>`;
+      loadSuatChieuEl.innerHTML = html;
+      loadSuatChieuEl.classList.remove('hidden');
+
+      // Gắn sự kiện click cho từng suất
+      const salt = "{{ $_ENV['URL_SALT'] }}";
+      document.querySelectorAll('.suat-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+              const suatId = btn.dataset.suatId;
+              const phongId = btn.dataset.phongId;
+              const rapId = btn.dataset.rapId;
+
+              function base64Encode(str) {
+                  return btoa(unescape(encodeURIComponent(str)));
+              }
+              const encoded = base64Encode(suatId + salt);
+
+              fetch(`${baseUrl}/api/check-login`)
+                  .then(res => res.json())
+                  .then(data => {
+                      if (data.status === "success") {
+                          window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
+                      } else {
+                          alert("Vui lòng đăng nhập!");
+                      }
+                  }).catch(err => { console.error(err); alert("Không thể xác thực đăng nhập"); });
+          });
+      });
+  }
 
   // Gắn sự kiện click phim
   function attachMovieClickEvents() {

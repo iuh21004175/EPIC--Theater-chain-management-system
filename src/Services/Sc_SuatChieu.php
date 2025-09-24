@@ -302,10 +302,16 @@
             }
             return $tinhTrang;
         }      
-        public function docSuatChieuKH($ngay = null, $idPhim)
+        public function docSuatChieuKH($ngay = null, $idPhim, $idRap = null)
         {
             $query = SuatChieu::with(['phim', 'phongChieu.rapChieuPhim'])
                 ->where('id_phim', $idPhim);
+
+            if ($idRap) {
+                $query->whereHas('phongChieu.rapChieuPhim', function($q) use ($idRap) {
+                    $q->where('id', $idRap);
+                });
+            }
 
             if ($ngay) {
                 try {
@@ -325,6 +331,7 @@
             } else {
                 $query->where('batdau', '>=', Carbon::now());
             }
+
             return $query->orderBy('batdau', 'asc')->get();
         }
 

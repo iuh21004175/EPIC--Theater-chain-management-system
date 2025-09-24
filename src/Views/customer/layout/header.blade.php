@@ -395,6 +395,17 @@ document.getElementById('btnSendReset').addEventListener('click', function() {
         btn.textContent = originalText;
         btn.disabled = false;
     });
+    
+});
+
+document.querySelectorAll("nav a").forEach(link => {
+    const currentPath = window.location.pathname.replace(/\/$/, "");
+    const linkPath = new URL(link.href).pathname.replace(/\/$/, "");
+    
+    if (linkPath === currentPath) {
+        link.classList.remove("text-gray-600", "hover:text-red-600");
+        link.classList.add("text-red-600", "font-bold");
+    }
 });
 
 </script>

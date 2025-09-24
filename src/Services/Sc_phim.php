@@ -5,6 +5,7 @@
     use App\Models\TheLoai;
     use App\Models\PhanPhoiPhim;
     use function App\Core\getS3Client;
+    use Carbon\Carbon;
     class Sc_Phim {
         public function themTheLoai(){
             $ten = $_POST['ten'] ?? '';
@@ -119,38 +120,62 @@
             }
         }
 
-        public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null){
+       public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null, $doTuoi = null, $year = null, $dangChieu = null) {
             $query = Phim::with(['TheLoai.TheLoai']);
-            if($tuKhoaTimKiem){
+
+            if ($tuKhoaTimKiem) {
                 $query->where(function($q) use ($tuKhoaTimKiem) {
                     $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
-                      ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
-                      ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
+                    ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
+                    ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
                 });
             }
-            if($trangThai !== null && $trangThai !== '') {
+
+            if ($trangThai !== null && $trangThai !== '') {
                 $query->where('trang_thai', $trangThai);
             }
-            if($theLoaiId){
+
+            if ($theLoaiId) {
                 $query->whereHas('TheLoai', function($q) use ($theLoaiId) {
                     $q->where('theloai_id', $theLoaiId);
                 });
             }
-            if($idRap){
-                // Lấy danh sách id_phim đã thuộc rạp này
+
+            if ($idRap) {
                 $phimIdsDaPhanPhoi = \App\Models\PhanPhoiPhim::where('id_rapphim', $idRap)->pluck('id_phim')->toArray();
                 if (!empty($phimIdsDaPhanPhoi)) {
                     $query->whereNotIn('id', $phimIdsDaPhanPhoi);
                 }
             }
 
+            if ($doTuoi) {
+                $query->where('do_tuoi', $doTuoi);
+            }
+
+            if ($year) {
+                $query->whereYear('created_at', $year);
+            }
+
+            if ($dangChieu !== null && $dangChieu !== '') {
+                $today = Carbon::today();
+                if ($dangChieu === 'dang-chieu') {
+                    // Phim đang chiếu
+                    $query->whereDate('ngay_cong_chieu', '<=', $today);
+                } elseif ($dangChieu === 'sap-chieu') {
+                    // Phim sắp chiếu
+                    $query->whereDate('ngay_cong_chieu', '>', $today);
+                }
+            }
+
             $pageSize = 10;
             $total = $query->count();
             $totalPages = ceil($total / $pageSize);
+
             $phims = $query->orderBy('id', 'desc')
-                   ->skip(($page - 1) * $pageSize)
-                   ->take($pageSize)
-                   ->get();;
+                        ->skip(($page - 1) * $pageSize)
+                        ->take($pageSize)
+                        ->get();
+
             return [
                 'data' => $phims,
                 'total' => $total,
@@ -158,6 +183,8 @@
                 'current_page' => $page
             ];
         }
+
+
         public function themPhanPhoiPhim(){
             $data = json_decode(file_get_contents('php://input'), true);
             $idRap = $data['id_rap'] ?? null;
@@ -178,11 +205,11 @@
                         ->where('id_phim', $phimId)
                         ->delete();
         }
-        public function docPhimKH($tuKhoaTimKiem = null, $theLoaiId = null)
+        public function docPhimKH($tuKhoaTimKiem = null, $theLoaiId = null, $doTuoi = null)
         {
             $query = Phim::with(['TheLoai.TheLoai']); // load quan hệ
 
-            $query->where('trang_thai', 1);
+            $query->where('trang_thai', operator: 1);
             // tìm kiếm theo từ khóa
             if ($tuKhoaTimKiem) {
                 $query->where(function ($q) use ($tuKhoaTimKiem) {
@@ -199,6 +226,9 @@
                 });
             }
 
+            if($doTuoi){
+                $query->where('do_tuoi', $doTuoi);
+            }
             $phims = $query->orderBy('id', 'desc')->get();
 
             return [
@@ -206,7 +236,7 @@
             ];
         }
 
-        public function docPhimKHOnline($tuKhoaTimKiem = null, $theLoaiId = null)
+        public function docPhimKHOnline($tuKhoaTimKiem = null, $theLoaiId = null, $doTuoi = null)
         {
             $query = Phim::with(['TheLoai.TheLoai']); // load quan hệ
 
@@ -227,6 +257,9 @@
                 $query->whereHas('TheLoai', function ($q) use ($theLoaiId) {
                     $q->where('theloai_id', $theLoaiId);
                 });
+            }
+            if($doTuoi){
+                $query->where('do_tuoi', $doTuoi);
             }
 
             $phims = $query->orderBy('id', 'desc')->get();
