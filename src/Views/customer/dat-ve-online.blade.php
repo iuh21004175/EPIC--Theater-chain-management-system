@@ -187,98 +187,112 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>`;
         document.getElementById('noiDungPhim').innerHTML = html;
     }
+    
+    function renderVideoPhim(phim, daMua=false, goiFull=false) {
+        const suatChieuDiv = document.getElementById('suatChieu');
+        const videoUrl = `${urlMinio}/${phim.video_url}`;
+        const filename = phim.video_url.split('/').pop() || "video.mp4";
 
-    // function renderVideoPhim(phim, daMua=false) {
+        const duocXem = daMua || goiFull;
+
+        suatChieuDiv.innerHTML = `
+            <div class="relative aspect-video w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg">
+                <video controls class="w-full h-full ${duocXem ? '' : 'filter blur-sm'}">
+                    <source src="${videoUrl}" type="video/mp4">
+                    Trình duyệt của bạn không hỗ trợ video.
+                </video>
+                ${!duocXem 
+                    ? `<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white gap-4">
+                        <p class="text-xl font-semibold">Bạn chưa mua gói để xem phim này!</p>
+                        <button id="buyMovieBtn" class="px-6 py-2 bg-red-500 rounded-lg hover:bg-red-600 font-semibold"><i class="fas fa-ticket-alt"></i> Mua gói</button>
+                    </div>` 
+                    : ''
+                }
+            </div>
+            ${duocXem ? `<div class="w-full flex justify-end mt-2">
+                <button id="downloadVideoBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
+                    <i class="fas fa-download"></i> Tải xuống
+                </button>
+            </div>` : ''}
+        `;
+
+        if (!duocXem) {
+            document.getElementById('buyMovieBtn').addEventListener('click', () => {
+                fetch(`${baseUrl}/api/mua-phim`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phim_id: phim.id })
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        alert("Mua phim thành công!");
+                        renderVideoPhim(phim, true, false);
+                    } else alert("Mua phim thất bại: " + data.message);
+                });
+            });
+        }
+
+        if (duocXem) {
+            const btn = document.getElementById('downloadVideoBtn');
+            btn.addEventListener('click', () => {
+                fetch(videoUrl)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const link = document.createElement("a");
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = filename; 
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                    });
+            });
+        }
+    }
+
+
+    // function renderVideoPhim(phim) {
     //     const suatChieuDiv = document.getElementById('suatChieu');
-    //     let videoUrl = phim.video_url || phim.trailer_url || ""; 
-    //     if (!videoUrl) { 
-    //         suatChieuDiv.innerHTML = '<p class="text-gray-500">Không có video cho phim này.</p>'; 
-    //         return; 
-    //     }
 
-    //     let isYouTube = videoUrl.includes("youtube.com") || videoUrl.includes("youtu.be");
-    //     let embedUrl = isYouTube ? getYouTubeEmbedUrl(videoUrl) : videoUrl;
+    //     const videoUrl = `${urlMinio}/${phim.video_url}`;
+    //     // Lấy tên file từ đường dẫn (sau dấu / cuối cùng)
+    //     const filename = phim.video_url.split('/').pop() || "video.mp4";
 
     //     suatChieuDiv.innerHTML = `
-    //         <div class="relative aspect-video w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg">
-    //             ${isYouTube 
-    //                 ? `<iframe src="${embedUrl}" title="Video Phim" frameborder="0" 
-    //                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-    //                     allowfullscreen class="w-full h-full ${daMua ? '' : 'filter blur-sm'}"></iframe>`
-    //                 : `<video controls class="w-full h-full ${daMua ? '' : 'filter blur-sm'}">
-    //                     <source src="${embedUrl}" type="video/mp4">
+    //         <div class="flex flex-col items-center w-full max-w-5xl mx-auto">
+    //             <div class="flex items-center mb-4 justify-start w-full">
+    //                 <div class="w-1 h-6 bg-red-600 mr-2"></div>
+    //                 <h3 class="text-xl font-bold">Phim: ${phim.ten_phim}</h3>
+    //             </div>
+    //             <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg mb-2">
+    //                 <video controls class="w-full h-full rounded-xl">
+    //                     <source src="${videoUrl}" type="video/mp4">
     //                     Trình duyệt của bạn không hỗ trợ video.
-    //                 </video>`
-    //             }
-    //             ${!daMua 
-    //                 ? `<div class="absolute inset-0 bg-black/50 flex flex-col items-center justify-center text-white gap-4">
-    //                     <p class="text-xl font-semibold">Chỉ dành cho thành viên đã mua gói – Mua ngay để xem!</p>
-    //                     <button id="buyPackageBtn" class="px-6 py-2 bg-red-500 rounded-lg hover:bg-red-600 font-semibold">Mua gói</button>
-    //                 </div>` 
-    //                 : ''
-    //             }
+    //                 </video>
+    //             </div>
+    //             <div class="w-full flex justify-end">
+    //                 <button id="downloadVideoBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
+    //                     <i class="fas fa-download"></i> Tải xuống
+    //                 </button>
+    //             </div>
     //         </div>
     //     `;
 
-    //     if (!daMua) {
-    //         const btn = document.getElementById('buyPackageBtn');
-    //         btn.addEventListener('click', () => {
-    //             // Ví dụ: gọi API mua gói
-    //             fetch(`${baseUrl}/api/mua-goi`, { method: 'POST', body: JSON.stringify({ phim_id: phim.id }) })
-    //                 .then(res => res.json())
-    //                 .then(data => {
-    //                     if (data.success) {
-    //                         alert("Mua gói thành công!");
-    //                         renderVideoPhim(phim, true); // mở khóa video
-    //                     } else alert("Mua gói thất bại: " + data.message);
-    //                 }).catch(err => console.error(err));
-    //         });
-    //     }
+    //     // Xử lý nút download
+    //     const btn = document.getElementById('downloadVideoBtn');
+    //     btn.addEventListener('click', () => {
+    //         fetch(videoUrl)
+    //             .then(res => res.blob())
+    //             .then(blob => {
+    //                 const link = document.createElement("a");
+    //                 link.href = window.URL.createObjectURL(blob);
+    //                 link.download = filename; 
+    //                 document.body.appendChild(link);
+    //                 link.click();
+    //                 link.remove();
+    //             })
+    //             .catch(err => console.error("Lỗi tải video:", err));
+    //     });
     // }
 
-    function renderVideoPhim() {
-        const suatChieuDiv = document.getElementById('suatChieu');
-
-        // Link video MP4 cố định từ Cloudinary
-        const videoUrl = "https://res.cloudinary.com/dtkm5uyx1/video/upload/v1757848178/M%C6%AFA_%C4%90%E1%BB%8E_OFFICIAL_TRAILER_Kh%E1%BB%9Fi_chi%E1%BA%BFu_t%E1%BA%A1i_r%E1%BA%A1p_22.08.2025_BD6PoZJdt_M_i7tgun.mp4";
-
-        suatChieuDiv.innerHTML = `
-            <div class="flex flex-col items-center w-full max-w-5xl mx-auto">
-                <div class="flex items-center mb-4 justify-start w-full">
-                    <div class="w-1 h-6 bg-red-600 mr-2"></div>
-                    <h3 class="text-xl font-bold">Phim: Khế Ước Bán Dâu</h3>
-                </div>
-                <div class="relative w-full aspect-video rounded-xl overflow-hidden shadow-lg mb-2">
-                    <video controls class="w-full h-full rounded-xl">
-                        <source src="${videoUrl}" type="video/mp4">
-                        Trình duyệt của bạn không hỗ trợ video.
-                    </video>
-                </div>
-                <div class="w-full flex justify-end">
-                    <button id="downloadVideoBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
-                        <i class="fas fa-download"></i> Tải xuống
-                    </button>
-                </div>
-            </div>
-        `;
-
-        // Xử lý nút download với tên file tùy chỉnh
-        const btn = document.getElementById('downloadVideoBtn');
-        btn.addEventListener('click', () => {
-            const filename = "MUA_DO_TRAILER.mp4";
-            fetch(videoUrl)
-                .then(res => res.blob())
-                .then(blob => {
-                    const link = document.createElement("a");
-                    link.href = window.URL.createObjectURL(blob);
-                    link.download = filename;
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();
-                })
-                .catch(err => console.error("Lỗi tải video:", err));
-        });
-    }
 
     function loadDanhSachCmt(danhGia) {
         const commentList = document.getElementById('commentList');
@@ -337,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 commentForm.querySelector('textarea[name="comment"]').value = '';
                 currentRating = 5; updateStars(currentRating);
 
-                const resDanhGia = await fetch(baseUrl + "/api/doc-danh-gia");
+                const resDanhGia = await fetch(`${baseUrl}/api/doc-danh-gia/${idPhim}`);
                 const dataDanhGia = await resDanhGia.json();
                 if (dataDanhGia.success) loadDanhSachCmt(dataDanhGia.data);
             } else alert('Lỗi: ' + data.message);
@@ -352,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadThongTinPhim(data.data);
                 loadNoiDungPhim(data.data);
                 renderVideoPhim(data.data);
-                fetch(baseUrl + "/api/doc-danh-gia")
+                fetch(baseUrl + "/api/doc-danh-gia/" + idPhim)
                     .then(res => res.json())
                     .then(data => { if (data.success) loadDanhSachCmt(data.data); });
             }

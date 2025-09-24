@@ -4,8 +4,11 @@ namespace App\Services;
 use App\Models\DanhGia;
 use Carbon\Carbon;
 class Sc_DanhGia {
-    public function doc(){
-        return DanhGia::with('khachHang')->get();
+    public function docTheoPhim($phimId)
+    {
+        return DanhGia::with('khachHang')
+            ->where('phim_id', $phimId)
+            ->get();
     }
 
     public function them(){

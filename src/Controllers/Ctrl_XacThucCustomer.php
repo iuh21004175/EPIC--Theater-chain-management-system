@@ -287,5 +287,48 @@ class Ctrl_XacThucCustomer
         $scXacThuc->scResetPass();
     }
 
+    public function googleLogin()
+    {
+        try {
+            $scXacThuc = new Sc_XacThucCustomer();
+            $loginUrl = $scXacThuc->scGoogleLogin();
+
+            // Redirect người dùng đến Google
+            header("Location: " . $loginUrl);
+            exit;
+        } catch (\Exception $e) {
+            echo "Lỗi khi tạo URL Google Login: " . $e->getMessage();
+            exit;
+        }
+    }
+
+    public function googleCallback(): void
+    {
+        try {
+            $scXacThuc = new Sc_XacThucCustomer();
+
+            // Gọi hàm callback trong service
+            $result = $scXacThuc->scGoogleCallback();
+
+            if ($result['success']) {
+                // Redirect về trang chính sau khi login thành công
+                header("Location: /"); // hoặc '/dashboard' nếu bạn có trang dashboard
+                exit;
+            } else {
+                // Hiển thị lỗi nếu callback thất bại
+                echo "<h3>Lỗi Google Login:</h3>";
+                echo "<pre>" . htmlspecialchars($result['message']) . "</pre>";
+                if (isset($result['response'])) {
+                    echo "<pre>" . htmlspecialchars(json_encode($result['response'], JSON_PRETTY_PRINT)) . "</pre>";
+                }
+                exit;
+            }
+        } catch (\Exception $e) {
+            echo "<h3>Exception khi xử lý Google Callback:</h3>";
+            echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+            exit;
+        }
+    }
+
 }
 

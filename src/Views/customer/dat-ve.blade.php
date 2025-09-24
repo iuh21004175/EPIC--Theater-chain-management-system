@@ -40,7 +40,7 @@
                     </svg>
                 </button>
 
-                <div class="w-48">
+                <!-- <div class="w-48">
                     <label for="citySelect" class="block text-gray-700 font-semibold mb-1 text-sm">Chọn Thành Phố</label>
                     <select id="citySelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm">
                         <option value="tq">Toàn quốc</option>
@@ -48,9 +48,9 @@
                         <option value="hn">Hà Nội</option>
                         <option value="dn">Đà Nẵng</option>
                     </select>
-                </div>
+                </div> -->
 
-                <div class="w-48">
+                <div class="w-64">
                     <label for="rapSelect" class="block text-gray-700 font-semibold mb-1 text-sm">Chọn Rạp</label>
                     <select id="rapSelect" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm">
                         <option value="">Tất cả rạp</option>
@@ -71,13 +71,13 @@
 
         <form class="mb-6 space-y-4 p-4 border rounded-lg shadow-sm bg-white" id="commentForm">
           <div class="flex items-center gap-4">
-                <?php
+                <?php if (isset($_SESSION['user'])): 
                     $user = $_SESSION['user']; 
                     $hoten = $user['ho_ten'];
                 ?>
-            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold"><?php echo strtoupper($hoten[0]); ?></div>
-
-            <span class="font-semibold text-gray-800"><?php echo htmlspecialchars($hoten); ?></span>
+                <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold"><?php echo strtoupper($hoten[0]); ?></div>
+                <span class="font-semibold text-gray-800"><?php echo htmlspecialchars($hoten); ?></span>
+                <?php endif; ?>
           </div>
 
           <div class="flex items-center gap-2">
@@ -128,6 +128,9 @@
     </div>
   </div>
 </div>
+<?php
+ $user = $_SESSION['user'] ?? null;
+?>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -148,6 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const ratingValue = document.getElementById('ratingValue');
     const commentForm = document.getElementById('commentForm');
     const commentList = document.getElementById('commentList');
+
+    const currentUserId = <?php echo $user ? (int)$user['id'] : 'null'; ?>;
 
     let currentRating = 5;
 
@@ -193,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (match && match[1]) return "https://www.youtube.com/embed/" + match[1];
         return url;
     }
+    let idRapPhim = "";
 
     // Load rạp
     function loadRap() {
@@ -204,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success && data.data.length) {
                     data.data.forEach(rap => {
                         const option = document.createElement("option");
-                        option.value = rap.ten;
+                        option.value = rap.id;
                         option.textContent = rap.ten;
                         rapSelect.appendChild(option);
                     });
@@ -219,6 +225,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadRap();
 
+    rapSelect.addEventListener("change", function () {
+        idRapPhim = this.value; // gán id rạp được chọn
+        console.log("ID rạp đã chọn:", idRapPhim);
+
+        // mỗi khi chọn rạp thì load lại suất chiếu
+        loadSuatChieu();
+    });
+
     function base64Decode(str) { return decodeURIComponent(escape(atob(str))); }
     function base64Encode(str) { return btoa(unescape(encodeURIComponent(str))); }
 
@@ -229,9 +243,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const idPhim = decoded.replace(salt, "");   
 
     let allSuatChieu = [];
+    let lastComments = [];
 
     function renderSuatChieu() {
         const selectedDate = getSelectedDate();
+        console.log("Ngày đã chọn:", selectedDate);
         const filtered = allSuatChieu.filter(suat => suat.batdau.split(" ")[0] === selectedDate);
 
         if (!filtered.length) {
@@ -293,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function loadSuatChieu() {
         const selectedDate = getSelectedDate();
-        fetch(`${baseUrl}/api/suat-chieu-khach?ngay=${selectedDate}&id_phim=${idPhim}`)
+        fetch(`${baseUrl}/api/suat-chieu-khach?ngay=${selectedDate}&id_phim=${idPhim}&id_rapphim=${idRapPhim}`)
             .then(res => res.json())
             .then(data => {
                 allSuatChieu = Array.isArray(data.data) ? data.data : [];
@@ -350,11 +366,42 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('noiDungPhim').innerHTML = html;
     }
 
-    function loadDanhSachCmt(danhGia) {
-        const commentList = document.getElementById('commentList');
-        const averageRatingSpan = document.getElementById('averageRating');
+    function updateStars(rating, container = stars) {
+        container.forEach(star => {
+            if (parseInt(star.dataset.value) <= rating) {
+                star.classList.add('text-yellow-400');
+                star.classList.remove('text-gray-300');
+            } else {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            }
+        });
+        ratingValue.textContent = rating;
+    }
+    stars.forEach(star => star.addEventListener('click', () => {
+        currentRating = parseInt(star.dataset.value);
+        updateStars(currentRating);
+    }));
+    updateStars(currentRating);
 
-        if (!danhGia || danhGia.length === 0) {
+    // Escape HTML to avoid XSS
+    function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return String(unsafe)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Load danh sách bình luận
+    function loadDanhSachCmt(danhGia, currentUserId) {
+        if (!Array.isArray(danhGia)) danhGia = []; // đảm bảo luôn là mảng
+        lastComments = danhGia;
+
+        const averageRatingSpan = document.getElementById('averageRating');
+        if (danhGia.length === 0) {
             commentList.innerHTML = '<p class="text-gray-500">Chưa có bình luận nào.</p>';
             if (averageRatingSpan) averageRatingSpan.textContent = '0.0 (0 votes)';
             return;
@@ -365,50 +412,160 @@ document.addEventListener('DOMContentLoaded', () => {
         if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${danhGia.length} votes)`;
 
         const html = danhGia.map(cmt => {
-            const stars = '★'.repeat(cmt.so_sao) + '☆'.repeat(5 - cmt.so_sao);
+            const starsStr = '★'.repeat(cmt.so_sao) + '☆'.repeat(5 - cmt.so_sao);
             const ngayGui = new Date(cmt.created_at || cmt.ngay_tao).toLocaleString('vi-VN', {
                 day: '2-digit', month: '2-digit', year: 'numeric',
                 hour: '2-digit', minute: '2-digit'
             });
-            return `<div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+
+            let actionButtons = '';
+            if (currentUserId !== null && cmt.khachhang_id === currentUserId) {
+                actionButtons = `
+                    <div class="mt-2 flex gap-2 text-sm">
+                        <button class="text-blue-500 hover:underline" onclick="editComment(${cmt.id})">Sửa</button>
+                        <button class="text-red-500 hover:underline" onclick="deleteComment(${cmt.id})">Xóa</button>
+                    </div>
+                `;
+            }
+
+            return `<div class="p-4 bg-gray-50 rounded-lg shadow-sm" id="cmt-${cmt.id}">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                        ${cmt.khach_hang.ho_ten.charAt(0).toUpperCase()}
+                        ${cmt.khach_hang?.ho_ten?.charAt(0).toUpperCase() || '?'}
                     </div>
                     <div>
-                        <p class="font-semibold text-gray-800">${cmt.khach_hang.ho_ten}</p>
-                        <div class="flex text-sm text-yellow-400">${stars}</div>
+                        <p class="font-semibold text-gray-800">${cmt.khach_hang?.ho_ten || 'Khách'}</p>
+                        <div class="flex text-sm text-yellow-400">${starsStr}</div>
                     </div>
                 </div>
-                <p class="text-gray-700">${cmt.cmt}</p>
+                <div class="comment-body text-gray-700" id="cmt-body-${cmt.id}">${escapeHtml(cmt.cmt)}</div>
                 <p class="text-gray-400 text-xs mt-1">${ngayGui}</p>
+                ${actionButtons}
             </div>`;
         }).join('');
-
         commentList.innerHTML = html;
     }
 
-    commentForm.addEventListener('submit', async (e) => {
+    // Thêm bình luận
+    commentForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const comment = commentForm.querySelector('textarea[name="comment"]').value;
-        try {
-            const res = await fetch(`${baseUrl}/api/them-danh-gia`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phim_id: idPhim, so_sao: parseInt(ratingValue.textContent), cmt: comment })
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('Gửi đánh giá thành công!');
-                commentForm.querySelector('textarea[name="comment"]').value = '';
-                currentRating = 5; updateStars(currentRating);
+        const comment = commentForm.querySelector('textarea[name="comment"]').value.trim();
+        if (!comment) return alert("Nội dung bình luận không được rỗng.");
 
-                const resDanhGia = await fetch(baseUrl + "/api/doc-danh-gia");
-                const dataDanhGia = await resDanhGia.json();
-                if (dataDanhGia.success) loadDanhSachCmt(dataDanhGia.data);
-            } else alert('Lỗi: ' + data.message);
-        } catch (err) { console.error(err); alert('Lỗi server'); }
+        fetch(`${baseUrl}/api/check-login`)
+            .then(res => res.json())
+            .then(loginData => {
+                if (loginData.status !== "success") throw "not logged in";
+
+                return fetch(`${baseUrl}/api/them-danh-gia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phim_id: idPhim, so_sao: parseInt(ratingValue.textContent), cmt: comment })
+                });
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    commentForm.querySelector('textarea[name="comment"]').value = '';
+                    currentRating = 5;
+                    updateStars(currentRating);
+                    loadDanhSachCmt(Array.isArray(data.data) ? data.data : [], currentUserId);
+                } else {
+                    alert('Gửi thất bại: ' + (data.message || 'Server trả về lỗi'));
+                }
+            })
+            .catch(err => {
+                if (err !== "not logged in") {
+                    console.error('Lỗi server khi gửi bình luận:', err);
+                    alert('Lỗi server khi gửi bình luận.');
+                } else {
+                    alert("Vui lòng đăng nhập để gửi bình luận!");
+                }
+            });
     });
+
+    // Sửa bình luận
+    window.editComment = function(id) {
+        const commentObj = lastComments.find(c => c.id === id);
+        if (!commentObj) return alert("Không tìm thấy bình luận.");
+
+        const bodyDiv = document.getElementById(`cmt-body-${id}`);
+        if (!bodyDiv) return;
+        if (bodyDiv.querySelector('textarea')) return;
+
+        let originalText = commentObj.cmt || '';
+        let originalSao = commentObj.so_sao || 5;
+
+        bodyDiv.innerHTML = `
+            <textarea id="edit-area-${id}" rows="3" class="w-full p-2 border rounded">${escapeHtml(originalText)}</textarea>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="text-sm font-medium">Đánh giá:</span>
+                <div class="flex gap-1" id="edit-star-${id}">
+                    ${[1,2,3,4,5].map(i => `<button type="button" data-value="${i}" class="text-2xl ${i <= originalSao ? 'text-yellow-400':'text-gray-300'}">★</button>`).join('')}
+                </div>
+            </div>
+            <div class="mt-2 flex gap-2">
+                <button class="px-3 py-1 bg-gray-300 rounded" id="save-edit-${id}">Lưu</button>
+                <button class="px-3 py-1 bg-gray-300 rounded" id="cancel-edit-${id}">Hủy</button>
+            </div>
+        `;
+
+        const editStars = bodyDiv.querySelectorAll(`#edit-star-${id} button`);
+        editStars.forEach(star => {
+            star.addEventListener('click', () => {
+                originalSao = parseInt(star.dataset.value);
+                editStars.forEach(s => {
+                    s.classList.toggle('text-yellow-400', parseInt(s.dataset.value) <= originalSao);
+                    s.classList.toggle('text-gray-300', parseInt(s.dataset.value) > originalSao);
+                });
+            });
+        });
+
+        document.getElementById(`cancel-edit-${id}`).addEventListener('click', () => {
+            bodyDiv.innerHTML = escapeHtml(originalText);
+        });
+
+        document.getElementById(`save-edit-${id}`).addEventListener('click', () => {
+            const newText = document.getElementById(`edit-area-${id}`).value.trim();
+            if (!newText) return alert('Nội dung bình luận không được rỗng.');
+
+            fetch(`${baseUrl}/api/sua-danh-gia/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cmt: newText, so_sao: originalSao })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadDanhSachCmt(Array.isArray(data.data) ? data.data : [], currentUserId);
+                } else {
+                    alert('Lỗi sửa bình luận: ' + (data.message || 'Server trả về lỗi'));
+                }
+            })
+            .catch(err => {
+                console.error('Lỗi sửa bình luận:', err);
+                alert('Lỗi khi gọi server để sửa bình luận.');
+            });
+        });
+    };
+
+    // Xóa bình luận
+    window.deleteComment = function(id) {
+        if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+        fetch(`${baseUrl}/api/xoa-danh-gia/${id}`, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    loadDanhSachCmt(Array.isArray(data.data) ? data.data : [], currentUserId);
+                } else {
+                    alert('Xóa thất bại: ' + (data.message || 'Server trả về lỗi'));
+                }
+            })
+            .catch(err => {
+                console.error('Lỗi xóa bình luận:', err);
+                alert('Lỗi khi gọi server để xóa bình luận.');
+            });
+    };
 
     // Load thông tin phim + suất chiếu + bình luận
     fetch(`${baseUrl}/api/dat-ve/${idPhim}`)
@@ -420,14 +577,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadSuatChieu();
 
                 // Load danh sách đánh giá
-                fetch(baseUrl + "/api/doc-danh-gia")
+                fetch(baseUrl + "/api/doc-danh-gia/" + idPhim)
                     .then(res => res.json())
-                    .then(data => { if (data.success) loadDanhSachCmt(data.data); });
+                    .then(data => { if (data.success) loadDanhSachCmt(data.data,  currentUserId); });
             }
         }).catch(err => console.error(err));
-
     // --- Day Tabs ---
-    const visibleDays = 7;
+    const visibleDays = 10;
     let currentStartIndex = 0;
     let activeIndex = -1;
     const allDays = [];

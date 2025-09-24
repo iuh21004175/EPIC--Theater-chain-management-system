@@ -23,14 +23,9 @@
 
 <main>
   <!-- Banner -->
-  <section class="relative w-full h-72 md:h-80 lg:h-96 overflow-hidden rounded-xl shadow-lg">
+  <section class="relative w-full h-[680px] overflow-hidden rounded-xl shadow-lg">
     <div class="w-full h-full flex animate-slide" id="bannerContainer" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
-      <img src="https://res.cloudinary.com/dtkm5uyx1/image/upload/v1756787663/mua-do-500_1755156035605_amofs8.jpg"
-           class="w-full h-full object-cover flex-shrink-0">
-      <img src="https://picsum.photos/1200/600?1"
-           class="w-full h-full object-cover flex-shrink-0">
-      <img src="https://picsum.photos/1200/600?2"
-           class="w-full h-full object-cover flex-shrink-0">
+    
     </div>
     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/80"></div>
   </section>

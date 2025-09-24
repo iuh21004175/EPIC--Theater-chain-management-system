@@ -94,9 +94,10 @@
             $service = new Sc_SuatChieu();
             $ngay = $_GET['ngay'] ?? date('Y-m-d');
             $idPhim = $_GET['id_phim'] ?? null;
+            $idRap = $_GET['id_rapphim'] ?? null;
 
             try{
-                $result = $service->docSuatChieuKH($ngay, $idPhim);
+                $result = $service->docSuatChieuKH($ngay, $idPhim, $idRap);
                 return [
                     'success' => true,
                     'message' => 'Đọc suất chiếu khách hàng thành công',

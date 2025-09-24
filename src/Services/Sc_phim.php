@@ -5,6 +5,7 @@
     use App\Models\TheLoai;
     use App\Models\PhanPhoiPhim;
     use function App\Core\getS3Client;
+    use Carbon\Carbon;
     class Sc_Phim {
         public function themTheLoai(){
             $ten = $_POST['ten'] ?? '';
@@ -57,6 +58,7 @@
                 $theLoaiIds = $_POST['the_loai_ids'] ?? [];
                 $hinhAnh = $_FILES['poster'] ?? null;
                 $trailerUrl = $_POST['trailer_url'] ?? '';
+                $videoUrl = $_POST['video_url'] ?? '';
                 $fileExtension = "";
                 $tenTheLoais = [];
                 if ($hinhAnh && isset($hinhAnh['name'])) {
@@ -75,7 +77,7 @@
                     'quoc_gia' => $quocGia,
                     'poster_url' => $bucket.'/'.$keyName,
                     'trailer_url' => $trailerUrl,
-                    'trang_thai' => $trangThai,
+                    'video_url' => $videoUrl
                 ]);
                 if($phim){
                     
@@ -93,6 +95,19 @@
                         $tenTheLoais[] = $theLoai->TheLoai->ten;
                     }
                     $this->capNhatSoPhimTheLoai(); // Cập nhật số phim cho thể loại
+                    getRedisConnection()->publish('them-phim', json_encode([
+                        'id' => $phim->id,
+                        'ten_phim' => $phim->ten_phim,
+                        'the_loai' => implode(', ', $tenTheLoais),
+                        'dao_dien' => $phim->dao_dien,
+                        'dien_vien' => $phim->dien_vien,
+                        'thoi_luong' => $phim->thoi_luong,
+                        'poster_url' => $phim->poster_url,
+                        'trailer_url' => $phim->trailer_url,
+                        'ngay_cong_chieu' => $phim->ngay_cong_chieu,
+                        'mo_ta' => $phim->mo_ta,
+                        'trang_thai' => $phim->trang_thai
+                    ]));
                     return true;
                 }
                 return false;
@@ -104,38 +119,63 @@
                 throw new \Exception('Lỗi khi thêm phim: ' . $e->getMessage());
             }
         }
-        public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null){
+
+       public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null, $doTuoi = null, $year = null, $dangChieu = null) {
             $query = Phim::with(['TheLoai.TheLoai']);
 
-            if($tuKhoaTimKiem){
+            if ($tuKhoaTimKiem) {
                 $query->where(function($q) use ($tuKhoaTimKiem) {
                     $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
-                      ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
-                      ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
+                    ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
+                    ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
                 });
             }
-            if($trangThai !== null && $trangThai !== '') {
+
+            if ($trangThai !== null && $trangThai !== '') {
                 $query->where('trang_thai', $trangThai);
             }
-            if($theLoaiId){
+
+            if ($theLoaiId) {
                 $query->whereHas('TheLoai', function($q) use ($theLoaiId) {
                     $q->where('theloai_id', $theLoaiId);
                 });
             }
-            if($idRap){
-                // Lấy danh sách id_phim đã thuộc rạp này
+
+            if ($idRap) {
                 $phimIdsDaPhanPhoi = \App\Models\PhanPhoiPhim::where('id_rapphim', $idRap)->pluck('id_phim')->toArray();
                 if (!empty($phimIdsDaPhanPhoi)) {
                     $query->whereNotIn('id', $phimIdsDaPhanPhoi);
                 }
             }
 
+            if ($doTuoi) {
+                $query->where('do_tuoi', $doTuoi);
+            }
+
+            if ($year) {
+                $query->whereYear('created_at', $year);
+            }
+
+            if ($dangChieu !== null && $dangChieu !== '') {
+                $today = Carbon::today();
+                if ($dangChieu === 'dang-chieu') {
+                    // Phim đang chiếu
+                    $query->whereDate('ngay_cong_chieu', '<=', $today);
+                } elseif ($dangChieu === 'sap-chieu') {
+                    // Phim sắp chiếu
+                    $query->whereDate('ngay_cong_chieu', '>', $today);
+                }
+            }
+
             $pageSize = 10;
             $total = $query->count();
             $totalPages = ceil($total / $pageSize);
-            $phims = $query->skip(($page - 1) * $pageSize)
-                           ->take($pageSize)
-                           ->get();
+
+            $phims = $query->orderBy('id', 'desc')
+                        ->skip(($page - 1) * $pageSize)
+                        ->take($pageSize)
+                        ->get();
+
             return [
                 'data' => $phims,
                 'total' => $total,
@@ -143,6 +183,8 @@
                 'current_page' => $page
             ];
         }
+
+
         public function themPhanPhoiPhim(){
             $data = json_decode(file_get_contents('php://input'), true);
             $idRap = $data['id_rap'] ?? null;
@@ -163,10 +205,11 @@
                         ->where('id_phim', $phimId)
                         ->delete();
         }
-        public function docPhimKH($tuKhoaTimKiem = null, $theLoaiId = null)
+        public function docPhimKH($tuKhoaTimKiem = null, $theLoaiId = null, $doTuoi = null)
         {
             $query = Phim::with(['TheLoai.TheLoai']); // load quan hệ
 
+            $query->where('trang_thai', operator: 1);
             // tìm kiếm theo từ khóa
             if ($tuKhoaTimKiem) {
                 $query->where(function ($q) use ($tuKhoaTimKiem) {
@@ -183,6 +226,42 @@
                 });
             }
 
+            if($doTuoi){
+                $query->where('do_tuoi', $doTuoi);
+            }
+            $phims = $query->orderBy('id', 'desc')->get();
+
+            return [
+                'data' => $phims
+            ];
+        }
+
+        public function docPhimKHOnline($tuKhoaTimKiem = null, $theLoaiId = null, $doTuoi = null)
+        {
+            $query = Phim::with(['TheLoai.TheLoai']); // load quan hệ
+
+            // chỉ lấy phim có url_video
+            $query->whereNotNull('video_url')->where('video_url', '!=', '');
+
+            // tìm kiếm theo từ khóa
+            if ($tuKhoaTimKiem) {
+                $query->where(function ($q) use ($tuKhoaTimKiem) {
+                    $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
+                    ->orWhere('dao_dien', 'LIKE', "%$tuKhoaTimKiem%")
+                    ->orWhere('dien_vien', 'LIKE', "%$tuKhoaTimKiem%");
+                });
+            }
+
+            // lọc theo thể loại
+            if ($theLoaiId) {
+                $query->whereHas('TheLoai', function ($q) use ($theLoaiId) {
+                    $q->where('theloai_id', $theLoaiId);
+                });
+            }
+            if($doTuoi){
+                $query->where('do_tuoi', $doTuoi);
+            }
+
             $phims = $query->orderBy('id', 'desc')->get();
 
             return [
@@ -192,6 +271,7 @@
 
         public function docPhimMoiNhat() {
             $phims = Phim::with(['TheLoai.TheLoai'])
+                        ->where('trang_thai', 1)
                         ->orderBy('id', 'desc') 
                         ->take(4) // lấy 4 phim
                         ->get();
@@ -234,6 +314,7 @@
                 $theLoaiIds = $_POST['the_loai_ids'] ?? [];
                 $hinhAnh = $_FILES['poster'] ?? null;
                 $trailerUrl = $_POST['trailer_url'] ?? '';
+                $videoUrl = $_POST['video_url'] ?? '';
                 $fileExtension = "";
                 if ($hinhAnh && isset($hinhAnh['name'])) {
                     $fileExtension = pathinfo($hinhAnh['name'], PATHINFO_EXTENSION);
@@ -251,7 +332,7 @@
                     'quoc_gia' => $quocGia,
                     'poster_url' => empty($fileExtension) ? $phimCu->poster_url : $bucket.'/'.$keyName,
                     'trailer_url' => $trailerUrl,
-                    'trang_thai' => $trangThai,
+                    'video_url' => $videoUrl
                 ]);
                 if($phim){
                     if($hinhAnh && isset($hinhAnh['tmp_name'])){

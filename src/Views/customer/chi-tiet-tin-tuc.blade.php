@@ -1,93 +1,162 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Final Destination: Hé Lộ Bí Mật - Blog Điện Ảnh</title>
-    <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
-    <style>
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Chi Tiết Phim</title>
+  <link rel="stylesheet" href="{{ $_ENV['URL_WEB_BASE'] }}/css/tailwind.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
-<body class="bg-gray-100">
-
+<body class="bg-gray-50 text-gray-800 font-sans flex flex-col min-h-screen">
 @include('customer.layout.header')
-
-<div class="max-w-5xl mx-auto p-6">
-
-    <article class="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">
-            Final Destination Bloodlines: Hé Lộ Bí Mật Về Vòng Lặp Tử Thần
-        </h1>
-        <div class="text-sm text-gray-500 mb-6">
-            <span class="mr-4">Đăng bởi: Star Cine</span>
-            <span>Ngày đăng: 04/09/2025</span>
-        </div>
-
-        <img src="https://i.imgur.com/c9F8VdC.jpeg" alt="Final Destination: Bloodlines" class="w-full h-auto rounded-lg mb-6">
-
-        <div class="prose max-w-none text-gray-700">
-            <p>
-                Bộ phim <strong>Final Destination: Bloodlines</strong> không chỉ là một chương mới trong series kinh dị nổi tiếng mà còn hứa hẹn vén màn những bí mật đã bị che giấu suốt nhiều năm qua về vòng lặp chết chóc của Tử Thần.
-            </p>
-            <p>
-                Kể từ phần đầu tiên ra mắt, series "Final Destination" đã khiến khán giả rùng mình với những cái chết bất ngờ, sáng tạo và không thể tránh khỏi. Mặc dù chúng ta đã quen với ý tưởng "Tử Thần" luôn tìm cách lấy mạng những người sống sót, nhưng chưa bao giờ nguồn gốc và quy tắc của "định mệnh" này được giải thích rõ ràng.
-            </p>
-            <p>
-                Theo thông tin hé lộ từ đạo diễn và nhà sản xuất, "Bloodlines" sẽ đi sâu vào lịch sử gia đình, khám phá mối liên kết giữa các nhân vật và vòng lặp tử thần. Có thể, đây không chỉ là sự ngẫu nhiên mà là một lời nguyền, một dòng dõi bị nguyền rủa phải đối mặt với "Thần Chết" qua nhiều thế hệ.
-            </p>
-            <p>
-                Phần phim mới sẽ giới thiệu một nhóm nhân vật mới, nhưng với những manh mối và chi tiết được cài cắm, họ sẽ phải tìm hiểu và đối mặt với một sự thật kinh hoàng về quá khứ của chính mình. Những cái chết trong "Bloodlines" sẽ không chỉ mang tính giật gân, mà còn có ý nghĩa sâu sắc hơn, gắn kết với câu chuyện tổng thể.
-            </p>
-            <p>
-                Với cốt truyện đầy hứa hẹn, "Final Destination: Bloodlines" chắc chắn sẽ là một tác phẩm không thể bỏ lỡ đối với những ai yêu thích thể loại kinh dị và muốn khám phá những bí ẩn chưa từng được tiết lộ của series này.
-            </p>
-        </div>
-    </article>
-    <div class="mb-8">
-        <h2 class="text-2xl font-bold border-l-4 border-blue-600 pl-2 mb-6">
-            BÀI VIẾT LIÊN QUAN
-        </h2>
-        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <a href="#" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                <img src="https://i.imgur.com/gK9Q2yA.jpeg" alt="The Conjuring" class="w-full h-32 object-cover rounded-t-lg">
-                <div class="p-3">
-                    <p class="text-sm font-semibold text-gray-800 line-clamp-2">
-                        [Preview] The Conjuring Last Rites: Chương Cuối Cùng Ám Ảnh Ra Sao?
-                    </p>
-                </div>
-            </a>
-            <a href="#" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                <img src="https://i.imgur.com/rS2a4r4.jpeg" alt="Làm Giàu Từ Ma" class="w-full h-32 object-cover rounded-t-lg">
-                <div class="p-3">
-                    <p class="text-sm font-semibold text-gray-800 line-clamp-2">
-                        [Review] Làm Giàu Với Ma Cuộc Chiến Hột Xoàn: Bài Học Đầu Tiên Là Đừng Tin!
-                    </p>
-                </div>
-            </a>
-            <a href="#" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                <img src="https://i.imgur.com/9v4J8lR.jpeg" alt="Thanh toán Click To Pay" class="w-full h-32 object-cover rounded-t-lg">
-                <div class="p-3">
-                    <p class="text-sm font-semibold text-gray-800 line-clamp-2">
-                        Thanh Toán Click To Pay, Ưu Đãi Ngay 50K Tại Galaxy Cinema
-                    </p>
-                </div>
-            </a>
-            <a href="#" class="block bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
-                <img src="https://i.imgur.com/Gj3H6x3.jpeg" alt="Phim Hay Tháng 09.2025" class="w-full h-32 object-cover rounded-t-lg">
-                <div class="p-3">
-                    <p class="text-sm font-semibold text-gray-800 line-clamp-2">
-                        Phim Hay Tháng 09.2025: Những Cuộc Chiến Ngẹt Thở
-                    </p>
-                </div>
-            </a>
-        </div>
+  <main class="flex-1">
+    <div id="thongTinPhim" class="max-w-5xl mx-auto p-6 mb-10">
+      <!-- Nội dung phim -->
     </div>
-    </div>
-
+  </main>
 @include('customer.layout.footer')
+
+<!-- Modal Trailer -->
+<div id="trailerModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+  <div class="bg-black rounded-xl shadow-lg w-[90%] max-w-3xl relative">
+    <!-- Nút đóng -->
+    <button id="closeModal" 
+      class="absolute top-2 right-2 text-white text-2xl font-bold hover:text-red-500">&times;</button>
+
+    <!-- Video -->
+    <div class="aspect-video">
+      <iframe id="trailerIframe" class="w-full h-full rounded-xl"
+        src="" title="Trailer" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen>
+      </iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}";
+    const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
+    const salt = "{{ $_ENV['URL_SALT'] }}"; 
+    const trailerModal = document.getElementById("trailerModal");
+    const closeModal = document.getElementById("closeModal");
+    const trailerIframe = document.getElementById("trailerIframe");
+
+    function base64Decode(str) { return decodeURIComponent(escape(atob(str))); }
+    function base64Encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
+    const pathParts = window.location.pathname.split("/");
+    const slugWithId = pathParts[pathParts.length - 1];  
+    const encodedId = slugWithId.split("-").pop();
+    const decoded = base64Decode(encodedId); 
+    const idPhim = decoded.replace(salt, ""); 
+    
+    // Trailer modal
+    closeModal.addEventListener("click", () => {
+        trailerModal.classList.add("hidden");
+        trailerIframe.src = "";
+    });
+
+    trailerModal.addEventListener("click", (e) => {
+        if (e.target === trailerModal) {
+            trailerModal.classList.add("hidden");
+            trailerIframe.src = "";
+        }
+    });
+
+    function getYouTubeEmbedUrl(url) {
+        if (!url) return "";
+        const regex = /(?:youtube\.com\/(?:.*v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/;
+        const match = url.match(regex);
+        if (match && match[1]) return "https://www.youtube.com/embed/" + match[1];
+        return url;
+    }
+    
+    function renderPhim(phim){
+        const encoded = base64Encode(phim.id + salt);
+        const html = `
+          <nav class="text-gray-600 text-sm mb-4" aria-label="Breadcrumb">
+            <ol class="list-reset flex">
+              <li><a href="${baseUrl}" class="text-blue-600 hover:underline">Trang chủ</a></li>
+              <li><span class="mx-2">/</span></li>
+              <li><a href="${baseUrl}/tin-tuc" class="text-blue-600 hover:underline">Góc điện ảnh</a></li>
+              <li><span class="mx-2">/</span></li>
+              <li class="text-gray-500">${phim.ten_phim}</li>
+            </ol>
+          </nav>
+
+          <div class="flex flex-col md:flex-row gap-6">
+            <!-- Poster phim -->
+            <div class="relative w-64 h-96 flex-shrink-0">
+                <div class="w-full md:w-64 lg:w-72 flex-shrink-0">
+                  <img src="${urlMinio}/${phim.poster_url}" alt="${phim.ten_phim}" class="w-full h-auto rounded-xl shadow-lg object-cover">
+                </div>
+                <button data-url="${getYouTubeEmbedUrl(phim.trailer_url)}" class="trailer-btn absolute inset-0 flex items-center justify-center text-white text-4xl rounded-lg opacity-100 transition-opacity duration-200">
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="circle-play" 
+                        class="w-12 h-12" role="img" xmlns="http://www.w3.org/2000/svg" 
+                        viewBox="0 0 512 512">
+                        <path fill="currentColor" 
+                            d="M0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zM188.3 
+                            147.1c-7.6 4.2-12.3 12.3-12.3 
+                            20.9V344c0 8.7 4.7 16.7 12.3 
+                            20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 
+                            11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Thông tin phim -->
+            <div class="flex-1">
+              <h1 class="text-3xl font-bold mb-4">${phim.ten_phim} <span class="inline-flex items-center justify-center w-9 h-7 bg-red-600 text-white font-bold rounded text-sm">
+                ${phim.do_tuoi}
+              </span></h1>
+
+              <div class="mb-4 text-gray-700 text-sm space-y-1">
+                <div>Thời lượng: <strong>${phim.thoi_luong} phút</strong></div>
+                <div>Ngày chiếu: <strong>${new Date(phim.ngay_cong_chieu).toLocaleDateString("vi-VN")}</strong></div>
+                <p>Diễn viên: <strong>${phim.dien_vien}</strong></p>
+                <p>Thể loại: <strong>${phim.the_loai.map(t => t.the_loai.ten).join(", ")}</strong></p>
+                <p>Đạo diễn: <strong>${phim.dao_dien}</strong></p>
+                <p>Quốc gia: <strong>${phim.quoc_gia}</strong></p>
+              </div>
+
+             <!-- ${phim.video_url ? `<a href="${baseUrl}/dat-ve-online/${slugify(phim.ten_phim)}-${encoded}" class="inline-block bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"><i class="fas fa-ticket-alt"></i> Mua gói</a>` : ''} -->
+            </div>
+          </div>
+
+          <!-- Nội dung phim -->
+          <div class="mt-6">
+            <h2 class="text-xl font-semibold border-l-4 border-blue-600 pl-2 mb-2">NỘI DUNG PHIM</h2>
+            <p class="text-gray-700 leading-relaxed">
+              ${phim.mo_ta}
+            </p>
+          </div>
+        `;
+        document.getElementById('thongTinPhim').innerHTML = html;
+
+        document.querySelectorAll(".trailer-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const url = btn.getAttribute("data-url");
+                if (url) {
+                    trailerIframe.src = url + (url.includes("?") ? "&" : "?") + "autoplay=1";
+                    trailerModal.classList.remove("hidden");
+                }
+            });
+        });
+    }
+
+    fetch(`${baseUrl}/api/dat-ve/${idPhim}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data) {
+                renderPhim(data.data);
+            }
+        }).catch(err => console.error(err));
+
+        
+})
+</script>
 </body>
 </html>

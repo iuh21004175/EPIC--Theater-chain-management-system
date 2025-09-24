@@ -34,22 +34,46 @@
             }
             return false;
         }   
+        
         public function tinhGiaGhe($loaiGheId, $ngay = null, $dinhDangPhim = null)
         {
-            // Xác định ngày
             $date = $ngay ? Carbon::parse($ngay) : Carbon::today();
-            $dayType = ($date->dayOfWeek == 0 || $date->dayOfWeek == 6) ? 'Cuối tuần' : 'Ngày thường';
+            $dayType = ($date->dayOfWeek == 0 || $date->dayOfWeek == 6) ? 'Cuoi tuan' : 'Ngay thuong';
 
-            // Lấy giá cơ bản theo dayType (và định dạng phim nếu có)
-            $giaCoBan = QuyTac_GiaVe::where('trang_thai', 1)
-            ->whereRaw("JSON_SEARCH(dieu_kien, 'one', ?, NULL, '$[*].value') IS NOT NULL", [$dayType])
-            ->value('gia_tri');
+            // Lấy giá cơ bản theo ngày
+            $quyTacNgay = QuyTac_GiaVe::where('trang_thai', 1)->get()
+                ->first(function($qt) use ($dayType) {
+                    $dieuKien = json_decode($qt->dieu_kien, true);
+                    foreach ($dieuKien as $dk) {
+                        if (!empty($dk['type']) && $dk['type'] === 'day_type' && $dk['value'] === $dayType) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            $giaCoBan = $quyTacNgay->gia_tri ?? 0;
 
-            // Lấy phụ thu loại ghế
-            $loaiGhe = Ghe::where('id', $loaiGheId)->first();
-            $phuThu = $loaiGhe->phu_thu ?? 0; 
+            // Phụ thu định dạng phim
+            $phuThuDinhDang = 0;
+            if ($dinhDangPhim) {
+                $quyTacDinhDang = QuyTac_GiaVe::where('trang_thai', 1)->get()
+                    ->first(function($qt) use ($dinhDangPhim) {
+                        $dieuKien = json_decode($qt->dieu_kien, true);
+                        foreach ($dieuKien as $dk) {
+                            if (!empty($dk['type']) && $dk['type'] === 'movie_format' && $dk['value'] === $dinhDangPhim) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                $phuThuDinhDang = $quyTacDinhDang->gia_tri ?? 0;
+            }
 
-            return $giaCoBan + $phuThu;
+            // Phụ thu loại ghế
+            $loaiGhe = Ghe::where('id', $loaiGheId)->first(); 
+            $phuThu = $loaiGhe->phu_thu ?? 0;
+
+            return $giaCoBan + $phuThu + $phuThuDinhDang;
         }
     }
 ?>

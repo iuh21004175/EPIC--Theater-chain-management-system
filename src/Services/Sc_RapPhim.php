@@ -22,8 +22,10 @@ use Carbon\Carbon;
             }
             
         }
-        public function doc(){
+        public function doc()
+        {
             $rapPhim = RapPhim::all();
+
             foreach ($rapPhim as $item) {
                 $item->so_suat_chua_duyet = SuatChieu::whereHas('phongChieu', function($query) use ($item) {
                     $query->where('id_rapphim', $item->id);
@@ -31,6 +33,7 @@ use Carbon\Carbon;
                 ->where('batdau', '>=', Carbon::now())
                 ->count();
             }
+
             return $rapPhim;
         }
         public function docTheoID($id) {

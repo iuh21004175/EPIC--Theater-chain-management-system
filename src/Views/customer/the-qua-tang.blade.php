@@ -87,7 +87,7 @@
               // Tính số ngày còn lại
               const diffTime = expireDate - now;
               const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              remainingText = `Còn lại ${diffDays} ngày`;
+              remainingText = `Hạn sử dụng còn ${diffDays} ngày`;
           } else {
               remainingText = 'Không giới hạn';
           }

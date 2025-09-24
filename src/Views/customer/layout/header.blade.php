@@ -134,8 +134,8 @@
                 <div id="rap-menu" class="absolute left-0 top-full bg-white border border-gray-200 rounded-md shadow-lg min-w-[250px] max-w-[400px] w-auto z-50 transition duration-300 ease-in-out opacity-0 group-hover:opacity-100 invisible group-hover:visible">
                 </div>
             </div>
-            <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Tin tức</a>
-            <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim online</a>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Góc điện ảnh</a>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Epic Streaming</a>
         </nav>
         <div id="user-area">
             <?php if (isset($_SESSION['user'])): 
@@ -196,7 +196,8 @@
                     <button type="submit" class="btn btn-primary btn-block w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition duration-300" name="btnLogin" id="btnLogin">Đăng nhập</button>
                 </div>
                 <div class="form-group mb-4">
-                    <a href="#" class="w-full bg-red-600 text-white font-semibold py-2 rounded-md text-center inline-block hover:bg-red-700 transition duration-300" id="btnLoginGoogle">
+                    <a href="<?= $_ENV['URL_WEB_BASE'] ?>/api/google" 
+                        class="w-full bg-red-600 text-white font-semibold py-2 rounded-md text-center inline-block hover:bg-red-700 transition duration-300">
                         Đăng nhập bằng Google
                     </a>
                 </div>
@@ -394,6 +395,17 @@ document.getElementById('btnSendReset').addEventListener('click', function() {
         btn.textContent = originalText;
         btn.disabled = false;
     });
+    
+});
+
+document.querySelectorAll("nav a").forEach(link => {
+    const currentPath = window.location.pathname.replace(/\/$/, "");
+    const linkPath = new URL(link.href).pathname.replace(/\/$/, "");
+    
+    if (linkPath === currentPath) {
+        link.classList.remove("text-gray-600", "hover:text-red-600");
+        link.classList.add("text-red-600", "font-bold");
+    }
 });
 
 </script>
