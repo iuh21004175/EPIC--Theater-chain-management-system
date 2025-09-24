@@ -3,6 +3,8 @@ namespace App\Services;
 
 use App\Models\Ve;
 use App\Models\DonHang;
+use App\Models\SuatChieu;
+use App\Models\Phim;
 
 class Sc_Ve {
     public function them() {
@@ -46,5 +48,15 @@ class Sc_Ve {
                     ->update(['trang_thai' => 0]);
         return $updated > 0;
     }
-
+    public function top4PhimTheoVe()
+    {
+        return Phim::select('phim.*')
+            ->withCount(['suatChieu as so_ve_ban' => function($query) {
+                $query->join('ve', 've.suat_chieu_id', '=', 'suatchieu.id');
+            }])
+            ->where('trang_thai', 1) 
+            ->orderByDesc('so_ve_ban')
+            ->limit(4)
+            ->get();
+    }
 }

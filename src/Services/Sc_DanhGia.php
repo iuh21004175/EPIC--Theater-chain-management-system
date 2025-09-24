@@ -32,5 +32,41 @@ class Sc_DanhGia {
         }
         return false;
     }
+
+    public function sua($id){
+        if (!$id) {
+            throw new \Exception("Thiếu ID đánh giá cần sửa");
+        }
+
+        $data = json_decode(file_get_contents('php://input'), true);
+        $so_sao = $data['so_sao'] ?? null;
+        $cmt = $data['cmt'] ?? null;
+
+        $danhGia = DanhGia::find($id);
+        if (!$danhGia) {
+            throw new \Exception("Không tìm thấy đánh giá với ID: $id");
+        }
+
+        $danhGia->so_sao = $so_sao ?? $danhGia->so_sao;
+        $danhGia->cmt = $cmt ?? $danhGia->cmt;
+        $danhGia->save();
+
+        return $danhGia;
+    }
+
+    public function xoa($id){
+        if (!$id) {
+            throw new \Exception("Thiếu ID đánh giá cần xóa");
+        }
+
+        $danhGia = DanhGia::find($id);
+        if (!$danhGia) {
+            throw new \Exception("Không tìm thấy đánh giá với ID: $id");
+        }
+
+        $danhGia->delete();
+    }
+
+
 }
 ?>

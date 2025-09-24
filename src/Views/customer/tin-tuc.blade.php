@@ -14,53 +14,51 @@
     </h1>
     
     <!-- Bộ lọc phim -->
-<div class="flex flex-wrap gap-2 mb-6 pb-4 border-b border-red-500">
-  <!-- Thể loại -->
-  <div class="flex-1 min-w-[120px]">
-    <select id="theLoaiMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-      <option value="">Tất cả thể loại</option>
-    </select>
-  </div>
+    <div class="flex flex-wrap gap-2 mb-6 pb-4 border-b border-red-500">
+        <!-- Thể loại -->
+        <div class="flex-1 min-w-[120px]">
+            <select id="theLoaiMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                <option value="">Tất cả thể loại</option>
+            </select>
+        </div>
 
-  <!-- Quốc gia -->
-  <div class="flex-1 min-w-[120px]">
-    <select id="doTuoiMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-      <option value="">Tất cả độ tuổi</option>
-      <option value="p">P (Phù hợp mọi lứa tuổi)</option>
-      <option value="c13">C13 (Trên 13 tuổi)</option>
-      <option value="c16">C16 (Trên 16 tuổi)</option>
-      <option value="c18">C18 (Trên 18 tuổi)</option>
-    </select>
-  </div>
+        <!-- Độ tuổi -->
+        <div class="flex-1 min-w-[120px]">
+            <select id="doTuoiMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                <option value="">Tất cả độ tuổi</option>
+                <option value="p">P (Phù hợp mọi lứa tuổi)</option>
+                <option value="c13">C13 (Trên 13 tuổi)</option>
+                <option value="c16">C16 (Trên 16 tuổi)</option>
+                <option value="c18">C18 (Trên 18 tuổi)</option>
+            </select>
+        </div>
 
-  <!-- Năm -->
-  <div class="flex-1 min-w-[120px]">
-    <select id="namMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-      <option value="">Năm</option>
-      <option value="2025">2025</option>
-      <option value="2024">2024</option>
-    </select>
-  </div>
+        <!-- Năm -->
+        <div class="flex-1 min-w-[120px]">
+            <select id="namMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                <option value="">Năm</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+            </select>
+        </div>
 
-  <!-- Đang chiếu / Sắp chiếu -->
-  <div class="flex-1 min-w-[140px]">
-    <select id="dangSapChieuMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-      <option value="">Đang chiếu / Sắp chiếu</option>
-      <option value="dang-chieu">Đang chiếu</option>
-      <option value="sap-chieu">Sắp chiếu</option>
-    </select>
-  </div>
+        <!-- Đang chiếu / Sắp chiếu -->
+        <div class="flex-1 min-w-[140px]">
+            <select id="dangSapChieuMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                <option value="">Đang chiếu / Sắp chiếu</option>
+                <option value="dang-chieu">Đang chiếu</option>
+                <option value="sap-chieu">Sắp chiếu</option>
+            </select>
+        </div>
 
-  <!-- Xem nhiều nhất -->
-  <div class="flex-1 min-w-[140px]">
-    <select class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
-      <option value="">Xem nhiều nhất</option>
-      <option value="1">1 tuần</option>
-      <option value="2">1 tháng</option>
-      <option value="3">3 tháng</option>
-    </select>
-  </div>
-</div>
+        <!-- Xem nhiều nhất -->
+        <div class="flex-1 min-w-[140px]">
+            <select id="xemNhieuNhatMenu" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                <option value="moi-nhat">Mới nhất</option>
+                <option value="xem-nhieu">Xem nhiều nhất</option>   
+            </select>
+        </div>
+    </div>
 
     <!-- Container phim -->
     <div class="phim-container"></div>
@@ -83,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const doTuoiMenu = document.getElementById("doTuoiMenu");
     const namMenu = document.getElementById("namMenu");
     const dangSapChieuMenu = document.getElementById("dangSapChieuMenu");
+    const xemNhieuNhatMenu = document.getElementById("xemNhieuNhatMenu");
 
     let currentDoTuoi = "";
     let currentPage = 1;
@@ -90,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentLoai = "";
     let currentYear = "";
     let currentTrangThai = ""; 
+    let currentXemNhieu = "";   
 
     function slugify(str) {
         return str.toLowerCase()
@@ -127,13 +127,13 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.className = `px-3 py-1 rounded border ${i === currentPage ? 'bg-red-500 text-white' : 'bg-white text-gray-800'}`;
             btn.addEventListener('click', () => {
                 currentPage = i;
-                loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+                loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai, currentXemNhieu);
             });
             paginationContainer.appendChild(btn);
         }
     }
 
-    async function loadPhim(tuKhoa = "", theLoaiId = "", doTuoi = "", page = 1, year = "", trangThai = "") {
+    async function loadPhim(tuKhoa = "", theLoaiId = "", doTuoi = "", page = 1, year = "", trangThai = "", xemNhieu = "") {
         container.innerHTML = '<p class="text-gray-500">Đang tải...</p>'; 
 
         try {
@@ -143,6 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (doTuoi) url.searchParams.append("doTuoi", doTuoi);
             if (year) url.searchParams.append("year", year);
             if (trangThai) url.searchParams.append("dangChieu", trangThai); 
+            if (xemNhieu) url.searchParams.append("xemNhieu", xemNhieu);
             url.searchParams.append("page", page);
 
             const res = await fetch(url);
@@ -162,8 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
-    // Load thể loại vào select
+    // Load thể loại
     async function loadTheLoai() {
         try {
             const res = await fetch(baseUrl + "/api/loai-phim");
@@ -188,32 +188,37 @@ document.addEventListener("DOMContentLoaded", () => {
     theLoaiMenu.addEventListener("change", () => {
         currentLoai = theLoaiMenu.value;
         currentPage = 1;
-        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai, currentXemNhieu);
     });
 
     doTuoiMenu.addEventListener("change", () => {
         currentDoTuoi = doTuoiMenu.value;
         currentPage = 1;
-        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai, currentXemNhieu);
     });
 
     namMenu.addEventListener("change", () => {
         currentYear = namMenu.value;
         currentPage = 1;
-        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai, currentXemNhieu);
     });
 
     dangSapChieuMenu.addEventListener("change", () => {
         currentTrangThai = dangSapChieuMenu.value;
         currentPage = 1;
-        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai);
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai, currentXemNhieu);
+    });
+
+    xemNhieuNhatMenu.addEventListener("change", () => {
+        currentXemNhieu = xemNhieuNhatMenu.value;
+        currentPage = 1;
+        loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai, currentXemNhieu);
     });
 
     // Init
     loadTheLoai();
-    loadPhim();
+    loadPhim(currentTuKhoa, currentLoai, currentDoTuoi, currentPage, currentYear, currentTrangThai, currentXemNhieu);
 });
-
 </script>
 
 </body>

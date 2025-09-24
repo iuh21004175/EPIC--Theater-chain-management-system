@@ -120,7 +120,7 @@
             }
         }
 
-       public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null, $doTuoi = null, $year = null, $dangChieu = null) {
+       public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null, $doTuoi = null, $year = null, $dangChieu = null, $xemNhieu = null) {
             $query = Phim::with(['TheLoai.TheLoai']);
 
             if ($tuKhoaTimKiem) {
@@ -165,6 +165,14 @@
                     // Phim sắp chiếu
                     $query->whereDate('ngay_cong_chieu', '>', $today);
                 }
+            }
+
+            if ($xemNhieu === 'xem-nhieu') {
+                $query->withCount(['suatChieu as so_ve_ban' => function($q) {
+                    $q->join('ve', 've.suat_chieu_id', '=', 'suatchieu.id');
+                }])->orderByDesc('so_ve_ban');
+            } else {
+                $query->orderBy('id', 'desc');
             }
 
             $pageSize = 10;

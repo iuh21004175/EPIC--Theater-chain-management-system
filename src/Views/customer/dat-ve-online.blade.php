@@ -105,7 +105,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const ratingValue = document.getElementById('ratingValue');
     const commentForm = document.getElementById('commentForm');
     const commentList = document.getElementById('commentList');
-    
+    const modalLogin = document.getElementById('modalLogin');
+    const body = document.body;
+
+
+    function openModal(modal) { // Hiển thị modal đăng nhập
+        modal.classList.add('is-open');
+        body.classList.add('modal-open');
+    }
+
     let currentRating = 5;
 
     function updateStars(rating) {
@@ -328,6 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const loginData = await loginCheck.json();
 
             if (loginData.status !== "success") {
+                openModal(modalLogin);
                 alert("Vui lòng đăng nhập để gửi bình luận!");
                 return;
             }

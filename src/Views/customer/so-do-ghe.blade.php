@@ -466,10 +466,6 @@ async function loadGiftCards() {
         if (!json.success || !json.data) return;
 
         const select = document.getElementById("giftCardSelect");
-        if (!select) {
-            console.error("Không tìm thấy #giftCardSelect trong DOM");
-            return;
-        }
 
         // xóa option cũ (nếu có)
         select.innerHTML = '<option value="">Chọn thẻ quà tặng</option>';
@@ -553,7 +549,7 @@ async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl,
             console.log(dinhDangPhim);
             const loaiGheId = seat.dataset.loaighe_id;
             try {
-                const res = await fetch(`${baseUrl}/api/tinh-gia-ve/${loaiGheId}/${ngay}/${dinhDangPhim}`);
+                const res = await fetch(`${baseUrl}/api/tinh-gia-ve/${loaiGheId}/${ngay}/${encodeURIComponent(dinhDangPhim)}`);
                 const j = await res.json();
                 if (j.success) {
                     gia = parseInt(j.data);

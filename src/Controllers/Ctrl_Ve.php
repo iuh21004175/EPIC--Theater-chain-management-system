@@ -41,4 +41,21 @@ class Ctrl_Ve {
         echo json_encode(['success'=>$result,'message'=>$result?'Cập nhật vé thành công':'Thất bại']);
         exit;
     }
+
+    public function doctop4PhimTheoVe(){
+        $service = new Sc_Ve();
+        try {
+            $result = $service->top4PhimTheoVe();
+            return [
+                'success' => true,
+                'data' => $result
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'Lỗi khi tải danh sách thể loại: ' . $e->getMessage()
+            ];
+        }
+    }
+    
 }

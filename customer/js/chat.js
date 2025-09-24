@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form && input && messages) form.onsubmit = function(e) {
         e.preventDefault();
         if(!userId){
+            alert("Vui lòng đăng nhập!");
             openModal(modalLogin);
             panel.classList.add('hidden');
             btnOpen.classList.remove('hidden');

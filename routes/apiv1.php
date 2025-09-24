@@ -110,7 +110,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/phim-moi', [Ctrl_Phim::class, 'docPhimMoiNhat']);
     $r->addRoute('GET', '/suat-chieu-khach', [Ctrl_SuatChieu::class, 'docSuatChieuKH']);
     $r->addRoute('GET', '/so-do-ghe/{id}', [Ctrl_PhongChieu::class, 'chiTietPhongChieu']);
-    $r->addRoute('GET', '/tinh-gia-ve/{loaiGheId}[/{ngay}[/{dinhDangPhim}]]', [Ctrl_GiaVe::class, 'docGiaVe']);
+    $r->addRoute('GET','/tinh-gia-ve/{loaiGheId}/{ngay}/{dinhDangPhim}',[Ctrl_GiaVe::class, 'docGiaVe']);
     $r->addRoute('GET', '/phim-theo-rap/{idRap:\d+}', [Ctrl_SuatChieu::class, 'docPhimTheoRapKH']);
     $r->addRoute('POST', '/tao-ve', [Ctrl_Ve::class, 'themVe']);
     $r->addRoute('POST', '/tao-don-hang', [Ctrl_DonHang::class, 'themDonHang']);
@@ -127,8 +127,11 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('PUT', '/cap-nhat-trang-thai-don-hang', [Ctrl_DonHang::class, 'capNhatTrangThaiDonHang']);
     $r->addRoute('PUT', '/cap-nhat-trang-thai-ve', [Ctrl_Ve::class, 'capNhatTrangThai']);
     $r->addRoute('POST', '/them-danh-gia', [Ctrl_DanhGia::class, 'themDanhGia']);
+    $r->addRoute('PUT', '/sua-danh-gia/{id}', [Ctrl_DanhGia::class, 'suaDanhGia']);
+    $r->addRoute('DELETE', '/xoa-danh-gia/{id}', [Ctrl_DanhGia::class, 'xoaDanhGia']);
     $r->addRoute('GET', '/doc-danh-gia/{id}', [Ctrl_DanhGia::class, 'docDanhGia']);
     $r->addRoute('GET', '/phim-dien-anh', [Ctrl_Phim::class, 'docPhim']);
+    $r->addRoute('GET', '/doc-phim-ban-chay', [Ctrl_Ve::class, 'doctop4PhimTheoVe']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

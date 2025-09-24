@@ -111,12 +111,30 @@
                 ];
             }
         }
-        public function docPhim(){
-            $service = new Sc_Phim();
+        public function docPhim() {
+            header('Content-Type: application/json');
+
             try {
+                $service = new Sc_Phim();
                 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                $result = $service->docPhim($page, $_GET['tuKhoaTimKiem'] ?? null, $_GET['trangThai'] ?? null, $_GET['theLoaiId'] ?? null, $_GET['idRap'] ?? null, $_GET['doTuoi'] ?? null, $_GET['year'] ?? null, $_GET['dangChieu'] ?? null);
-                return [
+                $result = $service->docPhim(
+                    $page,
+                    $_GET['tuKhoaTimKiem'] ?? null,
+                    $_GET['trangThai'] ?? null,
+                    $_GET['theLoaiId'] ?? null,
+                    $_GET['idRap'] ?? null,
+                    $_GET['doTuoi'] ?? null,
+                    $_GET['year'] ?? null,
+                    $_GET['dangChieu'] ?? null,
+                    $_GET['xemNhieu'] ?? null
+                );
+
+                // Xóa toàn bộ output buffer cũ
+                if (ob_get_level()) {
+                    ob_end_clean();
+                }
+
+                echo json_encode([
                     'success' => true,
                     'data' => $result['data'],
                     'pagination' => [
@@ -124,14 +142,19 @@
                         'total_pages' => $result['total_pages'],
                         'current_page' => $result['current_page']
                     ]
-                ];
+                ]);
+                exit; // đảm bảo không có output nào khác
             } catch (\Exception $e) {
-                return [
+                if (ob_get_level()) ob_end_clean();
+                echo json_encode([
                     'success' => false,
                     'message' => 'Lỗi khi tải danh sách phim: ' . $e->getMessage()
-                ];
+                ]);
+                exit;
             }
         }
+
+
 
         public function docPhimKH()
         {
@@ -293,5 +316,6 @@
                 ];
             }
         }
+
     }
 ?>

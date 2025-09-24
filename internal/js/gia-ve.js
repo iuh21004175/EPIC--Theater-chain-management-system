@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
             { value: 'day_type', label: 'Loại ngày', options: ['Ngày thường', 'Cuối tuần', 'Ngày lễ', 'Tết'] },
             { value: 'time_range', label: 'Khung giờ', options: ['Sáng', 'Chiều', 'Tối'] },
             { value: 'seat_type', label: 'Loại ghế', options: ['Thường', 'VIP', 'Đôi', 'Premium'] },
-            { value: 'movie_format', label: 'Định dạng phim', options: ['2D', '3D', 'IMAX 2D', 'IMAX 3D'] }
+            { value: 'movie_format', label: 'Định dạng phim', options: ['2d', '3d', 'imax-2d', 'imax-3d'] }
         ];
         function addConditionRow(type = '', value = '') {
             const idx = Date.now() + Math.random();

@@ -477,10 +477,10 @@
                 <label for="filter-type" class="block text-sm font-medium text-gray-700 mb-1">Loại phòng</label>
                 <select id="filter-type" class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm rounded-md">
                     <option value="all">Tất cả loại phòng</option>
-                    <option value="2d">2D</option>
-                    <option value="3d">3D</option>
-                    <option value="imax-2d">IMAX 2D</option>
-                    <option value="imax-3d">IMAX 3D</option>
+                    <option value="2D">2D</option>
+                    <option value="3D">3D</option>
+                    <option value="IMAX 2D">IMAX 2D</option>
+                    <option value="IMAX 3D">IMAX 3D</option>
                 </select>
             </div>
             <div class="sm:col-span-2">
@@ -562,10 +562,10 @@
                                     <label for="room-type" class="block text-sm font-medium text-gray-700 mb-1">Loại phòng chiếu <span class="text-red-600">*</span></label>
                                     <select name="type" id="room-type" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm" required>
                                         <option value="">-- Chọn loại phòng --</option>
-                                        <option value="2d">2D</option>
-                                        <option value="3d">3D</option>
-                                        <option value="imax-2d">IMAX 2D</option>
-                                        <option value="imax-3d">IMAX 3D</option>
+                                        <option value="2D">2D</option>
+                                        <option value="3D">3D</option>
+                                        <option value="IMAX 2D">IMAX 2D</option>
+                                        <option value="IMAX 3D">IMAX 3D</option>
                                     </select>
                                     <p class="mt-1 text-sm text-red-600 hidden" id="type-error"></p>
                                 </div>
@@ -735,10 +735,10 @@
                                     <label for="edit-room-type" class="block text-sm font-medium text-gray-700 mb-1">Loại phòng chiếu <span class="text-red-600">*</span></label>
                                     <select name="type" id="edit-room-type" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
                                         <option value="">-- Chọn loại phòng --</option>
-                                        <option value="2d">2D</option>
-                                        <option value="3d">3D</option>
-                                        <option value="imax-2d">IMAX 2D</option>
-                                        <option value="imax-3d">IMAX 3D</option>
+                                        <option value="2D">2D</option>
+                                        <option value="3D">3D</option>
+                                        <option value="IMAX 2D">IMAX 2D</option>
+                                        <option value="IMAX 3D">IMAX 3D</option>
                                     </select>
                                     <p class="mt-1 text-sm text-red-600 hidden" id="edit-type-error"></p>
                                 </div>

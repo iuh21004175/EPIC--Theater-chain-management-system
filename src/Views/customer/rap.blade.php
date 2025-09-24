@@ -53,9 +53,16 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
-  const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}";
+    const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
+    const urlMinio = "{{ $_ENV['MINIO_SERVER_URL'] }}";
+    const modalLogin = document.getElementById('modalLogin');
+    const body = document.body;
 
+
+    function openModal(modal) { // Hiển thị modal đăng nhập
+        modal.classList.add('is-open');
+        body.classList.add('modal-open');
+    }
   // Giải mã base64 + salt
   function base64Decode(str) {
       return decodeURIComponent(escape(atob(str)));
@@ -293,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       if (data.status === "success") {
                           window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
                       } else {
+                          openModal(modalLogin);
                           alert("Vui lòng đăng nhập!");
                       }
                   }).catch(err => { console.error(err); alert("Không thể xác thực đăng nhập"); });

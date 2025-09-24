@@ -152,6 +152,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentForm = document.getElementById('commentForm');
     const commentList = document.getElementById('commentList');
 
+    const modalLogin = document.getElementById('modalLogin');
+    const body = document.body;
+
+    function openModal(modal) { // Hiển thị modal đăng nhập
+        modal.classList.add('is-open');
+        body.classList.add('modal-open');
+    }
+
     const currentUserId = <?php echo $user ? (int)$user['id'] : 'null'; ?>;
 
     let currentRating = 5;
@@ -300,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (data.status === "success") {
                             window.location.href = `${baseUrl}/so-do-ghe/${encoded}`;
                         } else {
+                            openModal(modalLogin);
                             alert("Vui lòng đăng nhập!");
                         }
                     }).catch(err => { console.error(err); alert("Không thể xác thực đăng nhập"); });
@@ -447,41 +456,100 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Thêm bình luận
-    commentForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const comment = commentForm.querySelector('textarea[name="comment"]').value.trim();
-        if (!comment) return alert("Nội dung bình luận không được rỗng.");
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const commentTextarea = commentForm.querySelector('textarea[name="comment"]');
+            const comment = commentTextarea.value.trim();
+            if (!comment) return alert('Nội dung bình luận không được rỗng.');
 
-        fetch(`${baseUrl}/api/check-login`)
-            .then(res => res.json())
-            .then(loginData => {
-                if (loginData.status !== "success") throw "not logged in";
+            fetch(`${baseUrl}/api/check-login`)
+  .then(res => res.json())
+  .then(loginData => {
+      if (loginData.status !== "success") throw "not logged in";
 
-                return fetch(`${baseUrl}/api/them-danh-gia`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phim_id: idPhim, so_sao: parseInt(ratingValue.textContent), cmt: comment })
-                });
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    commentForm.querySelector('textarea[name="comment"]').value = '';
-                    currentRating = 5;
-                    updateStars(currentRating);
-                    loadDanhSachCmt(Array.isArray(data.data) ? data.data : [], currentUserId);
-                } else {
-                    alert('Gửi thất bại: ' + (data.message || 'Server trả về lỗi'));
-                }
-            })
-            .catch(err => {
-                if (err !== "not logged in") {
-                    console.error('Lỗi server khi gửi bình luận:', err);
-                    alert('Lỗi server khi gửi bình luận.');
-                } else {
-                    alert("Vui lòng đăng nhập để gửi bình luận!");
-                }
-            });
+      const userName = loginData.user?.ho_ten || 'Khách';
+      const userInitial = userName.charAt(0).toUpperCase();
+
+      return fetch(`${baseUrl}/api/them-danh-gia`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+              phim_id: idPhim, 
+              so_sao: parseInt(ratingValue.textContent), 
+              cmt: comment 
+          })
+      })
+      .then(res => res.json())
+      .then(data => {
+          if (!data.success) return alert('Gửi thất bại: ' + (data.message || 'Server trả về lỗi'));
+
+          const newComment = data.data;
+          lastComments.push(newComment);
+
+          const commentList = document.getElementById('commentList');
+          if (commentList) {
+              const starsStr = Array.from({length: 5}, (_, i) => 
+                  `<span class="${i < (newComment.so_sao || 0) ? 'text-yellow-400' : 'text-gray-300'}">★</span>`
+              ).join('');
+
+              const now = new Date();
+                const ngayGui = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} ${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
+
+              const actionButtons = `
+                  <div class="flex gap-2 mt-1">
+                      <div class="mt-2 flex gap-2 text-sm">
+                          <button onclick="editComment(${newComment.id})" class="text-blue-500 hover:underline">Sửa</button>
+                          <button onclick="deleteComment(${newComment.id})" class="text-red-500 hover:underline">Xóa</button>
+                      </div>
+                  </div>
+              `;
+
+              const div = document.createElement('div');
+              div.id = `cmt-${newComment.id}`;
+              div.innerHTML = `
+                  <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                      <div class="flex items-center gap-3 mb-2">
+                          <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
+                              ${userInitial}
+                          </div>
+                          <div>
+                              <p class="font-semibold text-gray-800">${userName}</p>
+                              <div class="flex text-sm text-yellow-400">${starsStr}</div>
+                          </div>
+                      </div>
+                      <div class="comment-body text-gray-700" id="cmt-body-${newComment.id}">
+                          ${escapeHtml(newComment.cmt)}
+                      </div>
+                      <p class="text-gray-400 text-xs mt-1">${ngayGui}</p>
+                      ${actionButtons}
+                  </div>
+              `;
+              commentList.prepend(div);
+          }
+
+          // Reset form
+          commentTextarea.value = '';
+          currentRating = 5;
+          updateStars(currentRating);
+
+          // Cập nhật rating tổng thể
+          const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
+          const avgStars = (lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0);
+          const averageRatingSpan = document.getElementById('averageRating');
+          if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
+
+          alert('Gửi bình luận thành công!');
+      });
+  })
+  .catch(err => {
+      if (err !== "not logged in") {
+          console.error('Lỗi server khi gửi bình luận:', err);
+          alert('Lỗi server khi gửi bình luận.');
+      } else {
+          openModal(modalLogin);
+          alert("Vui lòng đăng nhập để gửi bình luận!");
+      }
+  });
     });
 
     // Sửa bình luận
@@ -526,46 +594,84 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         document.getElementById(`save-edit-${id}`).addEventListener('click', () => {
-            const newText = document.getElementById(`edit-area-${id}`).value.trim();
-            if (!newText) return alert('Nội dung bình luận không được rỗng.');
+        const newText = document.getElementById(`edit-area-${id}`).value.trim();
+        if (!newText) return alert('Nội dung bình luận không được rỗng.');
 
-            fetch(`${baseUrl}/api/sua-danh-gia/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ cmt: newText, so_sao: originalSao })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    loadDanhSachCmt(Array.isArray(data.data) ? data.data : [], currentUserId);
-                } else {
-                    alert('Lỗi sửa bình luận: ' + (data.message || 'Server trả về lỗi'));
+        fetch(`${baseUrl}/api/sua-danh-gia/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cmt: newText, so_sao: originalSao })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Cập nhật trực tiếp DOM
+                const bodyDiv = document.getElementById(`cmt-body-${id}`);
+                if(bodyDiv){
+                    bodyDiv.innerHTML = escapeHtml(newText);
                 }
-            })
-            .catch(err => {
-                console.error('Lỗi sửa bình luận:', err);
-                alert('Lỗi khi gọi server để sửa bình luận.');
-            });
+                const commentObj = lastComments.find(c => c.id === id);
+                if(commentObj){
+                    commentObj.cmt = newText;
+                    commentObj.so_sao = originalSao;
+                }
+
+                // Cập nhật rating tổng thể
+                const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
+                const avgStars = (totalStars / lastComments.length).toFixed(1);
+                const averageRatingSpan = document.getElementById('averageRating');
+                if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
+            } else {
+                alert('Lỗi sửa bình luận: ' + (data.message || 'Server trả về lỗi'));
+            }
+        })
+        .catch(err => {
+            console.error('Lỗi sửa bình luận:', err);
+            alert('Lỗi khi gọi server để sửa bình luận.');
         });
+    });
+
     };
 
     // Xóa bình luận
     window.deleteComment = function(id) {
-        if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
-        fetch(`${baseUrl}/api/xoa-danh-gia/${id}`, { method: 'DELETE' })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    loadDanhSachCmt(Array.isArray(data.data) ? data.data : [], currentUserId);
-                } else {
-                    alert('Xóa thất bại: ' + (data.message || 'Server trả về lỗi'));
-                }
-            })
-            .catch(err => {
-                console.error('Lỗi xóa bình luận:', err);
-                alert('Lỗi khi gọi server để xóa bình luận.');
-            });
-    };
+    if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+
+    fetch(`${baseUrl}/api/xoa-danh-gia/${id}`, { method: 'DELETE' })
+        .then(res => res.text()) // Lấy raw text để kiểm tra JSON
+        .then(text => {
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error('Server trả về không phải JSON:', text);
+                alert('Lỗi server: dữ liệu trả về không hợp lệ.');
+                return;
+            }
+
+            if (data.success) {
+                // Xóa DOM của bình luận
+                const commentDiv = document.getElementById(`cmt-${id}`);
+                if (commentDiv) commentDiv.remove();
+
+                // Xóa khỏi mảng local
+                lastComments = lastComments.filter(c => c.id !== id);
+
+                // Cập nhật rating tổng thể
+                const totalStars = lastComments.reduce((sum, c) => sum + (c.so_sao || 0), 0);
+                const avgStars = lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0;
+                const averageRatingSpan = document.getElementById('averageRating');
+                if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
+
+            } else {
+                alert('Xóa thất bại: ' + (data.message || 'Server trả về lỗi'));
+            }
+        })
+        .catch(err => {
+            console.error('Lỗi xóa bình luận:', err);
+            alert('Lỗi khi gọi server để xóa bình luận.');
+        });
+};
 
     // Load thông tin phim + suất chiếu + bình luận
     fetch(`${baseUrl}/api/dat-ve/${idPhim}`)

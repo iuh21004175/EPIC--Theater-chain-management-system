@@ -43,5 +43,52 @@ class Ctrl_DanhGia {
             exit;
         }
     }
+
+    public function suaDanhGia($vars) {
+        header('Content-Type: application/json'); 
+        $service = new Sc_DanhGia();
+        try {
+            $id = $vars['id'] ?? null; // lấy từ route
+            $danhGia = $service->sua($id);
+
+            echo json_encode([
+                'success' => true, 
+                'message' => 'Cập nhật đánh giá thành công',
+                'data' => $danhGia
+            ]);
+            exit;
+            
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
+    public function xoaDanhGia($vars) {
+        header('Content-Type: application/json'); 
+        $service = new Sc_DanhGia();
+        try {
+            $id = $vars['id'] ?? null;
+            if (!$id) throw new \Exception("Thiếu ID đánh giá cần xóa");
+
+            $service->xoa($id); 
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Xóa đánh giá thành công',
+                'data' => ['id' => $id] 
+            ]);
+            exit; 
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ]);
+        }
+    }
+
 }
 ?>

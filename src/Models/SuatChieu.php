@@ -24,5 +24,9 @@
         public function logSuatChieu() {
             return $this->hasMany(LogSuatChieu::class, 'id_suatchieu');
         }
+        public function ve()
+        {
+            return $this->hasMany(Ve::class, 'suat_chieu_id', 'id');
+        }
     }
 ?>
