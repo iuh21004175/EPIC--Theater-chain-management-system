@@ -67,29 +67,22 @@
             }
         }
 
-        public function docGiaVe($loaiGheId, $ngay = null, $dinhDangPhim = null)
+        public function docGiaVe($params)
         {
+            header('Content-Type: application/json');
+            $loaiGheId = $params['loaiGheId'] ?? null;
+            $ngay = $params['ngay'] ?? null;
+            $dinhDangPhim = $params['dinhDangPhim'] ?? null;
+
             $service = new Sc_GiaVe();
-
             try {
-                if (!$loaiGheId) {
-                    throw new \Exception("Thiếu tham số loai_ghe_id");
-                }
-
+                if (!$loaiGheId) throw new \Exception("Thiếu tham số loaiGheId");
                 $data = $service->tinhGiaGhe($loaiGheId, $ngay, $dinhDangPhim);
-
-                return [
-                    'success' => true,
-                    'data' => $data,
-                ];
+                echo json_encode(['success'=>true,'data'=>$data]);
             } catch (\Exception $e) {
-                return [
-                    'success' => false,
-                    'message' => 'Lỗi khi đọc quy tắc giá vé: ' . $e->getMessage(),
-                ];
+                echo json_encode(['success'=>false,'message'=>'Lỗi khi đọc quy tắc giá vé: '.$e->getMessage()]);
             }
+            exit;
         }
-
-
     }
 ?>

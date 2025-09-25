@@ -14,6 +14,7 @@ class DonHang extends Model
         'user_id',
         'suat_chieu_id',
         'thequatang_id',
+        'phim_id', // Dành cho khách mua gói xem phim trực tuyến
         'the_qua_tang_su_dung',
         'ma_ve',
         'qr_code',
@@ -21,6 +22,7 @@ class DonHang extends Model
         'phuong_thuc_thanh_toan',
         'trang_thai', //2: Đã thanh toán, 1: Chờ thanh toán 0: Đã hủy
         'ngay_dat',
+        'phuong_thuc_mua' // 0: Khách hàng đặt online, 1: Mua vé gói xem phim trực tuyến, 2: Nhân viên bán vé
     ];
 
     public function user()
@@ -46,5 +48,10 @@ class DonHang extends Model
     public function theQuaTang()
     {
         return $this->belongsTo(TheQuaTang::class, 'thequatang_id', 'id');
+    }
+
+    public function phim()
+    {
+        return $this->belongsTo(Phim::class, 'phim_id', 'id');
     }
 }

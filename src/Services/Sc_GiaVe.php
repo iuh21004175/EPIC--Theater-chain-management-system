@@ -33,47 +33,37 @@
                 return $quyTac->save();
             }
             return false;
-        }   
-        
-        public function tinhGiaGhe($loaiGheId, $ngay = null, $dinhDangPhim = null)
+        }  
+
+        public function tinhGiaGhe($loaiGheId, $ngay, $dinhDangPhim)
         {
-            $date = $ngay ? Carbon::parse($ngay) : Carbon::today();
-            $dayType = ($date->dayOfWeek == 0 || $date->dayOfWeek == 6) ? 'Cuoi tuan' : 'Ngay thuong';
+            // 1. Xác định ngày dựa trên URL
+            $date = Carbon::parse($ngay);
+            $dayType = ($date->dayOfWeek === 0 || $date->dayOfWeek === 6) ? 'Cuối tuần' : 'Ngày thường';
 
-            // Lấy giá cơ bản theo ngày
-            $quyTacNgay = QuyTac_GiaVe::where('trang_thai', 1)->get()
-                ->first(function($qt) use ($dayType) {
-                    $dieuKien = json_decode($qt->dieu_kien, true);
-                    foreach ($dieuKien as $dk) {
-                        if (!empty($dk['type']) && $dk['type'] === 'day_type' && $dk['value'] === $dayType) {
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-            $giaCoBan = $quyTacNgay->gia_tri ?? 0;
+            // 2. Giá cơ bản theo dayType
+            $giaCoBan = QuyTac_GiaVe::where('trang_thai', 1)
+                ->whereRaw("JSON_CONTAINS(dieu_kien, ?, '$')", 
+                            [json_encode(['type'=>'day_type','value'=>$dayType])])
+                ->value('gia_tri') ?? 0;
 
-            // Phụ thu định dạng phim
-            $phuThuDinhDang = 0;
-            if ($dinhDangPhim) {
-                $quyTacDinhDang = QuyTac_GiaVe::where('trang_thai', 1)->get()
-                    ->first(function($qt) use ($dinhDangPhim) {
-                        $dieuKien = json_decode($qt->dieu_kien, true);
-                        foreach ($dieuKien as $dk) {
-                            if (!empty($dk['type']) && $dk['type'] === 'movie_format' && $dk['value'] === $dinhDangPhim) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                $phuThuDinhDang = $quyTacDinhDang->gia_tri ?? 0;
+            // 3. Giá cộng thêm định dạng phim
+            $giaPhim = 0;
+            // Kiểm tra trực tiếp giá trị của tham số, không cần kiểm tra sự tồn tại nữa
+            $giaPhim = QuyTac_GiaVe::where('trang_thai', 1)
+                ->whereRaw("JSON_CONTAINS(dieu_kien, ?, '$')", 
+                            [json_encode(['type'=>'movie_format','value'=>$dinhDangPhim])])
+                ->value('gia_tri') ?? 0;
+            
+            // 4. Phụ thu theo loại ghế
+            $loaiGhe = Ghe::find($loaiGheId);
+            if (!$loaiGhe) {
+                throw new \Exception("Loại ghế không tồn tại");
             }
-
-            // Phụ thu loại ghế
-            $loaiGhe = Ghe::where('id', $loaiGheId)->first(); 
             $phuThu = $loaiGhe->phu_thu ?? 0;
 
-            return $giaCoBan + $phuThu + $phuThuDinhDang;
+            // 5. Tổng giá
+            return $giaCoBan + $giaPhim + $phuThu;
         }
     }
 ?>

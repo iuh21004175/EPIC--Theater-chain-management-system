@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\GiaoDich;
 use App\Models\DonHang;
 use App\Models\Ve;
+use App\Models\MuaPhim;
 
 class Sc_GiaoDich
 {
@@ -53,6 +54,10 @@ class Sc_GiaoDich
                         Ve::where('donhang_id', $donhangId)
                           ->update(['trang_thai' => 2]);
                         echo "Updated Ve of DonHang ID {$donhangId} to 'da_dat'\n";
+
+                        MuaPhim::where('don_hang_id', $donhangId)
+                            ->update(['trang_thai' => 2]);
+                        echo "Updated MuaPhim of DonHang ID {$donhangId} to trang_thai=2\n";
                     } else {
                         echo "DonHang ID {$donhangId} not found\n";
                     }
