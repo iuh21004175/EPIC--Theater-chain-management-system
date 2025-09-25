@@ -16,6 +16,10 @@ class ViTriCongViec extends Model
     {
         return $this->belongsTo(RapPhim::class, 'id_rapphim');
     }
+    public function phanCongs()
+    {
+        return $this->hasMany(PhanCong::class, 'id_congviec', 'id');
+    }
 }
 
 ?>

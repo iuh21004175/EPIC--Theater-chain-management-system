@@ -1,6 +1,7 @@
 <?php
     namespace App\Services;
     use App\Models\ViTriCongViec;
+    use App\Models\PhanCong;
     class Sc_PhanCong {
         public function docViTri(){
             $viTri = ViTriCongViec::with('rapPhim')
@@ -38,6 +39,39 @@
             } else {
                 throw new \Exception("Vị trí công việc không tồn tại.");
             }
+        }
+        public function phanCong1NhanVien(){
+            $idNhanVien = $_POST['id_nhanvien'];
+            $idCongViec = $_POST['id_congviec'];
+            $ngay = $_POST['ngay'];
+            $ca = $_POST['ca'];
+
+            $phanCong = PhanCong::create([
+                'id_nhanvien' => $idNhanVien,
+                'id_congviec' => $idCongViec,
+                'ngay' => $ngay,
+                'ca' => $ca,
+            ]);
+            return $phanCong;
+        }
+        public function xoa1PhanCong($id){
+            $phanCong = PhanCong::find($id);
+            if ($phanCong) {
+                $phanCong->delete();
+            } else {
+                throw new \Exception("Phân công không tồn tại.");
+            }
+        }
+        public function docPhanCong($batdau, $ketthuc){
+            $phanCong = PhanCong::with(['nhanVien', 'congViec'])
+                ->whereHas('nhanVien', function($query) {
+                    $query->where('id_rapphim', $_SESSION['UserInternal']['ID_RapPhim']);
+                })
+                ->whereBetween('ngay', [$batdau, $ketthuc])
+                ->orderBy('ngay', 'asc')
+                ->orderBy('ca', 'asc')
+                ->get();
+            return $phanCong;
         }
     }
 ?>

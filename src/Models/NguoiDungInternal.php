@@ -23,5 +23,8 @@
         public function rapPhim() {
             return $this->belongsTo(RapPhim::class, 'id_rapphim', 'id');
         }
+        public function phanCongs() {
+            return $this->hasMany(PhanCong::class, 'id_nhanvien', 'id');
+        }
     }
 ?>

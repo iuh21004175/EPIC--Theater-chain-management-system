@@ -64,7 +64,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/duyet-suat-chieu/{id:\d+}/duyet', [Ctrl_DuyetSuatChieu::class, 'duyetSuatChieu', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/duyet-suat-chieu/{id:\d+}/tu-choi', [Ctrl_DuyetSuatChieu::class, 'tuChoiSuatChieu', ['Quản lý chuỗi rạp']]);
     $r->addRoute(['POST', 'PUT'], '/gan-ngay', [Ctrl_GanNgay::class, 'ganNgay', ['Quản lý chuỗi rạp']]);
-    $r->addRoute('GET', '/gan-ngay/{thang:\d+}-{nam:\d+}', [Ctrl_GanNgay::class, 'doc', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/gan-ngay/{thang:\d+}-{nam:\d+}', [Ctrl_GanNgay::class, 'doc', ['Quản lý chuỗi rạp', 'Quản lý rạp']]);
     $r->addRoute('POST', '/quy-tac-gia-ve', [Ctrl_GiaVe::class, 'themQuyTac', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/quy-tac-gia-ve', [Ctrl_GiaVe::class, 'docQuyTac', ['Quản lý chuỗi rạp']]);
     $r->addRoute('PUT', '/quy-tac-gia-ve/{id:\d+}', [Ctrl_GiaVe::class, 'suaQuyTac', ['Quản lý chuỗi rạp']]);
@@ -81,6 +81,9 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'docViTri', ['Quản lý rạp']]);
     $r->addRoute('POST', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'themViTri', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/vi-tri-cong-viec/{id:\d+}', [Ctrl_PhanCong::class, 'suaViTri', ['Quản lý rạp']]);
+    $r->addRoute('POST', '/phan-cong', [Ctrl_PhanCong::class, 'phanCong1NhanVien', ['Quản lý rạp']]);
+    $r->addRoute('DELETE', '/phan-cong/{id:\d+}', [Ctrl_PhanCong::class, 'xoa1PhanCong', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'docPhanCong', ['Quản lý rạp']]);
     $r->addRoute('POST', '/banner', [Ctrl_Banner::class, 'them', ['Admin']]);
     $r->addRoute('GET', '/banner', [Ctrl_Banner::class, 'docTatCa', ['Admin']]);
     $r->addRoute('GET', '/banner/side-show', [Ctrl_Banner::class, 'docSideShow']);

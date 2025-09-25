@@ -45,5 +45,43 @@
                 ];
             }
         }
+        public function phanCong1NhanVien(){
+            $sc_PhanCong = new Sc_PhanCong();
+            try {
+                $phanCong = $sc_PhanCong->phanCong1NhanVien();
+                return ['success' => true, 'data' => $phanCong];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+        public function xoa1PhanCong($argc){
+            $sc_PhanCong = new Sc_PhanCong();
+            try {
+                $sc_PhanCong->xoa1PhanCong($argc['id']);
+                return ['success' => true];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+        public function docPhanCong(){
+            $batDau = $_GET['bat_dau'];
+            $ketThuc = $_GET['ket_thuc'];
+            try {
+                $sc_PhanCong = new Sc_PhanCong();
+                $phanCong = $sc_PhanCong->docPhanCong($batDau, $ketThuc);
+                return ['success' => true, 'data' => $phanCong];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

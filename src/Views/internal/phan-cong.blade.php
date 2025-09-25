@@ -3,9 +3,20 @@
 @section('title', 'Quản lý phân công nhân viên')
 
 @section('head')
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/isoWeek.js"></script>
+    <script>
+        dayjs.extend(window.dayjs_plugin_isoWeek);
+    </script>
     <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/phan-cong.js"></script>
     <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/vi-tri-lam-viec.js"></script>
-  
+    <style>
+    .phancong-tooltip {
+        min-width: 220px;
+        pointer-events: none;
+        transition: opacity 0.1s;
+    }
+    </style>
 @endsection
 
 @section('breadcrumbs')
@@ -36,68 +47,41 @@
 
 @section('content')
     <div id="tab-phancong" class="tab-content">
-        <div class="bg-white shadow rounded-lg p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold">Lịch phân công tuần này</h3>
-                <div class="flex gap-2">
-                    <!-- <button id="btn-quick-phancong" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                        Phân công nhanh
-                    </button> -->
-                    <button id="btn-open-phancong-modal" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                        Phân công
-                    </button>
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Cột 1: Nhân viên -->
+            <div class="lg:w-1/4 w-full bg-white rounded-lg shadow p-4 flex flex-col min-h-[400px]">
+                <h3 class="text-lg font-bold mb-2">Nhân viên</h3>
+                <div id="nv-list" class="flex-1 overflow-y-auto space-y-2 pr-2 min-h-[300px]" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                    <!-- JS render thẻ nhân viên -->
                 </div>
+                <!-- Thanh phân trang nhân viên -->
+                <div id="nv-pagination-bar" class="flex justify-center mt-2 gap-1"></div>
             </div>
-            <div class="flex items-center gap-4 mb-4">
-                <button id="prev-week" class="px-3 py-1 rounded border bg-white hover:bg-gray-100">&lt; Tuần trước</button>
-                <span id="week-range" class="font-semibold text-blue-700"></span>
-                <button id="next-week" class="px-3 py-1 rounded border bg-white hover:bg-gray-100">Tuần sau &gt;</button>
-            </div>
-                
-            <div id="phancong-schedule-list" class="overflow-x-auto">
-                <table class="min-w-full border text-center bg-white rounded-lg shadow">
-                    <thead>
-                        <tr>
-                            <th class="border px-4 py-4 bg-gray-100 text-base font-bold sticky left-0 z-10">Ca / Ngày</th>
-                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-mon"></th>
-                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-tue"></th>
-                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-wed"></th>
-                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-thu"></th>
-                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-fri"></th>
-                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-sat"></th>
-                            <th class="border px-4 py-4 text-base font-semibold" id="main-header-sun"></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="border px-4 py-8 font-semibold bg-gray-50 text-base sticky left-0 z-10">Ca sáng</td>
-                            @for($i=0;$i<7;$i++)
-                            <td class="border px-4 py-12 align-top min-h-[96px] min-w-[140px] bg-white hover:bg-gray-50 transition-colors duration-150"
-                                id="main-cell-morning-{{$i}}">
-                                <!-- JS sẽ render nội dung phân công ca sáng tại đây -->
-                            </td>
-                            @endfor
-                        </tr>
-                        <tr>
-                            <td class="border px-4 py-8 font-semibold bg-gray-50 text-base sticky left-0 z-10">Ca chiều</td>
-                            @for($i=0;$i<7;$i++)
-                            <td class="border px-4 py-12 align-top min-h-[96px] min-w-[140px] bg-white hover:bg-gray-50 transition-colors duration-150"
-                                id="main-cell-afternoon-{{$i}}">
-                                <!-- JS sẽ render nội dung phân công ca chiều tại đây -->
-                            </td>
-                            @endfor
-                        </tr>
-                        <tr>
-                            <td class="border px-4 py-8 font-semibold bg-gray-50 text-base sticky left-0 z-10">Ca tối</td>
-                            @for($i=0;$i<7;$i++)
-                            <td class="border px-4 py-12 align-top min-h-[96px] min-w-[140px] bg-white hover:bg-gray-50 transition-colors duration-150"
-                                id="main-cell-evening-{{$i}}">
-                                <!-- JS sẽ render nội dung phân công ca tối tại đây -->
-                            </td>
-                            @endfor
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Cột 2: Lịch phân công -->
+            <div class="lg:w-3/4 w-full bg-white rounded-lg shadow p-4 flex flex-col">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <div class="flex items-center gap-3">
+                        <button id="btn-prev-week" class="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-700">&lt;</button>
+                        <h3 id="week-title" class="text-lg font-bold"></h3>
+                        <button id="btn-next-week" class="px-2 py-1 rounded bg-gray-200 hover:bg-gray-300 text-gray-700">&gt;</button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button id="btn-copy-week" class="bg-gray-200 px-3 py-1 rounded">Sao chép tuần trước</button>
+                        <button id="btn-template" class="bg-gray-200 px-3 py-1 rounded">Bố cục</button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table id="phancong-main-table" class="min-w-full border text-center bg-white rounded-lg shadow">
+                        <thead>
+                            <tr id="phancong-header-row">
+                                <!-- JS sẽ render các ngày thứ 2 -> CN -->
+                            </tr>
+                        </thead>
+                        <tbody id="phancong-main-tbody" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                            <!-- JS sẽ render các hàng ca sáng, chiều, tối -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -123,6 +107,45 @@
     </div>    
         
 @endsection
+
+<!-- Modal Bố cục -->
+<div id="modal-template" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl">
+        <div class="flex justify-between items-center border-b px-6 py-4">
+            <h2 class="text-lg font-bold">Thiết lập bố cục nhân sự</h2>
+            <button id="btn-close-template" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <div class="px-6 py-4">
+            <div class="mb-4">
+                <nav class="flex gap-2" id="nav-ca">
+                    <button class="ca-btn px-3 py-1 rounded bg-blue-600 text-white" data-ca="morning">Ca sáng</button>
+                    <button class="ca-btn px-3 py-1 rounded bg-gray-200 text-gray-700" data-ca="afternoon">Ca chiều</button>
+                    <button class="ca-btn px-3 py-1 rounded bg-gray-200 text-gray-700" data-ca="evening">Ca tối</button>
+                </nav>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border text-center" >
+                    <thead>
+                        <tr>
+                            <th class="border px-4 py-2 bg-gray-100">Vị trí / Ngày</th>
+                            <th class="border px-4 py-2 bg-gray-100">Ngày thường</th>
+                            <th class="border px-4 py-2 bg-gray-100">Cuối tuần</th>
+                            <th class="border px-4 py-2 bg-gray-100">Ngày lễ</th>
+                            <th class="border px-4 py-2 bg-gray-100">Ngày tết</th>
+                        </tr>
+                    </thead>
+                    <tbody id="template-table-body" data-url="{{$_ENV['URL_WEB_BASE']}}">
+                        <!-- JS render các vị trí và input số lượng -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="flex justify-end gap-2 px-6 py-4 border-t">
+            <button id="btn-save-template" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Lưu</button>
+            <button id="btn-cancel-template" class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">Hủy</button>
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
