@@ -14,8 +14,8 @@
     <section id="thongTinPhim" class="container mx-auto max-w-screen-xl px-4 mt-6"></section>
 
     <!-- Nội dung phim -->
-    <section id="noiDungPhim" class="w-full px-4 mt-8"></section>
-
+    <section id="noiDungPhim" class="w-full px-4 mt-8 hidden"></section>
+    <section id="QR" class="w-full px-4 mt-8 hidden"></section>
     <!-- Video phim -->
     <section class="w-full px-4 mt-8">
         <div id="suatChieu" class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6">
@@ -107,7 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const commentList = document.getElementById('commentList');
     const modalLogin = document.getElementById('modalLogin');
     const body = document.body;
+    const noiDungPhim = document.getElementById('noiDungPhim');
+    const QR = document.getElementById('QR');
 
+    let allSuatChieu = [];
+    let lastComments = [];
+    const currentUserId = <?php echo $user ? (int)$user['id'] : 'null'; ?>;
 
     function openModal(modal) { // Hiển thị modal đăng nhập
         modal.classList.add('is-open');
@@ -196,66 +201,165 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('noiDungPhim').innerHTML = html;
     }
     
-    function renderVideoPhim(phim, daMua=false, goiFull=false) {
-        const suatChieuDiv = document.getElementById('suatChieu');
-        const videoUrl = `${urlMinio}/${phim.video_url}`;
-        const filename = phim.video_url.split('/').pop() || "video.mp4";
+    function renderVideoPhim(phim, goiFull = false) {
+    const suatChieuDiv = document.getElementById('suatChieu');
+    const videoUrl = `${urlMinio}/${phim.video_url}`;
+    const filename = phim.video_url.split('/').pop() || "video.mp4";
+    
+    function startCountdown(duration, donhangId) {
+        const countdownEl = document.getElementById("countdownTimer");
+        const soDoGheUrl = window.location.href;
+        let time = duration; // giây
 
-        const duocXem = daMua || goiFull;
+        const interval = setInterval(() => {
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+            countdownEl.textContent = `Thời gian còn lại: ${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+            time--;
 
-        suatChieuDiv.innerHTML = `
-            <div class="relative aspect-video w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg">
-                <video controls class="w-full h-full ${duocXem ? '' : 'filter blur-sm'}">
-                    <source src="${videoUrl}" type="video/mp4">
-                    Trình duyệt của bạn không hỗ trợ video.
-                </video>
-                ${!duocXem 
-                    ? `<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white gap-4">
-                        <p class="text-xl font-semibold">Bạn chưa mua gói để xem phim này!</p>
-                        <button id="buyMovieBtn" class="px-6 py-2 bg-red-500 rounded-lg hover:bg-red-600 font-semibold"><i class="fas fa-ticket-alt"></i> Mua gói</button>
-                    </div>` 
-                    : ''
-                }
-            </div>
-            ${duocXem ? `<div class="w-full flex justify-end mt-2">
-                <button id="downloadVideoBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
-                    <i class="fas fa-download"></i> Tải xuống
-                </button>
-            </div>` : ''}
-        `;
-
-        if (!duocXem) {
-            document.getElementById('buyMovieBtn').addEventListener('click', () => {
-                fetch(`${baseUrl}/api/mua-phim`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phim_id: phim.id })
-                }).then(res => res.json()).then(data => {
-                    if (data.success) {
-                        alert("Mua phim thành công!");
-                        renderVideoPhim(phim, true, false);
-                    } else alert("Mua phim thất bại: " + data.message);
-                });
-            });
-        }
-
-        if (duocXem) {
-            const btn = document.getElementById('downloadVideoBtn');
-            btn.addEventListener('click', () => {
-                fetch(videoUrl)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        const link = document.createElement("a");
-                        link.href = window.URL.createObjectURL(blob);
-                        link.download = filename; 
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-                    });
-            });
-        }
+            if (time < 0) {
+                clearInterval(interval);
+                alert("Hết thời gian thanh toán. Vui lòng đặt lại!");
+                window.location.href = soDoGheUrl; 
+            }
+        }, 1000);
     }
 
+    // Lấy trạng thái mua phim từ server
+    fetch(`${baseUrl}/api/lay-trang-thai-mua-phim?khachHangId=${currentUserId}&phimId=${phim.id}`)
+        .then(res => res.json())
+        .then(data => {
+            let daMua = false;
+            if (data.success && data.trang_thai === 2) {
+                daMua = true; // Nếu trạng thái trả về là 2 => đã mua
+            }
+            const duocXem = daMua || goiFull;
+
+            suatChieuDiv.innerHTML = `
+                <div class="relative aspect-video w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg">
+                    <video controls class="w-full h-full ${duocXem ? '' : 'filter blur-sm'}">
+                        <source src="${videoUrl}" type="video/mp4">
+                        Trình duyệt của bạn không hỗ trợ video.
+                    </video>
+                    ${!duocXem 
+                        ? `<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white gap-4">
+                            <p class="text-xl font-semibold">Bạn chưa mua gói để xem phim này!</p>
+                            <button id="buyMovieBtn" class="px-6 py-2 bg-red-500 rounded-lg hover:bg-red-600 font-semibold">
+                                <i class="fas fa-ticket-alt"></i> Mua gói
+                            </button>
+                        </div>` 
+                        : ''
+                    }
+                </div>
+                ${duocXem ? `<div class="w-full flex justify-end mt-2">
+                    <button id="downloadVideoBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
+                        <i class="fas fa-download"></i> Tải xuống
+                    </button>
+                </div>` : ''}
+            `;
+
+            // Nút mua phim
+           if (!duocXem) {
+                
+                const random9Digits = () => Math.floor(100000000 + Math.random() * 900000000);
+                const maVe = random9Digits();
+
+                document.getElementById('buyMovieBtn').addEventListener('click', async () => {
+                    try {
+                        // Tạo đơn hàng
+                        const resDH = await fetch(`${baseUrl}/api/tao-don-hang`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                phim_id: idPhim,
+                                tong_tien: 30000,
+                                ma_ve: maVe,
+                                phuong_thuc_mua: 1
+                            })
+                        });
+                        const jDH = await resDH.json();
+                        if (!jDH.success) throw new Error(jDH.message);
+                        const donhangId = jDH.data.id;
+
+                        // Tạo mua phim / cập nhật trạng thái
+                        const resMua = await fetch(`${baseUrl}/api/them-mua-phim`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                don_hang_id: donhangId,
+                                phim_id: idPhim,
+                                so_tien: 30000
+                            })
+                        });
+                        const jMua = await resMua.json();
+                        if (!jMua.success) throw new Error(jMua.message);
+                        
+                        suatChieu.classList.add("hidden");
+                        const soTien = 30000;
+                        const qrUrl = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${soTien}&des=DH${donhangId}`;
+
+                        QR.innerHTML = `
+                            <div class="w-full max-w-screen-xl mx-auto bg-white rounded-xl shadow-lg p-6 text-center">
+                                <h3 class="text-lg font-bold mb-4">Quét QR để thanh toán</h3>
+                                <img src="${qrUrl}" alt="QR Thanh toán" class="mx-auto w-80 h-80" />
+                                <p class="mt-4 text-gray-500 text-lg">Số tiền: ${soTien.toLocaleString()}đ</p>
+                                <p id="countdownTimer" class="mt-4 text-red-500 font-bold text-lg"></p>
+                            </div>
+                        `;
+                        QR.classList.remove("hidden");
+
+                        // Bắt đầu đếm ngược 5 phút (300 giây)
+                        startCountdown(300, donhangId);
+
+                        const interval = setInterval(async () => {
+                        try {
+                            const res = await fetch(`${baseUrl}/api/lay-trang-thai`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ donhang_id: donhangId })
+                            });
+                            const status = await res.json();
+                            if (status.payment_status === "Paid") {
+                                QR.classList.add("hidden");
+                                suatChieu.classList.remove("hidden");
+                                renderVideoPhim(phim, goiFull);
+                                clearInterval(interval);
+
+                            }
+                        } catch (e) {
+                            console.log("Lỗi check trạng thái:", e);
+                        }
+                    }, 1000);
+
+                    } catch (err) {
+                        alert("Mua phim thất bại: " + err.message);
+                    }
+                });
+            }
+
+
+            // Nút download
+            if (duocXem) {
+                const btn = document.getElementById('downloadVideoBtn');
+                btn.addEventListener('click', () => {
+                    fetch(videoUrl)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            const link = document.createElement("a");
+                            link.href = window.URL.createObjectURL(blob);
+                            link.download = filename;
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                        });
+                });
+            }
+
+        })
+        .catch(err => {
+            console.error("Lỗi khi lấy trạng thái mua phim:", err);
+        });
+}
 
     // function renderVideoPhim(phim) {
     //     const suatChieuDiv = document.getElementById('suatChieu');
@@ -300,72 +404,282 @@ document.addEventListener('DOMContentLoaded', () => {
     //             .catch(err => console.error("Lỗi tải video:", err));
     //     });
     // }
+    function escapeHtml(unsafe) {
+        if (unsafe === null || unsafe === undefined) return '';
+        return String(unsafe)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
+    function loadDanhSachCmt(danhGia, currentUserId) {
+        if (!Array.isArray(danhGia)) danhGia = []; // đảm bảo luôn là mảng
+        lastComments = danhGia;
 
-    function loadDanhSachCmt(danhGia) {
-        const commentList = document.getElementById('commentList');
         const averageRatingSpan = document.getElementById('averageRating');
-        if (!danhGia || danhGia.length === 0) { commentList.innerHTML = '<p class="text-gray-500">Chưa có bình luận nào.</p>'; if (averageRatingSpan) averageRatingSpan.textContent = '0.0 (0 votes)'; return; }
+        if (danhGia.length === 0) {
+            commentList.innerHTML = '<p class="text-gray-500">Chưa có bình luận nào.</p>';
+            if (averageRatingSpan) averageRatingSpan.textContent = '0.0 (0 votes)';
+            return;
+        }
+
         const totalStars = danhGia.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
         const avgStars = (totalStars / danhGia.length).toFixed(1);
         if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${danhGia.length} votes)`;
+
         const html = danhGia.map(cmt => {
-            const stars = '★'.repeat(cmt.so_sao) + '☆'.repeat(5 - cmt.so_sao);
-            const ngayGui = new Date(cmt.created_at || cmt.ngay_tao).toLocaleString('vi-VN', { day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit' });
-            return `<div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+            const starsStr = '★'.repeat(cmt.so_sao) + '☆'.repeat(5 - cmt.so_sao);
+            const ngayGui = new Date(cmt.created_at || cmt.ngay_tao).toLocaleString('vi-VN', {
+                day: '2-digit', month: '2-digit', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            let actionButtons = '';
+            if (currentUserId !== null && cmt.khachhang_id === currentUserId) {
+                actionButtons = `
+                    <div class="mt-2 flex gap-2 text-sm">
+                        <button class="text-blue-500 hover:underline" onclick="editComment(${cmt.id})">Sửa</button>
+                        <button class="text-red-500 hover:underline" onclick="deleteComment(${cmt.id})">Xóa</button>
+                    </div>
+                `;
+            }
+
+            return `<div class="p-4 bg-gray-50 rounded-lg shadow-sm" id="cmt-${cmt.id}">
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">${cmt.khach_hang.ho_ten.charAt(0).toUpperCase()}</div>
+                    <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
+                        ${cmt.khach_hang?.ho_ten?.charAt(0).toUpperCase() || '?'}
+                    </div>
                     <div>
-                        <p class="font-semibold text-gray-800">${cmt.khach_hang.ho_ten}</p>
-                        <div class="flex text-sm text-yellow-400">${stars}</div>
+                        <p class="font-semibold text-gray-800">${cmt.khach_hang?.ho_ten || 'Khách'}</p>
+                        <div class="flex text-sm text-yellow-400">${starsStr}</div>
                     </div>
                 </div>
-                <p class="text-gray-700">${cmt.cmt}</p>
+                <div class="comment-body text-gray-700" id="cmt-body-${cmt.id}">${escapeHtml(cmt.cmt)}</div>
                 <p class="text-gray-400 text-xs mt-1">${ngayGui}</p>
+                ${actionButtons}
             </div>`;
         }).join('');
         commentList.innerHTML = html;
     }
 
-    commentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+     commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const commentTextarea = commentForm.querySelector('textarea[name="comment"]');
+            const comment = commentTextarea.value.trim();
+            if (!comment) return alert('Nội dung bình luận không được rỗng.');
 
-        // Kiểm tra login trước khi gửi
-        try {
-            const loginCheck = await fetch(`${baseUrl}/api/check-login`);
-            const loginData = await loginCheck.json();
+            fetch(`${baseUrl}/api/check-login`)
+            .then(res => res.json())
+            .then(loginData => {
+                if (loginData.status !== "success") throw "not logged in";
 
-            if (loginData.status !== "success") {
+                const userName = loginData.user?.ho_ten || 'Khách';
+                const userInitial = userName.charAt(0).toUpperCase();
+
+                return fetch(`${baseUrl}/api/them-danh-gia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        phim_id: idPhim, 
+                        so_sao: parseInt(ratingValue.textContent), 
+                        cmt: comment 
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+            if (!data.success) return alert('Gửi thất bại: ' + (data.message || 'Server trả về lỗi'));
+
+            const newComment = data.data;
+            lastComments.push(newComment);
+
+            const commentList = document.getElementById('commentList');
+            if (commentList) {
+                const starsStr = Array.from({length: 5}, (_, i) => 
+                    `<span class="${i < (newComment.so_sao || 0) ? 'text-yellow-400' : 'text-gray-300'}">★</span>`
+                ).join('');
+
+                const now = new Date();
+                    const ngayGui = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} ${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
+
+                const actionButtons = `
+                    <div class="flex gap-2 mt-1">
+                        <div class="mt-2 flex gap-2 text-sm">
+                            <button onclick="editComment(${newComment.id})" class="text-blue-500 hover:underline">Sửa</button>
+                            <button onclick="deleteComment(${newComment.id})" class="text-red-500 hover:underline">Xóa</button>
+                        </div>
+                    </div>
+                `;
+
+                const div = document.createElement('div');
+                div.id = `cmt-${newComment.id}`;
+                div.innerHTML = `
+                    <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
+                                ${userInitial}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${userName}</p>
+                                <div class="flex text-sm text-yellow-400">${starsStr}</div>
+                            </div>
+                        </div>
+                        <div class="comment-body text-gray-700" id="cmt-body-${newComment.id}">
+                            ${escapeHtml(newComment.cmt)}
+                        </div>
+                        <p class="text-gray-400 text-xs mt-1">${ngayGui}</p>
+                        ${actionButtons}
+                    </div>
+                `;
+                commentList.prepend(div);
+            }
+
+            // Reset form
+            commentTextarea.value = '';
+            currentRating = 5;
+            updateStars(currentRating);
+
+            // Cập nhật rating tổng thể
+            const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
+            const avgStars = (lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0);
+            const averageRatingSpan = document.getElementById('averageRating');
+            if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
+
+            alert('Gửi bình luận thành công!');
+        });
+    })
+        .catch(err => {
+            if (err !== "not logged in") {
+                console.error('Lỗi server khi gửi bình luận:', err);
+                alert('Lỗi server khi gửi bình luận.');
+            } else {
                 openModal(modalLogin);
                 alert("Vui lòng đăng nhập để gửi bình luận!");
-                return;
             }
-        } catch(err) {
-            console.error(err);
-            alert("Không thể xác thực đăng nhập");
-            return;
-        }
-
-        // Lấy dữ liệu bình luận
-        const comment = commentForm.querySelector('textarea[name="comment"]').value;
-        try {
-            const res = await fetch(`${baseUrl}/api/them-danh-gia`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phim_id: idPhim, so_sao: parseInt(ratingValue.textContent), cmt: comment })
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert('Gửi đánh giá thành công!');
-                commentForm.querySelector('textarea[name="comment"]').value = '';
-                currentRating = 5; updateStars(currentRating);
-
-                const resDanhGia = await fetch(`${baseUrl}/api/doc-danh-gia/${idPhim}`);
-                const dataDanhGia = await resDanhGia.json();
-                if (dataDanhGia.success) loadDanhSachCmt(dataDanhGia.data);
-            } else alert('Lỗi: ' + data.message);
-        } catch (err) { console.error(err); alert('Lỗi server'); }
+        });
     });
+
+    // Sửa bình luận
+    window.editComment = function(id) {
+        const commentObj = lastComments.find(c => c.id === id);
+        if (!commentObj) return alert("Không tìm thấy bình luận.");
+
+        const bodyDiv = document.getElementById(`cmt-body-${id}`);
+        if (!bodyDiv) return;
+        if (bodyDiv.querySelector('textarea')) return;
+
+        let originalText = commentObj.cmt || '';
+        let originalSao = commentObj.so_sao || 5;
+
+        bodyDiv.innerHTML = `
+            <textarea id="edit-area-${id}" rows="3" class="w-full p-2 border rounded">${escapeHtml(originalText)}</textarea>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="text-sm font-medium">Đánh giá:</span>
+                <div class="flex gap-1" id="edit-star-${id}">
+                    ${[1,2,3,4,5].map(i => `<button type="button" data-value="${i}" class="text-2xl ${i <= originalSao ? 'text-yellow-400':'text-gray-300'}">★</button>`).join('')}
+                </div>
+            </div>
+            <div class="mt-2 flex gap-2">
+                <button class="px-3 py-1 bg-gray-300 rounded" id="save-edit-${id}">Lưu</button>
+                <button class="px-3 py-1 bg-gray-300 rounded" id="cancel-edit-${id}">Hủy</button>
+            </div>
+        `;
+
+        const editStars = bodyDiv.querySelectorAll(`#edit-star-${id} button`);
+        editStars.forEach(star => {
+            star.addEventListener('click', () => {
+                originalSao = parseInt(star.dataset.value);
+                editStars.forEach(s => {
+                    s.classList.toggle('text-yellow-400', parseInt(s.dataset.value) <= originalSao);
+                    s.classList.toggle('text-gray-300', parseInt(s.dataset.value) > originalSao);
+                });
+            });
+        });
+
+        document.getElementById(`cancel-edit-${id}`).addEventListener('click', () => {
+            bodyDiv.innerHTML = escapeHtml(originalText);
+        });
+
+        document.getElementById(`save-edit-${id}`).addEventListener('click', () => {
+            const newText = document.getElementById(`edit-area-${id}`).value.trim();
+            if (!newText) return alert('Nội dung bình luận không được rỗng.');
+
+            fetch(`${baseUrl}/api/sua-danh-gia/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cmt: newText, so_sao: originalSao })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Cập nhật trực tiếp DOM
+                    const bodyDiv = document.getElementById(`cmt-body-${id}`);
+                    if(bodyDiv){
+                        bodyDiv.innerHTML = escapeHtml(newText);
+                    }
+                    const commentObj = lastComments.find(c => c.id === id);
+                    if(commentObj){
+                        commentObj.cmt = newText;
+                        commentObj.so_sao = originalSao;
+                    }
+
+                    // Cập nhật rating tổng thể
+                    const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
+                    const avgStars = (totalStars / lastComments.length).toFixed(1);
+                    const averageRatingSpan = document.getElementById('averageRating');
+                    if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
+                } else {
+                    alert('Lỗi sửa bình luận: ' + (data.message || 'Server trả về lỗi'));
+                }
+            })
+            .catch(err => {
+                console.error('Lỗi sửa bình luận:', err);
+                alert('Lỗi khi gọi server để sửa bình luận.');
+            });
+        });
+    };
+
+    // Xóa bình luận
+    window.deleteComment = function(id) {
+        if (!confirm('Bạn có chắc muốn xóa bình luận này?')) return;
+
+        fetch(`${baseUrl}/api/xoa-danh-gia/${id}`, { method: 'DELETE' })
+            .then(res => res.text()) // Lấy raw text để kiểm tra JSON
+            .then(text => {
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('Server trả về không phải JSON:', text);
+                    alert('Lỗi server: dữ liệu trả về không hợp lệ.');
+                    return;
+                }
+
+                if (data.success) {
+                    // Xóa DOM của bình luận
+                    const commentDiv = document.getElementById(`cmt-${id}`);
+                    if (commentDiv) commentDiv.remove();
+
+                    // Xóa khỏi mảng local
+                    lastComments = lastComments.filter(c => c.id !== id);
+
+                    // Cập nhật rating tổng thể
+                    const totalStars = lastComments.reduce((sum, c) => sum + (c.so_sao || 0), 0);
+                    const avgStars = lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0;
+                    const averageRatingSpan = document.getElementById('averageRating');
+                    if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
+
+                } else {
+                    alert('Xóa thất bại: ' + (data.message || 'Server trả về lỗi'));
+                }
+            })
+            .catch(err => {
+                console.error('Lỗi xóa bình luận:', err);
+                alert('Lỗi khi gọi server để xóa bình luận.');
+            });
+    };
+
 
     // Load thông tin phim + video + bình luận
     fetch(`${baseUrl}/api/dat-ve/${idPhim}`)
@@ -375,9 +689,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 loadThongTinPhim(data.data);
                 loadNoiDungPhim(data.data);
                 renderVideoPhim(data.data);
+                // Load danh sách đánh giá
                 fetch(baseUrl + "/api/doc-danh-gia/" + idPhim)
                     .then(res => res.json())
-                    .then(data => { if (data.success) loadDanhSachCmt(data.data); });
+                    .then(data => { if (data.success) loadDanhSachCmt(data.data,  currentUserId); });
             }
         }).catch(err => console.error(err));
 });

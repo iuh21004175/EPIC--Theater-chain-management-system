@@ -209,21 +209,45 @@ function renderTheater(list){
 }
 
 // Render vé online
+    function slugify(str) {
+        return str
+            .toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "");
+    }
+
+    function base64Encode(str) {
+        return btoa(unescape(encodeURIComponent(str)));
+    }
 
 function renderOnline(list){
   listOnline.innerHTML='';
-  if(!list || list.length===0){emptyOnline.classList.remove('hidden'); countOnline.textContent=0; return;}
+  if(!list || list.length===0){
+    emptyOnline.classList.remove('hidden'); 
+    countOnline.textContent=0; 
+    return;
+  }
   emptyOnline.classList.add('hidden');
 
   list.forEach(ticket=>{
-    const card = document.createElement('div');
-    card.className='border rounded-lg p-4 bg-white flex justify-between items-center';
+    const totalPrice = Number(ticket.tong_tien||0);
+    
+    // link tới chi tiết phim online
+    const encoded = base64Encode(ticket.phim?.id + salt);
+    const url = `${baseUrl}/dat-ve-online/${slugify(ticket.phim?.ten_phim)}-${encoded}`;
+
+    const card = document.createElement('a');
+    card.href = url;
+    card.className='border rounded-lg p-4 bg-white flex justify-between items-center hover:bg-gray-50 transition';
     card.innerHTML=`
       <div>
-        <div class="font-semibold">${ticket.ten || 'Không xác định'}</div>
-        <div class="text-sm text-gray-500">Trạng thái: ${ticket.status||'-'}</div>
+        <div class="text-lg font-semibold">${ticket.phim?.ten_phim || 'Chưa xác định phim'}</div>
+        <div class="text-sm font-medium ${ticket.trang_thai===0?'text-red-600':ticket.trang_thai===1?'text-green-600':ticket.trang_thai===2?'text-blue-600':'text-gray-500'}">
+            ${ticket.trang_thai===0?'Đã hoàn vé':ticket.trang_thai===1?'Sắp chiếu':ticket.trang_thai===2?'Đã thanh toán':'Không xác định'}
+          </div>
       </div>
-      <div class="text-sm font-semibold">${Number(ticket.gia_tri||0).toLocaleString()} ₫</div>
+      <div class="text-sm font-semibold">${totalPrice.toLocaleString('vi-VN')} ₫</div>
     `;
     listOnline.appendChild(card);
   });

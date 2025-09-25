@@ -21,6 +21,7 @@ use App\Controllers\Ctrl_ChiTietDonHang;
 use App\Controllers\Ctrl_TheQuaTang;
 use App\Controllers\Ctrl_DanhGia;
 use App\Controllers\Ctrl_Banner;
+use App\Controllers\Ctrl_MuaPhim;
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
     $r->addRoute('POST', '/nhan-vien-quen-mat-khau', [Ctrl_XacThucInternal::class, 'xacThucEmailLayLaiMatKhau']);
@@ -120,6 +121,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/lay-san-pham-khach/{id}', [Ctrl_SanPhamAnUong::class, 'docSanPhamTheoRap']);
     $r->addRoute('POST', '/tao-chi-tiet-don-hang', [Ctrl_ChiTietDonHang::class, 'themChiTietDonHang']);
     $r->addRoute('GET', '/doc-don-hang', [Ctrl_DonHang::class, 'docDonHang']);
+    $r->addRoute('GET', '/doc-don-hang-online', [Ctrl_DonHang::class, 'docDonHangOnline']);
     $r->addRoute('GET', '/doc-chi-tiet-don-hang/{id}', [Ctrl_ChiTietDonHang::class, 'docChiTietDonHang']);
     $r->addRoute('GET', '/doc-the-qua-tang', [Ctrl_TheQuaTang::class, 'docTheQuaTang']);
     $r->addRoute('PUT', '/sua-gia-tri-the', [Ctrl_TheQuaTang::class, 'suaGiaTriThe']);
@@ -132,6 +134,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/doc-danh-gia/{id}', [Ctrl_DanhGia::class, 'docDanhGia']);
     $r->addRoute('GET', '/phim-dien-anh', [Ctrl_Phim::class, 'docPhim']);
     $r->addRoute('GET', '/doc-phim-ban-chay', [Ctrl_Ve::class, 'doctop4PhimTheoVe']);
+    $r->addRoute('GET', '/lay-trang-thai-mua-phim', [Ctrl_MuaPhim::class, 'docTrangThaiMuaPhim']);
+    $r->addRoute('POST', '/them-mua-phim', [Ctrl_MuaPhim::class, 'themMuaPhim']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

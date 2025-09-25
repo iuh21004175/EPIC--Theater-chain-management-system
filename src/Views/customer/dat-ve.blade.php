@@ -463,93 +463,93 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!comment) return alert('Nội dung bình luận không được rỗng.');
 
             fetch(`${baseUrl}/api/check-login`)
-  .then(res => res.json())
-  .then(loginData => {
-      if (loginData.status !== "success") throw "not logged in";
+            .then(res => res.json())
+            .then(loginData => {
+                if (loginData.status !== "success") throw "not logged in";
 
-      const userName = loginData.user?.ho_ten || 'Khách';
-      const userInitial = userName.charAt(0).toUpperCase();
+                const userName = loginData.user?.ho_ten || 'Khách';
+                const userInitial = userName.charAt(0).toUpperCase();
 
-      return fetch(`${baseUrl}/api/them-danh-gia`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-              phim_id: idPhim, 
-              so_sao: parseInt(ratingValue.textContent), 
-              cmt: comment 
-          })
-      })
-      .then(res => res.json())
-      .then(data => {
-          if (!data.success) return alert('Gửi thất bại: ' + (data.message || 'Server trả về lỗi'));
+                return fetch(`${baseUrl}/api/them-danh-gia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        phim_id: idPhim, 
+                        so_sao: parseInt(ratingValue.textContent), 
+                        cmt: comment 
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+            if (!data.success) return alert('Gửi thất bại: ' + (data.message || 'Server trả về lỗi'));
 
-          const newComment = data.data;
-          lastComments.push(newComment);
+            const newComment = data.data;
+            lastComments.push(newComment);
 
-          const commentList = document.getElementById('commentList');
-          if (commentList) {
-              const starsStr = Array.from({length: 5}, (_, i) => 
-                  `<span class="${i < (newComment.so_sao || 0) ? 'text-yellow-400' : 'text-gray-300'}">★</span>`
-              ).join('');
+            const commentList = document.getElementById('commentList');
+            if (commentList) {
+                const starsStr = Array.from({length: 5}, (_, i) => 
+                    `<span class="${i < (newComment.so_sao || 0) ? 'text-yellow-400' : 'text-gray-300'}">★</span>`
+                ).join('');
 
-              const now = new Date();
-                const ngayGui = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} ${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
+                const now = new Date();
+                    const ngayGui = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')} ${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()}`;
 
-              const actionButtons = `
-                  <div class="flex gap-2 mt-1">
-                      <div class="mt-2 flex gap-2 text-sm">
-                          <button onclick="editComment(${newComment.id})" class="text-blue-500 hover:underline">Sửa</button>
-                          <button onclick="deleteComment(${newComment.id})" class="text-red-500 hover:underline">Xóa</button>
-                      </div>
-                  </div>
-              `;
+                const actionButtons = `
+                    <div class="flex gap-2 mt-1">
+                        <div class="mt-2 flex gap-2 text-sm">
+                            <button onclick="editComment(${newComment.id})" class="text-blue-500 hover:underline">Sửa</button>
+                            <button onclick="deleteComment(${newComment.id})" class="text-red-500 hover:underline">Xóa</button>
+                        </div>
+                    </div>
+                `;
 
-              const div = document.createElement('div');
-              div.id = `cmt-${newComment.id}`;
-              div.innerHTML = `
-                  <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
-                      <div class="flex items-center gap-3 mb-2">
-                          <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
-                              ${userInitial}
-                          </div>
-                          <div>
-                              <p class="font-semibold text-gray-800">${userName}</p>
-                              <div class="flex text-sm text-yellow-400">${starsStr}</div>
-                          </div>
-                      </div>
-                      <div class="comment-body text-gray-700" id="cmt-body-${newComment.id}">
-                          ${escapeHtml(newComment.cmt)}
-                      </div>
-                      <p class="text-gray-400 text-xs mt-1">${ngayGui}</p>
-                      ${actionButtons}
-                  </div>
-              `;
-              commentList.prepend(div);
-          }
+                const div = document.createElement('div');
+                div.id = `cmt-${newComment.id}`;
+                div.innerHTML = `
+                    <div class="p-4 bg-gray-50 rounded-lg shadow-sm">
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
+                                ${userInitial}
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-800">${userName}</p>
+                                <div class="flex text-sm text-yellow-400">${starsStr}</div>
+                            </div>
+                        </div>
+                        <div class="comment-body text-gray-700" id="cmt-body-${newComment.id}">
+                            ${escapeHtml(newComment.cmt)}
+                        </div>
+                        <p class="text-gray-400 text-xs mt-1">${ngayGui}</p>
+                        ${actionButtons}
+                    </div>
+                `;
+                commentList.prepend(div);
+            }
 
-          // Reset form
-          commentTextarea.value = '';
-          currentRating = 5;
-          updateStars(currentRating);
+            // Reset form
+            commentTextarea.value = '';
+            currentRating = 5;
+            updateStars(currentRating);
 
-          // Cập nhật rating tổng thể
-          const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
-          const avgStars = (lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0);
-          const averageRatingSpan = document.getElementById('averageRating');
-          if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
+            // Cập nhật rating tổng thể
+            const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
+            const avgStars = (lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0);
+            const averageRatingSpan = document.getElementById('averageRating');
+            if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
 
-          alert('Gửi bình luận thành công!');
-      });
-  })
-  .catch(err => {
-      if (err !== "not logged in") {
-          console.error('Lỗi server khi gửi bình luận:', err);
-          alert('Lỗi server khi gửi bình luận.');
-      } else {
-          openModal(modalLogin);
-          alert("Vui lòng đăng nhập để gửi bình luận!");
-      }
-  });
+            alert('Gửi bình luận thành công!');
+        });
+    })
+        .catch(err => {
+            if (err !== "not logged in") {
+                console.error('Lỗi server khi gửi bình luận:', err);
+                alert('Lỗi server khi gửi bình luận.');
+            } else {
+                openModal(modalLogin);
+                alert("Vui lòng đăng nhập để gửi bình luận!");
+            }
+        });
     });
 
     // Sửa bình luận

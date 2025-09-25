@@ -77,6 +77,32 @@ class Ctrl_DonHang {
         }
     }
 
+    public function docDonHangOnline() {
+        $service = new Sc_DonHang();
+        try {
+            $donhang = $service->docOnline();
+            if ($donhang) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Lấy đơn hàng thành công',
+                    'data' => $donhang
+                ]);
+                exit;
+            }
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Không tìm thấy đơn hàng'
+            ]);
+            exit;
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
 
     public function guiDonHang() {
         header('Content-Type: application/json; charset=utf-8');
