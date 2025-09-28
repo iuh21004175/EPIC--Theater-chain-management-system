@@ -5,7 +5,6 @@ use App\Services\Sc_DonHang;
 require __DIR__ . '/../../api/PHPMailer/src/Exception.php';
 require __DIR__ . '/../../api/PHPMailer/src/PHPMailer.php';
 require __DIR__ . '/../../api/PHPMailer/src/SMTP.php';
-require __DIR__ . '/../../api/tfpdf/tfpdf.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

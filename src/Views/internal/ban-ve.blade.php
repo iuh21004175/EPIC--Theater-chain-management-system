@@ -410,11 +410,14 @@ async function toggleSeat(seat, seatId) {
                 const res = await fetch(`${baseUrl}/api/tinh-gia-ve/${seat.dataset.loaighe_id}/${seat.dataset.ngay}/${encodeURIComponent(seat.dataset.dinhdang)}`);
                 const j = await res.json();
                 if (j.success && j.data) gia = parseInt(j.data);
+                seat.dataset.price = gia;
+                console.log(j)
             } catch (e) { console.error(e); }
             seat.dataset.price = gia;
         }
 
         selectedSeats.push({ id: seatId, so_ghe: seatNum, gia });
+        console.log(selectedSeats);
     }
 
     selectedSeatsEl.textContent = selectedSeats.length ? selectedSeats.map(s => s.so_ghe).join(", ") : "Chưa chọn";
@@ -524,26 +527,26 @@ async function toggleSeat(seat, seatId) {
     }
 
     function updateSummary() {
-    orderSummary.innerHTML = '';
-    let total = 0;
+        orderSummary.innerHTML = '';
+        let total = 0;
 
-    if (selectedSeats.length) {
-        const seatTotal = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
-        const li = document.createElement('li');
-        li.innerText = `Ghế: ${selectedSeats.map(s => s.so_ghe).join(', ')} (${seatTotal.toLocaleString()} đ)`;
-        orderSummary.appendChild(li);
-        total += seatTotal;
+        if (selectedSeats.length) {
+            const seatTotal = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
+            const li = document.createElement('li');
+            li.innerText = `Ghế: ${selectedSeats.map(s => s.so_ghe).join(', ')} (${seatTotal.toLocaleString()} đ)`;
+            orderSummary.appendChild(li);
+            total += seatTotal;
+        }
+
+        selectedFood.forEach(f => {
+            const li = document.createElement('li');
+            li.innerText = `${f.quantity} x ${f.ten} (${f.gia.toLocaleString()} đ)`;
+            orderSummary.appendChild(li);
+            total += f.quantity * f.gia;
+        });
+
+        totalPriceEl.innerText = total.toLocaleString() + ' đ';
     }
-
-    selectedFood.forEach(f => {
-        const li = document.createElement('li');
-        li.innerText = `${f.quantity} x ${f.ten} (${f.gia.toLocaleString()} đ)`;
-        orderSummary.appendChild(li);
-        total += f.quantity * f.gia;
-    });
-
-    totalPriceEl.innerText = total.toLocaleString() + ' đ';
-}
 
 
 function random9Digits() { return Math.floor(100000000 + Math.random() * 900000000); }
@@ -597,16 +600,22 @@ function random9Digits() { return Math.floor(100000000 + Math.random() * 9000000
                 const donhangId = jDH.data.id;
 
                 // Tạo vé
-                await fetch(`${baseUrl}/api/tao-ve`, {
+                const resVe = await fetch(`${baseUrl}/api/tao-ve`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         donhang_id: donhangId,
                         suat_chieu_id: selectedSuatChieu.id,
                         trang_thai: 2,
-                        seats: selectedSeats.map(s => ({ ghe_id: s.id }))
+                        seats: selectedSeats.map(s => ({
+                            ghe_id: s.id,
+                            gia_ve: s.gia
+                        }))
                     })
                 });
+                const jVe = await resVe.text();
+                console.log(jVe);
+                
 
                 // Tạo chi tiết đơn hàng (combo bắp nước)
                 for (const f of selectedFood) {
@@ -660,7 +669,7 @@ function random9Digits() { return Math.floor(100000000 + Math.random() * 9000000
                         thequatang_id: null,
                         the_qua_tang_su_dung: 0,
                         tong_tien: totalBefore,
-                        phuong_thuc_thanh_toan: 2,
+                        phuong_thuc_thanh_toan: 1,
                         ma_ve: maVe,
                         trang_thai: trangThai
                     })
@@ -681,16 +690,21 @@ function random9Digits() { return Math.floor(100000000 + Math.random() * 9000000
                 const donhangId = jDH.data.id;
 
                 // Tạo vé
-                await fetch(`${baseUrl}/api/tao-ve`, {
+                const resVe = await fetch(`${baseUrl}/api/tao-ve`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         donhang_id: donhangId,
                         suat_chieu_id: selectedSuatChieu.id,
                         trang_thai: 1,
-                        seats: selectedSeats.map(s => ({ ghe_id: s.id }))
+                        seats: selectedSeats.map(s => ({
+                            ghe_id: s.id,
+                            gia_ve: s.gia
+                        }))
                     })
                 });
+                const jVe = await resVe.text();
+                console.log(jVe);
 
                 // Tạo chi tiết đơn hàng (combo bắp nước)
                 for (const f of selectedFood) {

@@ -20,7 +20,7 @@ class DonHang extends Model
         'ma_ve',
         'qr_code',
         'tong_tien',
-        'phuong_thuc_thanh_toan',
+        'phuong_thuc_thanh_toan', //1: chuyển khoản 2: tiền mặt
         'trang_thai', //2: Đã thanh toán, 1: Chờ thanh toán 0: Đã hủy
         'ngay_dat',
         'phuong_thuc_mua' // 0: Khách hàng đặt online, 1: Mua vé gói xem phim trực tuyến, 2: Nhân viên bán vé

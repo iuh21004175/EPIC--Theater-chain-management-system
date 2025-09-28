@@ -8,12 +8,12 @@ use App\Models\Phim;
 
 class Sc_Ve {
     public function them() {
-        $user = $_SESSION['user'];
+        $user = $_SESSION['user'] ?? null;
         $data = json_decode(file_get_contents('php://input'), true);
 
         $donhang_id = $data['donhang_id'] ?? null;
         $suat_chieu_id = $data['suat_chieu_id'] ?? null;
-        $khach_hang_id = $user['id'];
+        $khach_hang_id = $user['id'] ?? null;
         $trang_thai = $data['trang_thai'] ?? 'giu_cho';
         $het_han_giu = $data['het_han_giu'] ?? null;
 
