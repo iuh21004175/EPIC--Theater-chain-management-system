@@ -68,6 +68,8 @@
             Thanh toán thành công
         </h2>
         <p class="text-center text-success">Chúng mừng bạn đã đặt vé thành công!</p>
+
+        <div id="ticket_detail_box" class="mt-4"></div>
     </div>
 
     <!-- Bên phải: Thông tin phim + ghế đã chọn + tổng cộng -->
@@ -314,7 +316,10 @@ async function loadSeats() {
                         donhang_id: donhangId,
                         suat_chieu_id: suatChieuData.suat_chieu.id,
                         trang_thai: trangThaiVe,
-                        seats: selectedSeats.map(s => ({ ghe_id: s.ghe_id }))
+                        seats: selectedSeats.map(s => ({
+                            ghe_id: s.ghe_id,
+                            gia_ve: s.gia
+                        }))
                     })
                 });
                 const jVe = await resVe.json();
@@ -357,6 +362,8 @@ async function loadSeats() {
                     foodContainer.classList.add("hidden");
                     success_pay_box.classList.remove("hidden");
 
+                    await handlePaymentSuccess(donhangId);
+
                     // Gửi mail xác nhận luôn
                     await fetch(`${baseUrl}/api/gui-don-hang`, {
                         method: "POST",
@@ -392,6 +399,7 @@ async function loadSeats() {
                     // Vẫn phải thanh toán → hiện QR như bình thường
                     foodContainer.classList.add("hidden");
                     qrContainer.classList.remove("hidden");
+                    thanhToanContainer.classList.add("hidden");
                     qrImage.src = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${total}&des=DH${donhangId}`;
                     startCountdown(300, donhangId);
 
@@ -409,6 +417,8 @@ async function loadSeats() {
                                 foodContainer.classList.add("hidden");
                                 success_pay_box.classList.remove("hidden");
                                 clearInterval(interval);
+
+                                await handlePaymentSuccess(donhangId);
 
                                 // Gửi mail sau khi thanh toán
                                 await fetch(`${baseUrl}/api/gui-don-hang`, {
@@ -456,7 +466,102 @@ async function loadSeats() {
         } catch (err) {
             seatMap.innerHTML = `<p class="text-red-500">Lỗi khi tải dữ liệu: ${err.message}</p>`;
         }
-    }
+}
+
+async function handlePaymentSuccess(donhangId) {
+  try {
+    // Hiện box thanh toán thành công
+    const successBox = document.getElementById("success_pay_box");
+    successBox.classList.remove("hidden");
+    successBox.classList.add("opacity-100");
+
+    // Gọi API lấy chi tiết đơn hàng
+    const res = await fetch(`${baseUrl}/api/doc-chi-tiet-don-hang/${donhangId}`);
+    if (!res.ok) throw new Error(`HTTP lỗi ${res.status}`);
+
+    const data = await res.json();
+    const ve = Array.isArray(data.data) ? data.data[0] : data.data;
+
+    // Chuẩn bị dữ liệu
+    const startTime = ve?.ve?.[0]?.suat_chieu?.batdau ? new Date(ve.ve[0].suat_chieu.batdau) : null;
+    const isCancelled = ve.trang_thai === "cancelled";
+    const canCancel = ve.trang_thai === "paid"; // tuỳ bạn quy định trạng thái
+
+    // Tạo HTML chi tiết vé
+    let html = `
+      <div class="relative ${isCancelled ? 'modal-cancelled' : ''} space-y-2 p-2 max-h-[80vh] overflow-y-auto">
+        ${isCancelled ? `<div class="modal-cancelled-overlay"><span>Đã hoàn vé</span></div>` : ''}
+        <div class="p-3 bg-white rounded shadow">
+          <h5 class="font-bold text-lg flex items-center gap-2">
+            ${ve.ve?.[0]?.suat_chieu?.phim?.ten_phim || 'Không xác định'}
+            <span class="inline-block px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded">
+              ${ve.ve?.[0]?.suat_chieu?.phim?.do_tuoi || 'C'}
+            </span>
+          </h5>
+        </div>
+        <div class="p-3 bg-white rounded shadow text-sm text-gray-700 grid grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <p><span class="font-semibold">Rạp:</span> ${ve.ve?.[0]?.suat_chieu?.phong_chieu?.rap_chieu_phim?.ten || '-'}</p>
+            <p><span class="font-semibold">Phòng:</span> ${ve.ve?.[0]?.suat_chieu?.phong_chieu?.ten || '-'}</p>
+            <p><span class="font-semibold">Loại phòng:</span> ${(ve.ve?.[0]?.suat_chieu?.phong_chieu?.loai_phongchieu || '-').toUpperCase()}</p>
+          </div>
+          <div class="space-y-1">
+            <p><span class="font-semibold">Ngày chiếu:</span> ${startTime ? startTime.toLocaleDateString('vi-VN',{ weekday:'long', day:'2-digit', month:'2-digit', year:'numeric' }) : '-'}</p>
+            <p><span class="font-semibold">Thời gian:</span> 
+              ${startTime ? startTime.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) : '-'} - 
+              ${ve.ve?.[0]?.suat_chieu?.ketthuc ? new Date(ve.ve[0].suat_chieu.ketthuc).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'}) : '-'}
+            </p>
+            <p><span class="font-semibold">Tổng tiền:</span> ${Number(ve.tong_tien || 0).toLocaleString()} ₫</p>
+          </div>
+        </div>
+        <div class="p-2 bg-white rounded shadow text-sm">
+          <span class="font-semibold">Ghế:</span> <span>${ve.ve?.map(v=>v.ghe?.so_ghe).filter(Boolean).join(', ') || '-'}</span>
+        </div>
+        <div class="p-3 bg-white rounded shadow text-sm text-gray-700 grid grid-cols-2 gap-4">
+          <div class="space-y-2">
+            <div>
+              <h4 class="font-semibold mb-1">Thức ăn kèm:</h4>
+              ${ve.ve?.flatMap(v=>v.don_hang?.chi_tiet_don_hang||[]).map(item=>`
+                <div class="flex justify-between border-b border-gray-100 py-1">
+                  <span>${item.san_pham?.ten || '-'} x ${item.so_luong || 0}</span>
+                  <span class="font-semibold">${Number(item.thanh_tien || 0).toLocaleString()} ₫</span>
+                </div>`).join('') || '<p>Không có</p>'}
+            </div>
+            <div>
+              <h4 class="font-semibold mb-1">Thẻ quà tặng:</h4>
+              <div class="flex justify-between border-b border-gray-100 py-1">
+                ${ve.the_qua_tang_su_dung > 0 ? `<span>${Number(ve.the_qua_tang_su_dung || 0).toLocaleString()} ₫</span>` : '<span>Không có</span>'}
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="font-semibold text-sm">Mã vé</span>
+            <span class="text-blue-600 font-mono text-base">${ve.ma_ve || '-'}</span>
+            <img src="${ve.qr_code || ''}" alt="QR Code" class="w-24 h-24 ${ve.qr_code ? '' : 'hidden'}">
+          </div>
+        </div>
+        ${canCancel ? `
+          <div class="p-2 bg-white rounded shadow text-sm">
+            <button id="btnCancelTicket" class="w-full bg-red-600 text-white px-3 py-2 rounded">Hoàn vé</button>
+          </div>` : ''
+        }
+      </div>
+      <div class="bg-red-600 text-white p-2 bg-white rounded shadow text-sm mt-2">
+            <button onclick="window.location.href=baseUrl" 
+                    class="w-full bg-red-600 text-white px-3 py-2 rounded">
+                Quay về trang chủ
+            </button>
+    </div>
+    `;
+
+    // Chèn vào dưới success_pay_box
+    document.getElementById("ticket_detail_box").innerHTML = html;
+
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi khi lấy chi tiết vé.");
+  }
+}
 
 // Load danh sách thẻ quà tặng từ DB
 async function loadGiftCards() {
@@ -537,28 +642,40 @@ function applyGift(cardId, amount) {
 // Toggle ghế
 async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl, continueContainer) {
     const seatNum = seat.textContent;
+
     if (seat.classList.contains("ring-4")) {
+        // Bỏ chọn ghế
         seat.style.backgroundColor = baseColor;
         seat.classList.remove("ring-4", "ring-red-600");
         selectedSeats = selectedSeats.filter(s => s.so_ghe !== seatNum);
     } else {
+        // Lấy giá ghế
         let gia = seat.dataset.price ? parseInt(seat.dataset.price) : 0;
-        if (!gia) {
+
+        if (!gia || gia === 0) {
             const ngay = seat.dataset.ngay;
             const dinhDangPhim = seat.dataset.dinhdang;
-            console.log(dinhDangPhim);
             const loaiGheId = seat.dataset.loaighe_id;
+
             try {
                 const res = await fetch(`${baseUrl}/api/tinh-gia-ve/${loaiGheId}/${ngay}/${encodeURIComponent(dinhDangPhim)}`);
                 const j = await res.json();
                 if (j.success) {
                     gia = parseInt(j.data);
-                    seat.dataset.price = gia;
+                    seat.dataset.price = gia; // lưu lại giá vào dataset
+                } else {
+                    console.error("Không lấy được giá:", j);
                 }
             } catch (e) {
                 console.error("Lỗi khi lấy giá ghế:", e);
             }
         }
+
+        if (!gia || gia === 0) {
+            alert("Không thể lấy giá vé. Vui lòng thử lại!");
+            return; // tránh push giá 0 vào selectedSeats
+        }
+
         seat.classList.add("ring-4", "ring-red-600");
         selectedSeats.push({
             so_ghe: seatNum,
@@ -567,8 +684,10 @@ async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl,
             gia
         });
     }
+
     updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueContainer);
 }
+
 
 // Cập nhật ghế đã chọn + tổng tiền
 function updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueContainer) {
@@ -629,6 +748,64 @@ function updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueConta
     totalPriceEl.textContent = `${(totalSeats + totalFood).toLocaleString()} ₫`;
 }
 
+function updateSelectedSeat(selectedSeatsContainer, totalPriceEl, continueContainer) {
+    // Xóa nội dung cũ
+    selectedSeatsContainer.innerHTML = '';
+
+    // Nếu chưa chọn ghế và chưa chọn sản phẩm
+    if (selectedSeats.length === 0 && selectedFood.length === 0) {
+        selectedSeatsContainer.innerHTML = '<div class="text-gray-500 text-sm">Chưa chọn ghế</div>';
+        continueContainer.classList.add("hidden");
+    } else {
+        // Xử lý ghế: gom nhóm theo giá
+        const groupedSeats = selectedSeats.reduce((acc, seat) => {
+            const key = seat.gia; // có thể đổi thành seat.loai_ghe nếu muốn gom theo loại ghế
+            if (!acc[key]) {
+                acc[key] = { gia: seat.gia, ghe: [] };
+            }
+            acc[key].ghe.push(seat.so_ghe);
+            return acc;
+        }, {});
+
+        Object.values(groupedSeats).forEach(group => {
+            const div = document.createElement("div");
+            div.className = "flex justify-between mb-1 items-center";
+            div.innerHTML = `
+                <span>Ghế ${group.ghe.join(", ")}</span>
+                <span>${(group.gia * group.ghe.length).toLocaleString()} ₫</span>
+            `;
+            selectedSeatsContainer.appendChild(div);
+        });
+
+        // Xử lý sản phẩm 
+        selectedFood.forEach((f, index) => {
+            const div = document.createElement("div");
+            div.className = "flex justify-between mb-1 items-center";
+            div.innerHTML = `
+                <span>${f.ten} x${f.quantity}</span>
+                <div class="flex items-center gap-2">
+                    <span>${(f.gia * f.quantity).toLocaleString()} ₫</span>
+                    <button class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs" data-index="${index}">Xóa</button>
+                </div>
+            `;
+            selectedSeatsContainer.appendChild(div);
+
+            // Thêm sự kiện xóa
+            div.querySelector("button").addEventListener("click", () => {
+                selectedFood.splice(index, 1); // xóa sản phẩm khỏi mảng
+                updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueContainer); // cập nhật lại danh sách
+            });
+        });
+
+        continueContainer.classList.add("hidden");
+    }
+
+    // Tính tổng
+    const totalSeats = selectedSeats.reduce((sum, s) => sum + s.gia, 0);
+    const totalFood = selectedFood.reduce((sum, f) => sum + f.gia * f.quantity, 0);
+    totalPriceEl.textContent = `${(totalSeats + totalFood).toLocaleString()} ₫`;
+}
+
 // Load đồ ăn theo rạp
 async function loadFood(idRap) {
     // Reset container
@@ -681,9 +858,10 @@ async function loadFood(idRap) {
                 } else {
                     selectedFood.push({ id: sp.id, ten: sp.ten, gia: sp.gia, quantity });
                 }
-                updateSelectedSeats(
+                updateSelectedSeat(
                     document.getElementById("selectedSeatsContainer"),
-                    document.getElementById("totalPrice")
+                    document.getElementById("totalPrice"),
+                    continueContainer
                 );
             });
 
@@ -699,9 +877,10 @@ async function loadFood(idRap) {
                             selectedFood = selectedFood.filter(f => f.id !== sp.id);
                         }
                     }
-                    updateSelectedSeats(
+                    updateSelectedSeat(
                         document.getElementById("selectedSeatsContainer"),
-                        document.getElementById("totalPrice")
+                        document.getElementById("totalPrice"),
+                        continueContainer
                     );
                 }
             });

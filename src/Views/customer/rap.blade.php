@@ -22,8 +22,24 @@
           <h2 class="text-2xl font-bold text-gray-800 mb-4">Thông tin rạp</h2>
           <ul id="rapInfo" class="list-disc list-inside space-y-2 text-gray-700">
             <li><span class="font-semibold">Địa chỉ:</span></li>
-            <li><span class="font-semibold">Hotline:</span> <a href="tel:19002224" class="text-blue-600 hover:underline">19002224</a></li>
+            <li><span class="font-semibold">Hotline:</span> <a href="tel:19002224" class="text-blue-600 hover:underline"></a></li>
           </ul>
+        </div>
+      </section>
+
+      <!-- Section hiển thị 2 cột -->
+      <section class="p-6 sm:p-8 border-t border-gray-200">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Cột trái: Bản đồ -->
+          <div id="rapMap" class="w-full h-[600px] rounded-lg overflow-hidden shadow-md">
+           
+          </div>
+
+          <!-- Cột phải: Thông tin rạp -->
+          <div id="rapMota" class="space-y-4 text-gray-700 text-gray-700 text-justify">
+            
+          </div>
         </div>
       </section>
     </div>
@@ -84,9 +100,25 @@ document.addEventListener("DOMContentLoaded", () => {
         const rap = data.data[0];
         document.getElementById("rapTen").textContent = rap.ten;
         document.getElementById("title").textContent = rap.ten;
+        document.getElementById("rapMap").textContent = rap.ban_do;
+        document.getElementById("rapMota").textContent = rap.mo_ta;
         document.getElementById("rapInfo").innerHTML = `
           <li><span class="font-semibold">Địa chỉ:</span> ${rap.dia_chi}</li>
-          <li><span class="font-semibold">Hotline:</span> <a href="tel:19002224" class="text-blue-600 hover:underline">19002224</a></li>
+          <li><span class="font-semibold">Hotline:</span> <a href="${rap.hotline}" class="text-blue-600 hover:underline">${rap.hotline}</a></li>
+        `;
+        document.getElementById("rapMap").innerHTML = `
+            <iframe 
+              src="${rap.ban_do}" 
+              width="100%" 
+              height="100%" 
+              style="border:0;" 
+              allowfullscreen 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+        `;
+        document.getElementById("rapMota").innerHTML = `
+            ${rap.mo_ta}
         `;
       }
     } catch (err) {

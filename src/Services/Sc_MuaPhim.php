@@ -8,7 +8,7 @@ class Sc_MuaPhim {
                     ->where('phim_id', $phimId)
                     ->first();
 
-        return $mua ? $mua->trang_thai : 0;
+        return $mua ? $mua->trang_thai : 0; // lấy trạng thái của phim đó theo KH (nếu là 2 thì xem dc)
     }
     public function them() {
         $user = $_SESSION['user'];

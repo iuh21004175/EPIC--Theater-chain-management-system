@@ -123,7 +123,18 @@
         </a>
         <nav class="hidden md:flex items-center space-x-8 relative">
             <a href="{{$_ENV['URL_WEB_BASE']}}/" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Trang chủ</a>
-            <a href="{{$_ENV['URL_WEB_BASE']}}/phim" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Phim</a>
+            <!-- <a href="{{$_ENV['URL_WEB_BASE']}}/phim" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Phim</a> -->
+            <div class="relative group" id="phim-dropdown">
+                <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
+                    Phim
+                    <svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="phim-menu" class="absolute left-0 top-full bg-white border border-gray-200 rounded-md shadow-lg min-w-[250px] max-w-[400px] w-auto z-50 transition duration-300 ease-in-out opacity-0 group-hover:opacity-100 invisible group-hover:visible">
+                    
+                </div>
+            </div>
             <div class="relative group" id="rap-dropdown">
                 <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
                     Rạp
@@ -135,7 +146,7 @@
                 </div>
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Góc điện ảnh</a>
-            <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Epic Streaming</a>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim trực tuyến</a>
         </nav>
         <div id="user-area">
             <?php if (isset($_SESSION['user'])): 
@@ -331,6 +342,7 @@
     const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
     const salt = "{{ $_ENV['URL_SALT'] }}";
     const rapMenu = document.getElementById('rap-menu');
+    const phimMenu = document.getElementById('phim-menu');
     function base64Encode(str) {
         return btoa(unescape(encodeURIComponent(str)));
     }
@@ -361,6 +373,27 @@ if (rapMenu) {
         })
         .catch(err => console.error('Lỗi load rạp:', err));
 }
+
+if (phimMenu) {
+    fetch(baseUrl + "/api/loai-phim")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                phimMenu.innerHTML = "";
+                data.data.forEach(loai => {
+                    const a = document.createElement("a");
+                    a.href = `${baseUrl}/phim?theLoai=${loai.id}`; 
+                    a.textContent = loai.ten;
+                    a.className = "block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap";
+                    phimMenu.appendChild(a);
+                });
+            } else {
+                phimMenu.innerHTML = '<div class="px-4 py-2 text-gray-500">Không có thể loại</div>';
+            }
+        })
+        .catch(err => console.error("Lỗi load thể loại:", err));
+}
+
 
 document.getElementById('btnSendReset').addEventListener('click', function() {
     const btn = this; // nút

@@ -23,12 +23,14 @@ class Sc_Ve {
         if (!empty($data['seats']) && is_array($data['seats'])) {
             foreach ($data['seats'] as $seat) {
                 $ghe_id = $seat['ghe_id'] ?? null;
+                $gia_ve = $seat['gia_ve'] ?? 0;
                 $ma_ve = $seat['ma_ve'] ?? null;
 
                 $ve = Ve::create([
                     'donhang_id' => $donhang_id,
                     'suat_chieu_id' => $suat_chieu_id,
                     'ghe_id' => $ghe_id,
+                    'gia_ve' => $gia_ve,
                     'khach_hang_id' => $khach_hang_id,
                     'trang_thai' => $trang_thai,
                     'ngay_tao' => date('Y-m-d H:i:s'),

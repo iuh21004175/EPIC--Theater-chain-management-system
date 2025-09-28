@@ -102,7 +102,7 @@
         </form>
 
         <div id="commentList" class="space-y-4">
-            <p class="text-gray-500">Đang tải bình luận...</p>
+            
         </div>
       </div>
     </section>
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch(baseUrl + "/api/rap-phim-khach")
             .then(res => res.json())
             .then(data => {
-                rapSelect.innerHTML = '<option value="">Chọn rạp</option>';
+                rapSelect.innerHTML = '<option value="">Tất cả rạp</option>';
                 if (data.success && data.data.length) {
                     data.data.forEach(rap => {
                         const option = document.createElement("option");
@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const averageRatingSpan = document.getElementById('averageRating');
         if (danhGia.length === 0) {
-            commentList.innerHTML = '<p class="text-gray-500">Chưa có bình luận nào.</p>';
+            // commentList.innerHTML = '<p class="text-gray-500">Chưa có bình luận nào.</p>';
             if (averageRatingSpan) averageRatingSpan.textContent = '0.0 (0 votes)';
             return;
         }

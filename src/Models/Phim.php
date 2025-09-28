@@ -22,7 +22,7 @@ class Phim extends Model
         'poster_url',
         'trailer_url',
         'video_url',
-        'trang_thai' // 1: Đang chiếu, 0: Sắp chiếu, -1: Ngừng chiếu
+        'trang_thai' // 1: Đang chiếu, 0: Ngừng chiếu
     ];
 
     public function TheLoai() {

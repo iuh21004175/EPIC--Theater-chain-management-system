@@ -5,8 +5,8 @@ use App\Models\DonHang;
 
 class Sc_DonHang {
     public function them() {
-        $user = $_SESSION['user'];
-        $user_id = $user['id'];
+        $user = $_SESSION['user'] ?? null;
+        $user_id = $user['id'] ?? null;
         $input = json_decode(file_get_contents('php://input'), true);
         $tong_tien = $input['tong_tien'] ?? 0;
         $suat_chieu_id = $input['suat_chieu_id'] ?? null;
@@ -21,6 +21,40 @@ class Sc_DonHang {
         $donhang = DonHang::create([
             'user_id' => $user_id,
             'suat_chieu_id' => $suat_chieu_id,
+            'thequatang_id' => $thequatang_id,
+            'the_qua_tang_su_dung' => $the_qua_tang_su_dung,
+            'ma_ve' => $ma_ve,
+            'qr_code' => $qr_code,
+            'tong_tien' => $tong_tien,
+            'phim_id' => $phim_id,
+            'phuong_thuc_thanh_toan' => $phuong_thuc_thanh_toan,
+            'trang_thai' => $trang_thai,
+            'phuong_thuc_mua' => $phuong_thuc_mua,
+            'ngay_dat' => date('Y-m-d H:i:s')
+        ]);
+
+        if ($donhang) {
+            return $donhang;
+        }
+        return false;
+    }
+
+    public function themDonHang() {
+        $idNhanVien = $_SESSION['UserInternal']['ID'] ?? null;
+        $input = json_decode(file_get_contents('php://input'), true);
+        $tong_tien = $input['tong_tien'] ?? 0;
+        $suat_chieu_id = $input['suat_chieu_id'] ?? null;
+        $thequatang_id = $input['thequatang_id'] ?? null;
+        $phim_id = $input['phim_id'] ?? null;
+        $the_qua_tang_su_dung = $input['the_qua_tang_su_dung'] ?? null;
+        $phuong_thuc_thanh_toan = $input['phuong_thuc_thanh_toan'] ?? 1;
+        $trang_thai = $input['trang_thai'] ?? 1;
+        $ma_ve = $input['ma_ve'] ?? null;
+        $phuong_thuc_mua = $input['phuong_thuc_mua'] ?? 0;
+        $qr_code = 'https://quickchart.io/qr?text=' . urlencode($ma_ve) . '&size=300';
+        $donhang = DonHang::create([
+            'suat_chieu_id' => $suat_chieu_id,
+            'id_nhanvien' => $idNhanVien,
             'thequatang_id' => $thequatang_id,
             'the_qua_tang_su_dung' => $the_qua_tang_su_dung,
             'ma_ve' => $ma_ve,

@@ -12,6 +12,7 @@ class DonHang extends Model
     protected $fillable = [
         'id',
         'user_id',
+        'id_nhanvien',
         'suat_chieu_id',
         'thequatang_id',
         'phim_id', // Dành cho khách mua gói xem phim trực tuyến
@@ -53,5 +54,10 @@ class DonHang extends Model
     public function phim()
     {
         return $this->belongsTo(Phim::class, 'phim_id', 'id');
+    }
+
+    public function nhanVien()
+    {
+        return $this->belongsTo(TaiKhoanInternal::class, 'id_nhanvien', 'id');
     }
 }
