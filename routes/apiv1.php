@@ -86,6 +86,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/phan-cong', [Ctrl_PhanCong::class, 'phanCong1NhanVien', ['Quản lý rạp']]);
     $r->addRoute('DELETE', '/phan-cong/{id:\d+}', [Ctrl_PhanCong::class, 'xoa1PhanCong', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'docPhanCong', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/phan-cong-theo-nv', [Ctrl_PhanCong::class, 'docPhanCongTheoNV', ['Nhân viên']]);
     $r->addRoute('POST', '/banner', [Ctrl_Banner::class, 'them', ['Admin']]);
     $r->addRoute('GET', '/banner', [Ctrl_Banner::class, 'docTatCa', ['Admin']]);
     $r->addRoute('GET', '/banner/side-show', [Ctrl_Banner::class, 'docSideShow']);
@@ -118,6 +119,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/phim-theo-rap/{idRap:\d+}', [Ctrl_SuatChieu::class, 'docPhimTheoRapKH']);
     $r->addRoute('POST', '/tao-ve', [Ctrl_Ve::class, 'themVe']);
     $r->addRoute('POST', '/tao-don-hang', [Ctrl_DonHang::class, 'themDonHang']);
+    $r->addRoute('POST', '/tao-don-hang-nv', [Ctrl_DonHang::class, 'themDonHangNV']);
     $r->addRoute('POST', '/luu-giao-dich', [Ctrl_GiaoDich::class, 'handleWebhook']);
     $r->addRoute('POST', '/lay-trang-thai', [Ctrl_GiaoDich::class, 'checkTrangThai']);
     $r->addRoute('POST', '/gui-don-hang', [Ctrl_DonHang::class, 'guiDonHang']);

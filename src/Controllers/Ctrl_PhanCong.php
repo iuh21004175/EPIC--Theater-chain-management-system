@@ -83,5 +83,20 @@
                 ];
             }
         }
+
+        public function docPhanCongTheoNV(){
+            $batDau = $_GET['bat_dau'];
+            $ketThuc = $_GET['ket_thuc'];
+            try {
+                $sc_PhanCong = new Sc_PhanCong();
+                $phanCong = $sc_PhanCong->docPhanCongTheoNV($batDau, $ketThuc);
+                return ['success' => true, 'data' => $phanCong];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

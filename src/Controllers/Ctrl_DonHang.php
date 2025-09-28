@@ -40,6 +40,33 @@ class Ctrl_DonHang {
         }
     }
 
+    public function themDonHangNV() {
+        header('Content-Type: application/json'); 
+        $service = new Sc_DonHang();
+        try {
+            $donhang = $service->themDonHang();
+            if ($donhang) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Thêm đơn hàng thành công',
+                    'data' => $donhang
+                ]);
+                exit;
+            }
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Thêm đơn hàng thất bại'
+            ]);
+            exit;
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ]);
+            exit;
+        }
+    }
+
     public function capNhatTrangThaiDonHang(){
         $input = json_decode(file_get_contents('php://input'), true);
         $id = $input['id'] ?? null;
@@ -254,5 +281,80 @@ class Ctrl_DonHang {
         }
 
         exit;
+    }
+
+    public function inVe($data) {
+        $data = json_decode(file_get_contents('php://input'), true);  
+        $don_hang = $data['don_hang'] ?? [];
+        $phim = $data['phim'] ?? [];
+        $ve_list = $data['ve'] ?? [];
+        $thuc_an = $data['thuc_an'] ?? [];
+
+        if (empty($ve_list)) {
+            die('Đơn hàng chưa có vé.');
+        }
+
+        $pdf = new tFPDF('P', 'mm', [105, 148]); 
+
+        // ADD FONT UNICODE
+        $pdf->AddFont('DejaVu','','DejaVuSansCondensed.ttf',true);
+        $pdf->AddFont('DejaVu','B','DejaVuSansCondensed-Bold.ttf',true);
+
+        foreach ($ve_list as $ve) {
+            $pdf->AddPage();
+
+            // HEADER
+            $pdf->SetFont('DejaVu','B',16);
+            $pdf->SetTextColor(0,0,128);
+            $pdf->Cell(0,10,'VÉ XEM PHIM',0,1,'C');
+            $pdf->SetFont('DejaVu','',12);
+            $pdf->SetTextColor(0,0,0);
+            $pdf->Cell(0,8, $phim['rap'] ?? '', 0,1,'C');
+            $pdf->Ln(5);
+
+            // THÔNG TIN VÉ 
+            $info = [
+                'Mã vé' => $ve['ma_ve'] ?? '',
+                'Tên phim' => $phim['ten_phim'] ?? '',
+                'Suất chiếu' => $phim['suat_chieu'] ?? '',
+                'Phòng chiếu' => $phim['phong'] ?? '',
+                'Ghế' => $ve['so_ghe'] ?? ''
+            ];
+            $line_height = 7;
+            $ticket_price = $ve['gia'] ?? 0;
+
+            foreach($info as $k => $v){
+                $pdf->SetX(10);
+                $pdf->SetFont('DejaVu','B',10);
+                $pdf->Cell(30, $line_height, $k, 0, 0, 'L');
+                $pdf->SetFont('DejaVu','',10);
+                $pdf->Cell(0, $line_height, $v, 0, 1, 'L');
+            }
+
+            // Giá vé
+            $pdf->SetX(10);
+            $pdf->SetFont('DejaVu','B',10);
+            $pdf->Cell(30, $line_height, 'Giá vé', 0, 0, 'L');
+            $pdf->SetFont('DejaVu','',10);
+            $pdf->Cell(0, $line_height, number_format($ticket_price,0,",",".").'đ', 0, 1, 'L');
+
+            $pdf->Ln(5);
+
+            // QR CODE
+            $qr_img_size = 40;
+            $qr_url = 'https://quickchart.io/qr?text='.urlencode($ve['ma_ve'] ?? '').'&size=300';
+            $qr_file = tempnam(sys_get_temp_dir(), 'qr_') . '.png';
+            file_put_contents($qr_file, file_get_contents($qr_url));
+
+            // Căn giữa trang
+            $x_center = ($pdf->GetPageWidth() - $qr_img_size)/2;
+            $y_current = $pdf->GetY();
+            $pdf->Image($qr_file, $x_center, $y_current, $qr_img_size, $qr_img_size);
+            unlink($qr_file);
+
+            $pdf->Ln($qr_img_size + 5);
+        }
+
+        $pdf->Output('I','ve_xem_phim.pdf');
     }
 }

@@ -261,34 +261,51 @@ document.addEventListener("DOMContentLoaded", () => {
     fetch(baseUrl + "/api/loai-phim")
         .then(res => res.json())
         .then(data => {
-            if (data.success && data.data.length > 0) {
-                theLoaiMenu.innerHTML = '<option value="">Tất cả thể loại</option>';
+            if (data.success) {
                 data.data.forEach(loai => {
                     const option = document.createElement("option");
                     option.value = loai.id;
                     option.textContent = loai.ten;
                     theLoaiMenu.appendChild(option);
                 });
-            } else {
-                theLoaiMenu.innerHTML = '<option value="">Không có thể loại</option>';
+
+                // Nếu URL có query param theLoai → set lại select
+                const params = new URLSearchParams(window.location.search);
+                if (params.get("theLoai")) {
+                    theLoaiMenu.value = params.get("theLoai");
+                }
             }
-        })
-        .catch(err => console.error("Lỗi load thể loại:", err));
+        });
 
-    // Event filter
-    function filterHandler() {
-        loadPhim(searchInput.value, theLoaiMenu.value, doTuoi.value);
+    // === Hàm build URL redirect khi search/filter ===
+    function redirectWithFilters() {
+        const params = new URLSearchParams();
+        if (searchInput.value) params.set("tuKhoa", searchInput.value);
+        if (theLoaiMenu.value) params.set("theLoai", theLoaiMenu.value);
+        if (doTuoi.value) params.set("doTuoi", doTuoi.value);
+
+        window.location.href = baseUrl + "/phim" + (params.toString() ? "?" + params.toString() : "");
     }
-    searchBtn.addEventListener("click", filterHandler);
-    theLoaiMenu.addEventListener("change", filterHandler);
-    doTuoi.addEventListener("change", filterHandler);
 
-    // Load phim khi load trang
-    loadPhim();
+    // Event filter → redirect
+    searchBtn.addEventListener("click", redirectWithFilters);
+    theLoaiMenu.addEventListener("change", redirectWithFilters);
+    doTuoi.addEventListener("change", redirectWithFilters);
+
+    // Khi load trang: đọc query param & load phim
+    const params = new URLSearchParams(window.location.search);
+    const tuKhoa = params.get("tuKhoa") || "";
+    const theLoaiId = params.get("theLoai") || "";
+    const doTuoiVal = params.get("doTuoi") || "";
+
+    if (tuKhoa) searchInput.value = tuKhoa;
+    if (theLoaiId) theLoaiMenu.value = theLoaiId;
+    if (doTuoiVal) doTuoi.value = doTuoiVal;
+
+    loadPhim(tuKhoa, theLoaiId, doTuoiVal);
 });
+
 </script>
-
-
 
 </body>
 </html>

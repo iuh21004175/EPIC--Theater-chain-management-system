@@ -73,5 +73,17 @@
                 ->get();
             return $phanCong;
         }
+
+        public function docPhanCongTheoNV($batdau, $ketthuc) {
+            $phanCong = PhanCong::with(['nhanVien', 'congViec'])
+                ->where('id_nhanvien', $_SESSION['UserInternal']['ID'])
+                ->whereBetween('ngay', [$batdau, $ketthuc])
+                ->orderBy('ngay', 'asc')
+                ->orderBy('ca', 'asc')
+                ->get();
+
+            return $phanCong;
+        }
+
     }
 ?>

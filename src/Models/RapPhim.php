@@ -8,6 +8,9 @@
             'id',
             'ten',
             'dia_chi',
+            'hotline',
+            'mo_ta',
+            'ban_do',
             'trang_thai', // 1: Đang hoạt động, 0: Ngừng hoạt động
             'created_at',
             'updated_at'

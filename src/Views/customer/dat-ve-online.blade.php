@@ -259,13 +259,26 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
 
             // Nút mua phim
-           if (!duocXem) {
-                
+            if (!duocXem) {
                 const random9Digits = () => Math.floor(100000000 + Math.random() * 900000000);
                 const maVe = random9Digits();
 
+                // Gắn sự kiện click cho nút mua phim
                 document.getElementById('buyMovieBtn').addEventListener('click', async () => {
                     try {
+                        // Check login khi bấm
+                        const resLogin = await fetch(`${baseUrl}/api/check-login`);
+                        const loginData = await resLogin.json();
+
+                        if (loginData.status !== "success") {
+                            alert("Bạn chưa đăng nhập!");
+                            openModal(modalLogin);
+                            return; // thoát hàm nếu chưa login
+                        }
+
+                        const userName = loginData.user?.ho_ten || 'Khách';
+                        const userInitial = userName.charAt(0).toUpperCase();
+
                         // Tạo đơn hàng
                         const resDH = await fetch(`${baseUrl}/api/tao-don-hang`, {
                             method: 'POST',
@@ -312,24 +325,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         startCountdown(300, donhangId);
 
                         const interval = setInterval(async () => {
-                        try {
-                            const res = await fetch(`${baseUrl}/api/lay-trang-thai`, {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ donhang_id: donhangId })
-                            });
-                            const status = await res.json();
-                            if (status.payment_status === "Paid") {
-                                QR.classList.add("hidden");
-                                suatChieu.classList.remove("hidden");
-                                renderVideoPhim(phim, goiFull);
-                                clearInterval(interval);
-
+                            try {
+                                const res = await fetch(`${baseUrl}/api/lay-trang-thai`, {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ donhang_id: donhangId })
+                                });
+                                const status = await res.json();
+                                if (status.payment_status === "Paid") {
+                                    QR.classList.add("hidden");
+                                    suatChieu.classList.remove("hidden");
+                                    renderVideoPhim(phim, goiFull);
+                                    clearInterval(interval);
+                                }
+                            } catch (e) {
+                                console.log("Lỗi check trạng thái:", e);
                             }
-                        } catch (e) {
-                            console.log("Lỗi check trạng thái:", e);
-                        }
-                    }, 1000);
+                        }, 1000);
 
                     } catch (err) {
                         alert("Mua phim thất bại: " + err.message);

@@ -12,6 +12,7 @@ class DonHang extends Model
     protected $fillable = [
         'id',
         'user_id',
+        'id_nhanvien',
         'suat_chieu_id',
         'thequatang_id',
         'phim_id', // Dành cho khách mua gói xem phim trực tuyến
@@ -19,7 +20,7 @@ class DonHang extends Model
         'ma_ve',
         'qr_code',
         'tong_tien',
-        'phuong_thuc_thanh_toan',
+        'phuong_thuc_thanh_toan', //1: chuyển khoản 2: tiền mặt
         'trang_thai', //2: Đã thanh toán, 1: Chờ thanh toán 0: Đã hủy
         'ngay_dat',
         'phuong_thuc_mua' // 0: Khách hàng đặt online, 1: Mua vé gói xem phim trực tuyến, 2: Nhân viên bán vé
@@ -53,5 +54,10 @@ class DonHang extends Model
     public function phim()
     {
         return $this->belongsTo(Phim::class, 'phim_id', 'id');
+    }
+
+    public function nhanVien()
+    {
+        return $this->belongsTo(TaiKhoanInternal::class, 'id_nhanvien', 'id');
     }
 }
