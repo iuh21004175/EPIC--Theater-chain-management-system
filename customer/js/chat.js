@@ -1,4 +1,4 @@
-import { io } from "https://cdn.socket.io/4.8.1/socket.io.esm.min.js";
+import { socket } from './util/socket.js';
 document.addEventListener('DOMContentLoaded', function() {
     const modalLogin = document.getElementById('modalLogin');
     const userId = document.getElementById('userid').value;
@@ -14,12 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.classList.add('is-open');
         body.classList.add('modal-open');
     }
-    // Kết nối tới server realtime nếu URL được cung cấp
-    const urlRealtiem = document.getElementById('ai-chatbox').dataset.urlrealtiem;
-    let socket;
-    if (urlRealtiem) {
-        socket = io(urlRealtiem);
-        socket.on('connect', () => {
+    
+    socket.on('connect', () => {
             // console.log('Kết nối tới server realtime thành công');
         });
         socket.on('disconnect', () => {
@@ -36,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
             form.querySelector('button[type="submit"]')?.removeAttribute('disabled');
             scrollToBottom();
         });
-    }
     if(userId && socket){
         socket.emit('khach-hang-truc-tuyen', userId);
     }

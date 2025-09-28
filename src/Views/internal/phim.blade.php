@@ -627,13 +627,14 @@
                     </div>
 
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-2" for="movie-video">
-                            Link video (MP4)
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-video">
+                            Tải video lên
                         </label>
-                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                               id="movie-video" 
-                               placeholder="Nhập link video nếu phim cho xem online">
-                        <p class="text-xs text-gray-500 mt-1">Ví dụ: https://example.com/video.mp4</p>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="movie-video"
+                            type="file"
+                            accept="video/mp4,video/webm,video/ogg,video/x-matroska,video/avi,video/mov,video/mpeg,video/3gpp,video/quicktime">
+                        <p class="text-xs text-gray-500 mt-1">Chấp nhận các định dạng: mp4, webm, ogg, mkv, avi, mov, mpeg, 3gp, quicktime</p>
                     </div>
 
                     <div>
@@ -796,12 +797,13 @@
 
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-movie-video">
-                            Link video (MP4)
+                            Tải video lên
                         </label>
-                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                               id="edit-movie-video" 
-                               placeholder="Nhập link video nếu phim cho xem online">
-                        <p class="text-xs text-gray-500 mt-1">Ví dụ: https://example.com/video.mp4</p>
+                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="edit-movie-video"
+                            type="file"
+                            accept="video/mp4,video/webm,video/ogg,video/x-matroska,video/avi,video/mov,video/mpeg,video/3gpp,video/quicktime">
+                        <p class="text-xs text-gray-500 mt-1">Chấp nhận các định dạng: mp4, webm, ogg, mkv, avi, mov, mpeg, 3gp, quicktime</p>
                     </div>
                     
                     <div>

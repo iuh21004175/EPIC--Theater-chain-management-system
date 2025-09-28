@@ -27,7 +27,7 @@
             $s3Client = new S3Client([
                 'version' => 'latest',
                 'region'  => 'us-east-1', // Bắt buộc, nhưng không quan trọng với MinIO
-                'endpoint' => $_ENV['MINIO_SERVER_URL'], // URL đến MinIO server của bạn
+                'endpoint' => $_ENV['MINIO_ENDPOINT'], // URL đến MinIO server của bạn
                 'use_path_style_endpoint' => true, // Cực kỳ quan trọng!
                 'credentials' => [
                     'key'    => $_ENV['MINIO_ACCESS_KEY'],     // Access Key bạn đã tạo
@@ -79,6 +79,4 @@ function getRedisConnection() {
 
     return $redis;
 }
-
-
 ?>

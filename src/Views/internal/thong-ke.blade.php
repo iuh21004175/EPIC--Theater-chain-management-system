@@ -4,7 +4,7 @@
 
 @section('head')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="{{$_ENV['URL_INTERNAL_BASE']}}/js/thong-ke.js" defer></script>
+<script src="{{$_ENV['URL_INTERNAL_BASE']}}/js/thong-ke.js"></script>
 @endsection
 
 @section('breadcrumbs')

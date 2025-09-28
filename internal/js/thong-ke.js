@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra ApexCharts đã load chưa
+    if (typeof ApexCharts === 'undefined') {
+        console.error('ApexCharts not loaded');
+        alert('Thư viện biểu đồ chưa được tải. Vui lòng tải lại trang.');
+        return;
+    }
+    
     // Xử lý bộ lọc thời gian
     const dateRangeSelect = document.getElementById('date-range');
     const customDateRange = document.getElementById('custom-date-range');
@@ -64,20 +71,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Khởi tạo dashboard với dữ liệu mẫu
 function initializeDashboard() {
-    // Dữ liệu mẫu (trong thực tế, dữ liệu sẽ được lấy từ API)
-    const sampleData = generateSampleData();
-    
-    // Hiển thị dữ liệu tổng quan
-    updateOverviewData(sampleData.overview);
-    
-    // Khởi tạo các biểu đồ
-    initializeCharts(sampleData);
-    
-    // Cập nhật bảng phân tích
-    updateAnalysisTable(sampleData.movies, 'movie');
-    
-    // Hiển thị đề xuất kinh doanh
-    updateBusinessRecommendations(sampleData.recommendations);
+    try {
+        // Kiểm tra ApexCharts đã load
+        if (typeof ApexCharts === 'undefined') {
+            console.error('ApexCharts not loaded');
+            return;
+        }
+        
+        // Xóa tất cả biểu đồ hiện tại để tránh duplicate
+        destroyAllCharts();
+        
+        const sampleData = generateSampleData();
+        
+        // Cập nhật dữ liệu tổng quan
+        updateOverviewData(sampleData.overview);
+        
+        // Khởi tạo các biểu đồ với delay để đảm bảo DOM đã sẵn sàng
+        setTimeout(() => {
+            initializeCharts(sampleData);
+        }, 100);
+        
+        // Cập nhật bảng phân tích
+        updateAnalysisTable(sampleData.movies, 'movie');
+        
+        // Hiển thị đề xuất kinh doanh
+        updateBusinessRecommendations(sampleData.recommendations);
+    } catch (error) {
+        console.error('Error initializing dashboard:', error);
+    }
 }
 
 // Hàm tạo dữ liệu mẫu cho việc demo
@@ -169,16 +190,42 @@ function generateSampleData() {
     };
 }
 
+// Thêm biến toàn cục để lưu trữ các tham chiếu biểu đồ
+let charts = {
+    revenueChart: null,
+    revenueDistributionChart: null,
+    topMoviesChart: null,
+    topFoodsChart: null,
+    showtimeEffectivenessChart: null,
+    customerTrendsChart: null
+};
+
+// Hàm để xóa tất cả các biểu đồ hiện tại
+function destroyAllCharts() {
+    Object.values(charts).forEach(chart => {
+        if (chart) {
+            chart.destroy();
+        }
+    });
+}
+
 // Hàm fetch dữ liệu từ API (mô phỏng)
 function fetchData(dateRange, params = {}) {
     console.log('Fetching data for:', dateRange, params);
+    // Xóa tất cả biểu đồ hiện tại
+    destroyAllCharts();
+    
     // Trong môi trường thực tế, đây sẽ là một API call
     // Ở đây chúng ta sử dụng dữ liệu mẫu
     const sampleData = generateSampleData();
     
     // Cập nhật UI với dữ liệu mới
     updateOverviewData(sampleData.overview);
-    initializeCharts(sampleData);
+    
+    // Thêm timeout nhỏ để đảm bảo DOM đã sẵn sàng
+    setTimeout(() => {
+        initializeCharts(sampleData);
+    }, 50);
     
     const filterType = params.filterType || 'all';
     let analysisData = sampleData.movies;
@@ -215,113 +262,137 @@ function initializeCharts(data) {
 }
 
 // Biểu đồ doanh thu
+// Kiểm tra element tồn tại trước khi render
+// Ví dụ cho biểu đồ doanh thu
 function initializeRevenueChart(data) {
-    const options = {
-        series: [
-            {
-                name: 'Tổng doanh thu',
+    const chartElement = document.querySelector("#revenue-chart");
+    if (!chartElement) {
+        console.error("Revenue chart container not found");
+        return;
+    }
+    
+    try {
+        const options = {
+            series: [
+                {
+                    name: 'Tổng doanh thu',
+                    type: 'line',
+                    data: data.map(item => item.total)
+                },
+                {
+                    name: 'Doanh thu vé',
+                    type: 'column',
+                    data: data.map(item => item.ticket)
+                },
+                {
+                    name: 'Doanh thu đồ ăn',
+                    type: 'column',
+                    data: data.map(item => item.food)
+                }
+            ],
+            chart: {
+                height: 350,
                 type: 'line',
-                data: data.map(item => item.total)
+                stacked: false,
+                toolbar: {
+                    show: true
+                },
+                zoom: {
+                    enabled: true
+                }
             },
-            {
-                name: 'Doanh thu vé',
-                type: 'column',
-                data: data.map(item => item.ticket)
+            plotOptions: {
+                bar: {
+                    columnWidth: '50%'
+                }
             },
-            {
-                name: 'Doanh thu đồ ăn',
-                type: 'column',
-                data: data.map(item => item.food)
-            }
-        ],
-        chart: {
-            height: 350,
-            type: 'line',
-            stacked: false,
-            toolbar: {
-                show: true
+            stroke: {
+                width: [4, 0, 0],
+                curve: 'smooth'
             },
-            zoom: {
-                enabled: true
-            }
-        },
-        plotOptions: {
-            bar: {
-                columnWidth: '50%'
-            }
-        },
-        stroke: {
-            width: [4, 0, 0],
-            curve: 'smooth'
-        },
-        xaxis: {
-            categories: data.map(item => item.date)
-        },
-        yaxis: {
-            title: {
-                text: 'Doanh thu (VNĐ)'
+            xaxis: {
+                categories: data.map(item => item.date)
             },
-            labels: {
-                formatter: function(val) {
-                    return formatCurrencyShort(val);
+            yaxis: {
+                title: {
+                    text: 'Doanh thu (VNĐ)'
+                },
+                labels: {
+                    formatter: function(val) {
+                        return formatCurrencyShort(val);
+                    }
+                }
+            },
+            legend: {
+                position: 'top'
+            },
+            fill: {
+                opacity: 1
+            },
+            colors: ['#1E40AF', '#3B82F6', '#93C5FD'],
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return formatCurrency(val);
+                    }
                 }
             }
-        },
-        legend: {
-            position: 'top'
-        },
-        fill: {
-            opacity: 1
-        },
-        colors: ['#1E40AF', '#3B82F6', '#93C5FD'],
-        tooltip: {
-            y: {
-                formatter: function(val) {
-                    return formatCurrency(val);
-                }
-            }
-        }
-    };
+        };
 
-    const chart = new ApexCharts(document.querySelector("#revenue-chart"), options);
-    chart.render();
+        // Tạo biểu đồ mới và lưu tham chiếu
+        charts.revenueChart = new ApexCharts(chartElement, options);
+        charts.revenueChart.render();
+    } catch (error) {
+        console.error("Error rendering revenue chart:", error);
+    }
 }
 
 // Biểu đồ phân bổ doanh thu
 function initializeRevenueDistributionChart(data) {
-    const options = {
-        series: data.map(item => item.value),
-        chart: {
-            height: 350,
-            type: 'pie'
-        },
-        labels: data.map(item => item.name),
-        colors: ['#3B82F6', '#10B981', '#F59E0B'],
-        legend: {
-            position: 'bottom'
-        },
-        responsive: [{
-            breakpoint: 480,
-            options: {
-                chart: {
-                    width: 300
-                },
-                legend: {
-                    position: 'bottom'
+    const chartElement = document.querySelector("#revenue-distribution-chart");
+    if (!chartElement) {
+        console.error("Revenue distribution chart container not found");
+        return;
+    }
+    
+    try {
+        const options = {
+            series: data.map(item => item.value),
+            chart: {
+                height: 350,
+                type: 'pie'
+            },
+            labels: data.map(item => item.name),
+            colors: ['#3B82F6', '#10B981', '#F59E0B'],
+            legend: {
+                position: 'bottom'
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 300
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }],
+            tooltip: {
+                y: {
+                    formatter: function(val) {
+                        return val + '%';
+                    }
                 }
             }
-        }],
-        tooltip: {
-            y: {
-                formatter: function(val) {
-                    return val + '%';
-                }
-            }
-        }
-    };
-
-    const chart = new ApexCharts(document.querySelector("#revenue-distribution-chart"), options);
-    chart.render();
+        };
+        
+        const chart = new ApexCharts(chartElement, options);
+        chart.render();
+        charts.revenueDistributionChart = chart; // Lưu trữ tham chiếu biểu đồ
+    } catch (error) {
+        console.error("Error rendering revenue distribution chart:", error);
+    }
 }
 
 // Biểu đồ top 10 phim
@@ -389,6 +460,7 @@ function initializeTopMoviesChart(data) {
 
     const chart = new ApexCharts(document.querySelector("#top-movies-chart"), options);
     chart.render();
+    charts.topMoviesChart = chart; // Lưu trữ tham chiếu biểu đồ
 }
 
 // Biểu đồ top 10 đồ ăn
@@ -456,6 +528,7 @@ function initializeTopFoodsChart(data) {
 
     const chart = new ApexCharts(document.querySelector("#top-foods-chart"), options);
     chart.render();
+    charts.topFoodsChart = chart; // Lưu trữ tham chiếu biểu đồ
 }
 
 // Biểu đồ hiệu quả theo khung giờ chiếu
@@ -537,6 +610,7 @@ function initializeShowtimeEffectivenessChart(data) {
 
     const chart = new ApexCharts(document.querySelector("#showtime-effectiveness-chart"), options);
     chart.render();
+    charts.showtimeEffectivenessChart = chart; // Lưu trữ tham chiếu biểu đồ
 }
 
 // Biểu đồ xu hướng khách hàng
@@ -594,6 +668,7 @@ function initializeCustomerTrendsChart(data) {
 
     const chart = new ApexCharts(document.querySelector("#customer-trends-chart"), options);
     chart.render();
+    charts.customerTrendsChart = chart; // Lưu trữ tham chiếu biểu đồ
 }
 
 // Hàm cập nhật bảng phân tích

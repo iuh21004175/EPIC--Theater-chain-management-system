@@ -72,10 +72,28 @@
     </div>
 </footer>
 
-<div id="ai-chatbox" class="fixed bottom-6 right-6 z-50" data-urlRealtiem="{{$_ENV['URL_SERVER_REALTIME']}}">
+<div id="ai-chatbox" class="fixed bottom-10 right-10 z-50" data-urlRealtiem="{{$_ENV['URL_SERVER_REALTIME']}}">
     <input type="hidden" id="userid" value="{{$_SESSION['user']['id'] ?? ''}}">
-    <button id="btn-open-chat" class="bg-blue-600 text-white rounded-full shadow-lg w-14 h-14 flex items-center justify-center text-2xl hover:bg-blue-700 focus:outline-none transition-all duration-200">
-            💬
+    <button id="btn-open-chat" class="ai-chatbot-btn group">
+        <span class="sr-only">Mở Chatbot AI</span>
+        <span class="ai-chatbot-icon flex items-center justify-center">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="22" cy="22" r="22" fill="#2563eb"/>
+                <g filter="url(#glow)">
+                    <path d="M22 13c-4.97 0-9 3.13-9 7 0 2.13 1.36 4.01 3.5 5.25V30a2 2 0 002 2h7a2 2 0 002-2v-4.75C29.64 24.01 31 22.13 31 20c0-3.87-4.03-7-9-7zm0 2c3.87 0 7 2.42 7 5s-3.13 5-7 5-7-2.42-7-5 3.13-5 7-5zm-2 10h4v5h-4v-5z" fill="#fff"/>
+                </g>
+                <defs>
+                    <filter id="glow" x="0" y="0" width="44" height="44" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+            </svg>
+        </span>
+    <span class="ai-chatbot-label-left">Epic AI Chat</span>
     </button>
     <div id="chatbox-panel" class="hidden bg-white rounded-2xl shadow-2xl w-80 max-h-[70vh] flex flex-col overflow-hidden border border-blue-200 animate-fade-in">
         <div class="flex items-center justify-between bg-blue-600 text-white px-4 py-2">
@@ -98,5 +116,60 @@
         #chatbox-panel::-webkit-scrollbar { width: 6px; }
         #chatbox-panel::-webkit-scrollbar-thumb { background: #e0e7ef; border-radius: 3px; }
         #chatbox-messages { min-height: 300px; }
+
+        /* Chatbot AI button styles */
+        .ai-chatbot-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb 60%, #60a5fa 100%);
+            box-shadow: 0 0 0 6px rgba(37,99,235,0.15), 0 8px 32px 0 rgba(37,99,235,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: box-shadow 0.2s, transform 0.2s;
+            z-index: 100;
+            animation: ai-float 2.5s ease-in-out infinite;
+            border: none;
+            outline: none;
+        }
+        .ai-chatbot-btn:focus, .ai-chatbot-btn:hover {
+            box-shadow: 0 0 0 10px rgba(37,99,235,0.25), 0 8px 32px 0 rgba(37,99,235,0.35);
+            transform: scale(1.08);
+        }
+        @keyframes ai-float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .ai-chatbot-icon {
+            width: 44px;
+            height: 44px;
+            filter: drop-shadow(0 0 8px #60a5fa88);
+        }
+        .ai-chatbot-label-left {
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%) scale(0.8);
+            background: #2563eb;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 1.5rem;
+            padding: 0.5rem 1.2rem;
+            margin-right: 1rem;
+            box-shadow: 0 2px 12px 0 rgba(37,99,235,0.15);
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.2s, opacity 0.2s;
+            white-space: nowrap;
+        }
+        .ai-chatbot-btn:hover .ai-chatbot-label-left,
+        .ai-chatbot-btn:focus .ai-chatbot-label-left {
+            transform: translateY(-50%) scale(1);
+            opacity: 0.95;
+        }
     </style>
     <script type="module" src="{{$_ENV['URL_WEB_BASE']}}/js/chat.js"></script>

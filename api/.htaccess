@@ -1,5 +1,11 @@
 RewriteEngine On
 
+# Tăng giới hạn upload cho API
+LimitRequestBody 5368709120
+php_value max_execution_time 1800
+php_value max_input_time 1800
+php_value memory_limit 2G
+
 # Nếu request KHÔNG phải file hoặc thư mục thực tế
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

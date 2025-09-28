@@ -46,6 +46,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/phim/', [Ctrl_Phim::class, 'docPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/phim/{id:\d+}', [Ctrl_Phim::class, 'suaPhim', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/phim/{id:\d+}/phan-phoi', [Ctrl_Phim::class, 'phanPhoiPhim', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('POST', '/phim/chuyen-doi-hls-hoan-tat', [Ctrl_Phim::class, 'webhookChuyenDoiHLSHoanTat']);
     $r->addRoute('GET', '/phan-phoi-phim/{id:\d+}', [Ctrl_Phim::class, 'docPhimTheoRap', ['Quản lý chuỗi rạp']]);
     $r->addRoute('PUT', '/phan-phoi-phim/them', [Ctrl_Phim::class, 'themPhanPhoi', ['Quản lý chuỗi rạp']]);
     $r->addRoute('PUT', '/phan-phoi-phim/xoa', [Ctrl_Phim::class, 'xoaPhanPhoi', ['Quản lý chuỗi rạp']]);
@@ -92,7 +93,6 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('PUT', '/banner/{id:\d+}/trang-thai', [Ctrl_Banner::class, 'thayDoiTrangThai', ['Admin']]);
     $r->addRoute('DELETE', '/banner/{id:\d+}', [Ctrl_Banner::class, 'xoa', ['Admin']]);
     $r->addRoute('PUT', '/banner/cap-nhat-side-show', [Ctrl_Banner::class, 'sapXep', ['Admin']]);
-    
     // Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('GET', '/google', [Ctrl_XacThucCustomer::class, 'googleLogin']);

@@ -203,9 +203,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Thêm video nếu có
-            const movieVideo = document.getElementById('movie-video').value.trim();
+            const movieVideo = document.getElementById('movie-video').files[0];
             if (movieVideo) {
-                formData.append('video_url', movieVideo);
+                formData.append('video', movieVideo);
             }
             
             // Thêm poster
@@ -542,7 +542,6 @@ function openEditMovieModal(movieId) {
     document.getElementById('edit-movie-status').value = movie.trang_thai || '';
     document.getElementById('edit-movie-description').value = movie.mo_ta || '';
     document.getElementById('edit-movie-trailer').value = movie.trailer_url || '';
-    document.getElementById('edit-movie-video').value = movie.video_url || '';
     document.getElementById('edit-movie-release-date').value = movie.ngay_cong_chieu || '';
     document.getElementById('edit-movie-country').value = movie.quoc_gia || '';
 
@@ -778,7 +777,7 @@ function openEditMovieModal(movieId) {
             const movieReleaseDate = document.getElementById('edit-movie-release-date').value.trim();
             const movieCountry = document.getElementById('edit-movie-country').value.trim();
             const movieTrailer = document.getElementById('edit-movie-trailer').value.trim();
-            const movieVideo = document.getElementById('edit-movie-video').value.trim();
+            const movieVideo = document.getElementById('edit-movie-video').files[0];
 
             // Bạn có thể thêm các kiểm tra lỗi tương tự như form thêm phim ở đây nếu muốn
 
@@ -796,13 +795,15 @@ function openEditMovieModal(movieId) {
             formData.append('trang_thai', movieStatus);
             formData.append('ngay_cong_chieu', movieReleaseDate);
             formData.append('quoc_gia', movieCountry);
-            formData.append('video_url', movieVideo)
             if (movieTrailer) {
                 formData.append('trailer_url', movieTrailer);
             }
             // Thêm poster nếu có file mới
             if (moviePoster) {
                 formData.append('poster', moviePoster);
+            }
+            if (movieVideo) {
+                formData.append('video', movieVideo);
             }
             // Thêm thể loại
             selectedGenres.forEach((genreId, index) => {

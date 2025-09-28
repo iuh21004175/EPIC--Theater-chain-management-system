@@ -136,6 +136,18 @@
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Góc điện ảnh</a>
             <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Epic Streaming</a>
+            <div class="relative group" id="rap-dropdown">
+                <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
+                    Tư vấn
+                    <svg class="w-4 h-4 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                <div id="tu-van-menu" class="absolute left-0 top-full bg-white border border-gray-200 rounded-md shadow-lg min-w-[250px] max-w-[400px] w-auto z-50 transition duration-300 ease-in-out opacity-0 group-hover:opacity-100 invisible group-hover:visible">
+                    <a class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap" href="{{$_ENV['URL_WEB_BASE']}}/tu-van/chat-truc-tuyen">Chat trực tuyến</a>
+                    <a class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap" href="{{$_ENV['URL_WEB_BASE']}}/tu-van/goi-video">Gọi video</a>
+                </div>
+            </div>
         </nav>
         <div id="user-area">
             <?php if (isset($_SESSION['user'])): 
