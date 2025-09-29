@@ -20,8 +20,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/dat-ve/{id}', [Ctrl_Phim::class, 'datVe']);
     $r->addRoute('GET', '/dat-ve-online/{id}', [Ctrl_Phim::class, 'datVeOnline']);
     $r->addRoute('GET', '/rap/{id}', [Ctrl_RapPhim::class, 'rapKhachHang']);
-    $r->addRoute('GET', '/tin-tuc', [Ctrl_Phim::class, 'tinTuc']);
-    $r->addRoute('GET', '/tin-tuc/{name}', [Ctrl_Phim::class, 'chiTietTinTuc']);
+    $r->addRoute('GET', '/goc-dien-anh', [Ctrl_Phim::class, 'gocDienAnh']);
+    $r->addRoute('GET', '/goc-dien-anh/{name}', [Ctrl_Phim::class, 'chiTietPhim']);
     $r->addRoute('GET', '/reset-password', [Ctrl_XacThucCustomer::class, 'resetPassword']);
     $r->addRoute('GET', '/so-do-ghe/{id}', [Ctrl_Ghe::class, 'soDoGhe']);
     $r->addRoute('GET', '/ve-cua-toi', [Ctrl_DonHang::class, 'index']);

@@ -19,11 +19,11 @@
         public function datVeOnline(){
             return view('customer.dat-ve-online');
         }
-        public function tinTuc(){
-            return view('customer.tin-tuc');
+        public function gocDienAnh(){
+            return view('customer.goc-dien-anh');
         }
-        public function chiTietTinTuc(){
-            return view('customer.chi-tiet-tin-tuc');
+        public function chiTietPhim(){
+            return view('customer.chi-tiet-phim');
         }
         public function banVe(){
             return view('internal.ban-ve');

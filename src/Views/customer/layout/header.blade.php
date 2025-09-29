@@ -145,9 +145,8 @@
                 <div id="rap-menu" class="absolute left-0 top-full bg-white border border-gray-200 rounded-md shadow-lg min-w-[250px] max-w-[400px] w-auto z-50 transition duration-300 ease-in-out opacity-0 group-hover:opacity-100 invisible group-hover:visible">
                 </div>
             </div>
-            <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Góc điện ảnh</a>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/goc-dien-anh" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Góc điện ảnh</a>
             <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim trực tuyến</a>
-            <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Epic Streaming</a>
             <div class="relative group" id="rap-dropdown">
                 <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
                     Tư vấn
