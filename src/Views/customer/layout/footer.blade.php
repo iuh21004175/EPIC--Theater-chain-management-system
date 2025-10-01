@@ -8,8 +8,6 @@
                     <li><a href="#" class="hover:text-white transition-colors duration-300">Giới Thiệu</a></li>
                     <li><a href="#" class="hover:text-white transition-colors duration-300">Tiện Ích Online</a></li>
                     <li><a href="#" class="hover:text-white transition-colors duration-300">Thẻ Quà Tặng</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors duration-300">Tuyển Dụng</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors duration-300">Liên Hệ Quảng Cáo</a></li>
                 </ul>
             </div>
 
@@ -18,10 +16,8 @@
                 <h3 class="font-bold text-white text-base mb-4 uppercase tracking-wider">Điều khoản</h3>
                 <ul class="space-y-3">
                     <li><a href="#" class="hover:text-white transition-colors duration-300">Điều Khoản Chung</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors duration-300">Điều Khoản Giao Dịch</a></li>
                     <li><a href="#" class="hover:text-white transition-colors duration-300">Chính Sách Thanh Toán</a></li>
                     <li><a href="#" class="hover:text-white transition-colors duration-300">Chính Sách Bảo Mật</a></li>
-                    <li><a href="#" class="hover:text-white transition-colors duration-300">Câu Hỏi Thường Gặp</a></li>
                 </ul>
             </div>
 

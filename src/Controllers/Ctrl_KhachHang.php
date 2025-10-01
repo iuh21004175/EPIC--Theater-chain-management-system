@@ -6,6 +6,9 @@
         function index() {
             return view('customer.thong-tin-ca-nhan');
         }
+        function khachHang() {
+            return view('internal.khach-hang');
+        }
         function thongTinKhachHang() {
             $scKhachHang = new Sc_KhachHang();
             $user = $_SESSION['user'];

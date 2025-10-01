@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderPhim(phim) {
         const encoded = base64Encode(phim.id + salt);
         const html = `
-        <a href="${baseUrl}/tin-tuc/${slugify(phim.ten_phim)}-${encoded}" 
+        <a href="${baseUrl}/goc-dien-anh/${slugify(phim.ten_phim)}-${encoded}" 
            class="bg-white rounded-lg shadow-md flex mb-6 block no-underline">
             <img src="${urlMinio}/${phim.poster_url}" alt="${phim.ten_phim}" 
                  class="w-48 h-32 flex-shrink-0 object-cover rounded-l-lg">

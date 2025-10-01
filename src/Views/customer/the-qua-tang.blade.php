@@ -7,36 +7,42 @@
   <link rel="stylesheet" href="{{ $_ENV['URL_WEB_BASE'] }}/css/tailwind.css">
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
   @include('customer.layout.header')
 
-  <div class="max-w-6xl mx-auto px-4 py-10">
-    <section class="bg-white border border-gray-200 rounded-lg shadow-sm p-4">
-      <!-- Controls -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <label class="text-sm text-gray-600">Lọc theo:</label>
-          <select id="filterVoucher" class="border rounded-md p-2 text-sm">
-            <option value="all">Tất cả</option>
-            <option value="active">Còn hạn</option>
-            <option value="expired">Hết hạn</option>
-            <option value="used">Đã sử dụng</option>
-          </select>
+  <!-- Nội dung chính -->
+  <main class="flex-1">
+    <div class="max-w-6xl mx-auto px-4 pt-10 pb-0">
+      <section class="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mt-10">
+        <!-- Controls -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-600">Lọc theo:</label>
+            <select id="filterVoucher" class="border rounded-md p-2 text-sm">
+              <option value="all">Tất cả</option>
+              <option value="active">Còn hạn</option>
+              <option value="expired">Hết hạn</option>
+              <option value="used">Đã sử dụng</option>
+            </select>
+          </div>
+          <div class="text-sm text-gray-500">Tổng: <span id="countVoucher">0</span> thẻ</div>
         </div>
-        <div class="text-sm text-gray-500">Tổng: <span id="countVoucher">0</span> thẻ</div>
-      </div>
 
-      <!-- List -->
-      <div id="list-voucher" class="grid gap-3 mt-4">
-        <!-- Voucher cards sẽ render bằng JS -->
-      </div>
+        <!-- List -->
+        <div id="list-voucher" class="grid gap-3 mt-4">
+          <!-- Voucher cards sẽ render bằng JS -->
+        </div>
 
-      <!-- Empty state -->
-      <div id="empty-voucher" class="hidden text-center py-8 text-gray-500">
-        <p class="mb-2">Bạn chưa có thẻ quà tặng nào.</p>
-      </div>
-    </section>
-  </div>
+        <!-- Empty state -->
+        <div id="empty-voucher" class="hidden text-center py-8 text-gray-500">
+          <p class="mb-2">Bạn chưa có thẻ quà tặng nào.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  @include('customer.layout.footer')
 
   <script>
   const listVoucher = document.getElementById('list-voucher');
@@ -130,7 +136,5 @@
     renderVoucher(filtered);
   });
   </script>
-
-  @include('customer.layout.footer')
 </body>
 </html>

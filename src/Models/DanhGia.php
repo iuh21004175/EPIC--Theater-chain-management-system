@@ -7,7 +7,7 @@ class DanhGia extends Model
 {
     protected $table = 'danhgia';
     protected $primaryKey = 'id';
-    public $timestamps = false; // Nếu muốn dùng created_at, updated_at thì để true
+    public $timestamps = true; // Nếu muốn dùng created_at, updated_at thì để true
 
     protected $fillable = [
         'id',

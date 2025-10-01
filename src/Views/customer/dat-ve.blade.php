@@ -454,6 +454,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('');
         commentList.innerHTML = html;
     }
+    function fetchComments() {
+        fetch(baseUrl + "/api/doc-danh-gia/" + idPhim)
+            .then(res => res.json())
+            .then(data => { 
+                if (data.success) {
+                    loadDanhSachCmt(data.data, currentUserId);
+                } else {
+                    commentList.innerHTML = '<p class="text-gray-500">Không tải được bình luận.</p>';
+                }
+            })
+            .catch(err => console.error("Lỗi load bình luận:", err));
+    }
 
     // Thêm bình luận
         commentForm.addEventListener('submit', function(e) {
@@ -531,13 +543,13 @@ document.addEventListener('DOMContentLoaded', () => {
             commentTextarea.value = '';
             currentRating = 5;
             updateStars(currentRating);
-
+            fetchComments();
             // Cập nhật rating tổng thể
             const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
             const avgStars = (lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0);
             const averageRatingSpan = document.getElementById('averageRating');
             if (averageRatingSpan) averageRatingSpan.textContent = `${avgStars} (${lastComments.length} votes)`;
-
+            
             alert('Gửi bình luận thành công!');
         });
     })
@@ -615,7 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     commentObj.cmt = newText;
                     commentObj.so_sao = originalSao;
                 }
-
+                fetchComments();
                 // Cập nhật rating tổng thể
                 const totalStars = lastComments.reduce((sum, cmt) => sum + (cmt.so_sao || 0), 0);
                 const avgStars = (totalStars / lastComments.length).toFixed(1);
@@ -656,7 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Xóa khỏi mảng local
                 lastComments = lastComments.filter(c => c.id !== id);
-
+                fetchComments();
                 // Cập nhật rating tổng thể
                 const totalStars = lastComments.reduce((sum, c) => sum + (c.so_sao || 0), 0);
                 const avgStars = lastComments.length ? (totalStars / lastComments.length).toFixed(1) : 0;

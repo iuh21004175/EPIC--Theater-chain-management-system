@@ -228,6 +228,15 @@
                 <span class="text-xs text-center font-medium text-gray-700">Thống kê</span>
             </a>
             @else
+            <!-- Bán vé -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/ban-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Bán vé">
+                <div class="w-12 h-12 flex items-center justify-center bg-rose-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Bán vé</span>
+            </a>
             <!-- Xem lịch làm việc -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/lich-lam-viec" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Xem lịch làm việc">
                 <div class="w-12 h-12 flex items-center justify-center bg-cyan-100 rounded-full mb-3">
@@ -254,15 +263,6 @@
                     </svg>
                 </div>
                 <span class="text-xs text-center font-medium text-gray-700">Chấm công</span>
-            </a>
-            <!-- Bán vé -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/ban-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Bán vé">
-                <div class="w-12 h-12 flex items-center justify-center bg-rose-100 rounded-full mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
-                </div>
-                <span class="text-xs text-center font-medium text-gray-700">Bán vé</span>
             </a>
             <!-- Gửi yêu cầu -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/yeu-cau" 
@@ -294,6 +294,21 @@
                         </svg>
                     </div>
                     <span class="text-xs text-center font-medium text-gray-700">Tư vấn</span>
+            </a>
+            <!-- Quản lý khách hàng -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/khach-hang" 
+                class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" 
+                data-tooltip="Quản lý khách hàng">
+                <div class="w-12 h-12 flex items-center justify-center bg-purple-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        class="h-6 w-6 text-purple-600" 
+                        fill="none" viewBox="0 0 24 24" 
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M16 14a4 4 0 10-8 0v4h8v-4zM12 2a4 4 0 100 8 4 4 0 000-8z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Quản lý thành viên</span>
             </a>
             @endif    
             
