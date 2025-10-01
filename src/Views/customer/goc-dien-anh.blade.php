@@ -5,9 +5,9 @@
   <title>Dữ Liệu Điện Ảnh Đồ Sộ Nhất Việt Nam | EPIC CINEMAS</title>
   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
 @include('customer.layout.header')
-
+<main class="flex-1">
 <div class="max-w-5xl mx-auto p-6">
     <h1 class="text-2xl font-bold border-l-4 border-red-500 pl-2 mb-4">
       PHIM ĐIỆN ẢNH
@@ -66,6 +66,7 @@
     <!-- Phân trang -->
     <div id="pagination" class="flex justify-center mt-6 space-x-2"></div>
 </div>
+</main>
 
 @include('customer.layout.footer')
 

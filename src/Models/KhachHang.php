@@ -15,6 +15,7 @@ class KhachHang extends Model
         'email',
         'gioi_tinh',
         'ngay_sinh',
+        'so_dien_thoai',
         'mat_khau',
         'google_id',
         'created_at',

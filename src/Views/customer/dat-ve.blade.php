@@ -59,6 +59,16 @@
             </div>
 
             <hr class="border-t-2 border-red-500 w-full mx-auto mb-10">
+            <div class="w-full mb-4">
+                <label class="block text-gray-700 font-semibold mb-1 text-sm">Chọn khung giờ</label>
+                <div id="timeFilterButtons" class="flex gap-2">
+                    <button data-time="" class="time-btn px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors">Tất cả</button>
+                    <button data-time="8-12" class="time-btn px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors">08:00 - 12:00</button>
+                    <button data-time="12-16" class="time-btn px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors">12:00 - 16:00</button>
+                    <button data-time="16-20" class="time-btn px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors">16:00 - 20:00</button>
+                    <button data-time="20-24" class="time-btn px-3 py-2 bg-gray-100 rounded-lg text-sm text-gray-700 hover:bg-red-500 hover:text-white transition-colors">20:00 - 24:00</button>
+                </div>
+            </div>
 
             <div id="suatChieu" class="space-y-6"></div>
         </div>
@@ -154,6 +164,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const modalLogin = document.getElementById('modalLogin');
     const body = document.body;
+    const timeFilterButtons = document.querySelectorAll('.time-btn');
+
+    timeFilterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Bỏ active cũ
+            timeFilterButtons.forEach(b => {
+                b.classList.remove('bg-red-600', 'text-white');
+                b.classList.add('bg-gray-100', 'text-gray-700');
+            });
+
+            // Set active mới
+            btn.classList.remove('bg-gray-100', 'text-gray-700');
+            btn.classList.add('bg-red-600', 'text-white');
+
+            // Lọc lại suất chiếu
+            const timeValue = btn.dataset.time; // "" hoặc "8-12"
+            renderSuatChieu(timeValue);
+        });
+    });
 
     function openModal(modal) { // Hiển thị modal đăng nhập
         modal.classList.add('is-open');
@@ -253,16 +282,28 @@ document.addEventListener('DOMContentLoaded', () => {
     let allSuatChieu = [];
     let lastComments = [];
 
-    function renderSuatChieu() {
+    function renderSuatChieu(timeValue = "") {
         const selectedDate = getSelectedDate();
         console.log("Ngày đã chọn:", selectedDate);
-        const filtered = allSuatChieu.filter(suat => suat.batdau.split(" ")[0] === selectedDate);
+
+        // Lọc theo ngày
+        let filtered = allSuatChieu.filter(suat => suat.batdau.split(" ")[0] === selectedDate);
+
+        // Lọc theo khung giờ nếu có
+        if (timeValue) {
+            const [startHour, endHour] = timeValue.split("-").map(Number);
+            filtered = filtered.filter(suat => {
+                const hour = new Date(suat.batdau).getHours();
+                return hour >= startHour && hour < endHour;
+            });
+        }
 
         if (!filtered.length) {
             suatChieuDiv.innerHTML = '<p class="text-gray-500">Chưa có suất chiếu cho ngày này.</p>';
             return;
         }
 
+        // Nhóm theo rạp
         const groupedByRap = {};
         filtered.forEach(suat => {
             const rapName = suat.phong_chieu.rap_chieu_phim.ten || "Không xác định";
@@ -270,6 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
             groupedByRap[rapName].push(suat);
         });
 
+        // Render ra HTML
         suatChieuDiv.innerHTML = Object.entries(groupedByRap).map(([rapName, suats]) => {
             const groupedByLoai = {};
             suats.forEach(suat => {
@@ -290,6 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return `<div class="bg-gray-50 p-4 rounded-xl shadow-sm mb-6"><h4 class="text-lg font-semibold mb-4" data-phong-id="${suats[0].phong_chieu.id}">${rapName}</h4>${loaiHtml}</div><hr class="border-t-2 border-grey-500 w-full mx-auto mb-10">`;
         }).join('');
 
+        // Gán sự kiện click
         document.querySelectorAll('.suat-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.suat-btn').forEach(b => {

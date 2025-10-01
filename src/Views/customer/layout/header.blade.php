@@ -146,6 +146,7 @@
                 </div>
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/goc-dien-anh" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Góc điện ảnh</a>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Tin tức</a>
             <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim trực tuyến</a>
             <div class="relative group" id="rap-dropdown">
                 <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
@@ -276,14 +277,31 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="block text-gray-700 font-medium">Mật khẩu</label>
-                    <input type="password" id="registerPassword" name="registerPassword" class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500" placeholder="Tạo mật khẩu mạnh">
-                    <span id="tbRegisterPassword" class="text-red-500 text-sm mt-1 block"></span>
+                    <label class="block text-gray-700 font-medium">Số điện thoại</label>
+                    <input type="text" id="registerPhone" name="registerPhone"
+                        class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Nhập số điện thoại">
+                    <span id="tbRegisterPhone" class="text-red-500 text-sm mt-1 block"></span>
                 </div>
-                <div class="form-group">
-                    <label class="block text-gray-700 font-medium">Nhập lại mật khẩu</label>
-                    <input type="password" id="registerPasswordConfirm" name="registerPasswordConfirm" class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập lại mật khẩu">
-                    <span id="tbRegisterPasswordConfirm" class="text-red-500 text-sm mt-1 block"></span>
+
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <!-- Mật khẩu -->
+                    <div class="form-group flex-1">
+                        <label class="block text-gray-700 font-medium">Mật khẩu</label>
+                        <input type="password" id="registerPassword" name="registerPassword"
+                            class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Tạo mật khẩu mạnh">
+                        <span id="tbRegisterPassword" class="text-red-500 text-sm mt-1 block"></span>
+                    </div>
+
+                    <!-- Nhập lại mật khẩu -->
+                    <div class="form-group flex-1">
+                        <label class="block text-gray-700 font-medium">Nhập lại mật khẩu</label>
+                        <input type="password" id="registerPasswordConfirm" name="registerPasswordConfirm"
+                            class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Nhập lại mật khẩu">
+                        <span id="tbRegisterPasswordConfirm" class="text-red-500 text-sm mt-1 block"></span>
+                    </div>
                 </div>
                 
                 <div class="form-group flex items-center">

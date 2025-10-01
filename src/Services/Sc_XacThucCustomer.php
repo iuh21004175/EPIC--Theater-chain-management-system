@@ -8,6 +8,7 @@
             $email    = $_POST['registerEmail'];
             $gioiTinh = $_POST['sex'];
             $ngaySinh = $_POST['txtNgaySinh'];
+            $phone    = $_POST['registerPhone'];
             $matKhau  = $_POST['registerPassword'];
 
             // Kiểm tra email
@@ -21,6 +22,7 @@
             $khachHang->email = $email;
             $khachHang->gioi_tinh = $gioiTinh;
             $khachHang->ngay_sinh = $ngaySinh;
+            $khachHang->so_dien_thoai = $phone;
             $khachHang->mat_khau = password_hash($matKhau, PASSWORD_DEFAULT);
             $khachHang->save();
 
@@ -32,20 +34,27 @@
             $matKhau = $_POST['loginPassword'] ?? '';
 
             $khachHang = KhachHang::where('email', $email)->first();
-            if ($khachHang) {
-                if (password_verify($matKhau, $khachHang->mat_khau)) {
-                    $_SESSION['user'] = [
-                        'id'       => $khachHang->id,
-                        'ho_ten'  => $khachHang->ho_ten,
-                        'email'    => $khachHang->email,
-                        'gioi_tinh'=> $khachHang->gioi_tinh,
-                        'ngay_sinh'=> $khachHang->ngay_sinh
-                    ];
-                    return true;
-                }
+
+            if (!$khachHang) {
+                return false; // không tìm thấy email
             }
-            // Nếu đăng nhập không thành công
-            return false;
+
+            if ($khachHang->trang_thai === 0) {
+                return 'disabled'; // tài khoản bị vô hiệu hóa
+            }
+
+            if (password_verify($matKhau, $khachHang->mat_khau)) {
+                $_SESSION['user'] = [
+                    'id'        => $khachHang->id,
+                    'ho_ten'    => $khachHang->ho_ten,
+                    'email'     => $khachHang->email,
+                    'gioi_tinh' => $khachHang->gioi_tinh,
+                    'ngay_sinh' => $khachHang->ngay_sinh
+                ];
+                return true; // đăng nhập thành công
+            }
+
+            return false; // mật khẩu sai
         }
         public function scDoiMatKhau($userId, $newPassword) {
             $khachHang = KhachHang::find($userId);

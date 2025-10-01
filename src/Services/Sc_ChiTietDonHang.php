@@ -36,7 +36,8 @@ class Sc_ChiTietDonHang {
             've.suatChieu.phim',       // thông tin phim
             've.suatChieu.phongChieu.rapChieuPhim', // rạp
             've.ghe',                  // ghế
-            've.khachhang'             // khách hàng
+            've.khachhang',
+            've.donHang.nhanVien.nguoiDungInternals'             // khách hàng
         ])->find($id);
 
         if (!$donHang) {

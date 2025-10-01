@@ -90,6 +90,10 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('DELETE', '/phan-cong/{id:\d+}', [Ctrl_PhanCong::class, 'xoa1PhanCong', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'docPhanCong', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong-theo-nv', [Ctrl_PhanCong::class, 'docPhanCongTheoNV', ['Nhân viên']]);
+    $r->addRoute('GET', '/doc-khach-hang', [Ctrl_KhachHang::class, 'docKhachHang', ['Nhân viên']]);
+    $r->addRoute('GET', '/doc-don-hang-theo-rap/{id:\d+}', [Ctrl_DonHang::class, 'docDonHangTheoRap', ['Nhân viên']]);
+    $r->addRoute('GET', '/doc-giao-dich/{id:\d+}', [Ctrl_DonHang::class, 'docDonHangKH', ['Nhân viên']]);
+    $r->addRoute('PUT', '/trang-thai-khach-hang/{id:\d+}', [Ctrl_KhachHang::class, 'suaTrangThai', ['Nhân viên']]);
     $r->addRoute('POST', '/banner', [Ctrl_Banner::class, 'them', ['Admin']]);
     $r->addRoute('GET', '/banner', [Ctrl_Banner::class, 'docTatCa', ['Admin']]);
     $r->addRoute('GET', '/banner/side-show', [Ctrl_Banner::class, 'docSideShow']);

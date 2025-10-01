@@ -90,6 +90,37 @@ class Sc_DonHang {
 
         return $donhang;
     }
+    public function docDonHangTheoRap($idRap)
+    {
+        $donhang = DonHang::with([
+                'user',
+                'suatChieu.phongChieu.rapChieuPhim',
+                'suatChieu.phim',
+                'theQuaTang',
+                'chiTietDonHang',
+                've'
+            ])
+            ->whereHas('suatChieu.phongChieu.rapChieuPhim', function ($query) use ($idRap) {
+                $query->where('id', $idRap);
+            })
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return $donhang;
+    }
+
+    public function docDonHang($idKhachHang) {
+        $donhang = DonHang::where('user_id', $idKhachHang)
+                    ->with([
+                        'suatChieu.phongChieu.rapChieuPhim',
+                        'suatChieu.phim',
+                        'theQuaTang'
+                    ])
+                    ->orderBy('id', 'desc')
+                    ->get();
+
+        return $donhang;
+    }
 
     public function docOnline() {
         $user = $_SESSION['user'];
@@ -113,6 +144,4 @@ class Sc_DonHang {
         }
         return false;
     }
-
-    
 }
