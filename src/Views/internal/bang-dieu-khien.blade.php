@@ -280,9 +280,9 @@
                     <span class="text-xs text-center font-medium text-gray-700">Gửi yêu cầu</span>
             </a>
             <!-- Chat -->
-            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/chat" 
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/tu-van" 
                 class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" 
-                data-tooltip="Chat">
+                data-tooltip="Tư vấn khách hàng">
                     <div class="w-12 h-12 flex items-center justify-center bg-indigo-100 rounded-full mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" 
                             class="h-6 w-6 text-indigo-600" 
@@ -293,7 +293,7 @@
                                 d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8-1.486 0-2.882-.324-4.057-.889L3 20l1.356-3.215C3.486 15.62 3 13.865 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
                     </div>
-                    <span class="text-xs text-center font-medium text-gray-700">Chat</span>
+                    <span class="text-xs text-center font-medium text-gray-700">Tư vấn</span>
             </a>
             @endif    
             

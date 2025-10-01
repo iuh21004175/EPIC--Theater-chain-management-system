@@ -22,6 +22,9 @@ use App\Controllers\Ctrl_TheQuaTang;
 use App\Controllers\Ctrl_DanhGia;
 use App\Controllers\Ctrl_Banner;
 use App\Controllers\Ctrl_MuaPhim;
+use App\Controllers\Ctrl_TuVan;
+use App\Controllers\Ctrl_ChatBotAI;
+
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
     $r->addRoute('POST', '/nhan-vien-quen-mat-khau', [Ctrl_XacThucInternal::class, 'xacThucEmailLayLaiMatKhau']);
@@ -94,6 +97,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('PUT', '/banner/{id:\d+}/trang-thai', [Ctrl_Banner::class, 'thayDoiTrangThai', ['Admin']]);
     $r->addRoute('DELETE', '/banner/{id:\d+}', [Ctrl_Banner::class, 'xoa', ['Admin']]);
     $r->addRoute('PUT', '/banner/cap-nhat-side-show', [Ctrl_Banner::class, 'sapXep', ['Admin']]);
+    $r->addRoute('GET', '/danh-sach-phien-chat', [Ctrl_TuVan::class, 'nhanVienLayDanhSachPhienChatPhanTrang', ['Nhân viên']]);
     // Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('GET', '/google', [Ctrl_XacThucCustomer::class, 'googleLogin']);
@@ -141,6 +145,13 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/doc-phim-ban-chay', [Ctrl_Ve::class, 'doctop4PhimTheoVe']);
     $r->addRoute('GET', '/lay-trang-thai-mua-phim', [Ctrl_MuaPhim::class, 'docTrangThaiMuaPhim']);
     $r->addRoute('POST', '/them-mua-phim', [Ctrl_MuaPhim::class, 'themMuaPhim']);
+    $r->addRoute('GET', '/lich-su-chat', [Ctrl_ChatBotAI::class, 'getMessages']);
+    $r->addRoute('POST', '/gui-tin-nhan-chatbot', [Ctrl_ChatBotAI::class, 'addMessage']);
+
+    // Tư vấn
+    $r->addRoute('POST', '/tao-phien-chat', [Ctrl_TuVan::class, 'khachHangTaoPhienChat']);
+    $r->addRoute('GET', '/danh-sach-phien-chat-khach-hang', [Ctrl_TuVan::class, 'khachHangLayDanhSachPhienChat']);
+    $r->addRoute('GET', '/chi-tiet-phien-chat/{id:\d+}', [Ctrl_TuVan::class, 'layChiTietPhienChat']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

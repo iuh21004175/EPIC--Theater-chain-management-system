@@ -139,7 +139,9 @@
         }
         public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null, $doTuoi = null, $year = null, $dangChieu = null, $xemNhieu = null) {
             $query = Phim::with(['TheLoai.TheLoai']);
-
+            if($_SESSION['UserInternal']['VaiTro'] == 'Quản lý rạp'){
+                
+            }
             if ($tuKhoaTimKiem) {
                 $query->where(function($q) use ($tuKhoaTimKiem) {
                     $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")

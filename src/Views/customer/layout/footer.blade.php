@@ -72,7 +72,7 @@
     </div>
 </footer>
 
-<div id="ai-chatbox" class="fixed bottom-10 right-10 z-50" data-urlRealtiem="{{$_ENV['URL_SERVER_REALTIME']}}">
+<div id="ai-chatbox" class="fixed bottom-10 right-10 z-50"  data-urlRealtiem="{{$_ENV['URL_SERVER_REALTIME']}}">
     <input type="hidden" id="userid" value="{{$_SESSION['user']['id'] ?? ''}}">
     <button id="btn-open-chat" class="ai-chatbot-btn group">
         <span class="sr-only">Mở Chatbot AI</span>
@@ -95,81 +95,28 @@
         </span>
     <span class="ai-chatbot-label-left">Epic AI Chat</span>
     </button>
-    <div id="chatbox-panel" class="hidden bg-white rounded-2xl shadow-2xl w-80 max-h-[70vh] flex flex-col overflow-hidden border border-blue-200 animate-fade-in">
+    <div id="chatbox-panel" class="hidden bg-white rounded-2xl shadow-xl w-96 h-[500px] flex flex-col overflow-hidden border border-blue-200 animate-fade-in fixed bottom-24 right-10" data-url="{{$_ENV['URL_WEB_BASE']}}">
         <div class="flex items-center justify-between bg-blue-600 text-white px-4 py-2">
             <span class="font-semibold">Epic AI Chatbot</span>
             <button id="btn-close-chat" class="text-white text-2xl leading-none hover:text-red-200">&times;</button>
         </div>
-        <div id="chatbox-messages" class="flex-1 p-3 overflow-y-auto text-sm bg-blue-50"></div>
-        <form id="chatbox-form" class="flex border-t bg-white">
-            <input id="chatbox-input" autocomplete="off" type="text" class="flex-1 px-3 py-2 outline-none text-gray-800" placeholder="Nhập câu hỏi...">
-            <button class="bg-blue-600 text-white px-4 hover:bg-blue-700 transition" type="submit">Gửi</button>
+        <div id="chatbox-messages" class="flex-1 p-4 overflow-y-auto text-sm bg-blue-50 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
+        </div>
+        
+        <!-- Thêm khu vực tin nhắn nhanh -->
+        <div id="quick-messages" class="p-2 bg-blue-50 border-t border-blue-100 overflow-x-auto whitespace-nowrap h-16">
+            <div class="flex space-x-2 pb-1">
+                <!-- Các nút sẽ được tạo bởi JavaScript -->
+            </div>
+        </div>
+        
+        <form id="chatbox-form" class="flex border-t bg-white p-2">
+            <input id="chatbox-input" autocomplete="off" type="text" class="flex-1 px-4 py-2 rounded-l-full border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Nhập câu hỏi...">
+            <button class="bg-blue-600 text-white px-4 py-2 rounded-r-full hover:bg-blue-700 transition" type="submit">Gửi</button>
         </form>
     </div>
 </div>
     <style>
-        #ai-chatbox .animate-fade-in { animation: fadeInUp 0.2s; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(40px);}
-            to { opacity: 1; transform: translateY(0);}
-        }
-        #chatbox-panel::-webkit-scrollbar { width: 6px; }
-        #chatbox-panel::-webkit-scrollbar-thumb { background: #e0e7ef; border-radius: 3px; }
-        #chatbox-messages { min-height: 300px; }
-
-        /* Chatbot AI button styles */
-        .ai-chatbot-btn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2563eb 60%, #60a5fa 100%);
-            box-shadow: 0 0 0 6px rgba(37,99,235,0.15), 0 8px 32px 0 rgba(37,99,235,0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            cursor: pointer;
-            transition: box-shadow 0.2s, transform 0.2s;
-            z-index: 100;
-            animation: ai-float 2.5s ease-in-out infinite;
-            border: none;
-            outline: none;
-        }
-        .ai-chatbot-btn:focus, .ai-chatbot-btn:hover {
-            box-shadow: 0 0 0 10px rgba(37,99,235,0.25), 0 8px 32px 0 rgba(37,99,235,0.35);
-            transform: scale(1.08);
-        }
-        @keyframes ai-float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        .ai-chatbot-icon {
-            width: 44px;
-            height: 44px;
-            filter: drop-shadow(0 0 8px #60a5fa88);
-        }
-        .ai-chatbot-label-left {
-            position: absolute;
-            right: 100%;
-            top: 50%;
-            transform: translateY(-50%) scale(0.8);
-            background: #2563eb;
-            color: #fff;
-            font-weight: 600;
-            font-size: 1rem;
-            border-radius: 1.5rem;
-            padding: 0.5rem 1.2rem;
-            margin-right: 1rem;
-            box-shadow: 0 2px 12px 0 rgba(37,99,235,0.15);
-            opacity: 0;
-            pointer-events: none;
-            transition: transform 0.2s, opacity 0.2s;
-            white-space: nowrap;
-        }
-        .ai-chatbot-btn:hover .ai-chatbot-label-left,
-        .ai-chatbot-btn:focus .ai-chatbot-label-left {
-            transform: translateY(-50%) scale(1);
-            opacity: 0.95;
-        }
+        
     </style>
     <script type="module" src="{{$_ENV['URL_WEB_BASE']}}/js/chat.js"></script>

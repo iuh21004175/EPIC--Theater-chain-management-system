@@ -16,6 +16,7 @@ use App\Controllers\Ctrl_ThongKe;
 use App\Controllers\Ctrl_SuatChieu;
 use App\Controllers\Ctrl_LichLamViec;
 use App\Controllers\Ctrl_DuyetSuatChieu;
+use App\Controllers\Ctrl_TuVan;
 use function App\Core\view;
 
 // Vai trò: Quản trị viên, Nhân viên, Khách hàng
@@ -46,6 +47,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/yeu-cau', [Ctrl_LichLamViec::class, 'yeuCau', ['Nhân viên']]);
     $r->addRoute('GET', '/duyet-suat-chieu', [Ctrl_DuyetSuatChieu::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/duyet-suat-chieu/{id:\d+}', [Ctrl_DuyetSuatChieu::class, 'chiTiet', ['Quản lý chuỗi rạp']]);
+    // Tư vấn
+    $r->addRoute('GET', '/tu-van', [Ctrl_TuVan::class, 'pageNhanVienTuVan', ['Nhân viên']]);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
