@@ -7,6 +7,9 @@
         public function index(){
             return view('internal.san-pham-an-uong');
         }
+        public function sanPham(){
+            return view('customer.san-pham');
+        }
         public function themDanhMuc(){
             $service = new Sc_SanPham();
             try {

@@ -1,5 +1,67 @@
 import { socket } from "./util/socket.js";
 import CustomerSpinner from "./util/spinner-khach-hang.js";
+import Pusher from "pusher-js";
+
+// =====================
+// Khởi tạo Pusher notify
+// =====================
+let pusher = null;
+document.addEventListener("DOMContentLoaded", function () {
+    const userId = document.getElementById("userid").value;
+    if (userId) {
+        pusher = new Pusher("03dc77ca859c49e35e41", {
+            cluster: "ap1",
+            forceTLS: true
+        });
+        const channel = pusher.subscribe(`khachhang-${userId}`);
+        channel.bind("new-message", function (data) {
+            console.log("Pusher notify:", data);
+            showNotifyBox(data.preview || data.noi_dung);
+        });
+    }
+});
+
+// =====================
+// Notify mini-box (ẩn sau 3-4s)
+// =====================
+function showNotifyBox(msg) {
+    let notifyBox = document.getElementById("notifyBox");
+    if (!notifyBox) {
+        notifyBox = document.createElement("div");
+        notifyBox.id = "notifyBox";
+        notifyBox.className = "fixed bottom-20 right-6 bg-white shadow-lg rounded-lg border border-gray-200 w-64 z-50 hidden transition-opacity duration-500";
+        notifyBox.innerHTML = `
+            <div class="p-3 flex items-start space-x-2 cursor-pointer">
+                <div class="flex-shrink-0">💬</div>
+                <div class="flex-1">
+                    <p class="text-sm text-gray-800 font-semibold">Tin nhắn mới</p>
+                    <p id="messages" class="text-xs text-gray-600 mt-1"></p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(notifyBox);
+    }
+
+    const messages = notifyBox.querySelector("#messages");
+    messages.textContent = msg;
+
+    notifyBox.style.display = "block";
+    notifyBox.style.opacity = "1";
+
+    setTimeout(() => {
+        notifyBox.style.opacity = "0";
+        setTimeout(() => {
+            notifyBox.style.display = "none";
+        }, 500);
+    }, 4000);
+
+    notifyBox.onclick = () => {
+        notifyBox.style.display = "none";
+        const chatboxFb = document.getElementById("chatboxFb");
+        chatboxFb.style.display = "flex";
+    };
+}
+
 
 // Khởi tạo khi DOM loaded
 document.addEventListener('DOMContentLoaded', function() {

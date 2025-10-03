@@ -12,6 +12,7 @@ class Sc_DonHang {
         $suat_chieu_id = $input['suat_chieu_id'] ?? null;
         $thequatang_id = $input['thequatang_id'] ?? null;
         $phim_id = $input['phim_id'] ?? null;
+        $rap_id = $input['rap_id'] ?? null;
         $the_qua_tang_su_dung = $input['the_qua_tang_su_dung'] ?? null;
         $phuong_thuc_thanh_toan = $input['phuong_thuc_thanh_toan'] ?? 1;
         $trang_thai = $input['trang_thai'] ?? 1;
@@ -27,6 +28,7 @@ class Sc_DonHang {
             'qr_code' => $qr_code,
             'tong_tien' => $tong_tien,
             'phim_id' => $phim_id,
+            'rap_id' => $rap_id,
             'phuong_thuc_thanh_toan' => $phuong_thuc_thanh_toan,
             'trang_thai' => $trang_thai,
             'phuong_thuc_mua' => $phuong_thuc_mua,
@@ -50,6 +52,7 @@ class Sc_DonHang {
         $phuong_thuc_thanh_toan = $input['phuong_thuc_thanh_toan'] ?? 1;
         $trang_thai = $input['trang_thai'] ?? 1;
         $ma_ve = $input['ma_ve'] ?? null;
+        $rap_id = $input['rap_id'] ?? null;
         $phuong_thuc_mua = $input['phuong_thuc_mua'] ?? 0;
         $qr_code = 'https://quickchart.io/qr?text=' . urlencode($ma_ve) . '&size=300';
         $donhang = DonHang::create([
@@ -61,6 +64,7 @@ class Sc_DonHang {
             'qr_code' => $qr_code,
             'tong_tien' => $tong_tien,
             'phim_id' => $phim_id,
+            'rap_id' => $rap_id,
             'phuong_thuc_thanh_toan' => $phuong_thuc_thanh_toan,
             'trang_thai' => $trang_thai,
             'phuong_thuc_mua' => $phuong_thuc_mua,

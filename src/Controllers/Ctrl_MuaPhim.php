@@ -11,7 +11,7 @@ class Ctrl_MuaPhim {
 
         $service = new Sc_MuaPhim();
         try {
-            $trangThai = $service->daMua($khachHangId, $phimId); 
+            $trangThai = $service->daMua($khachHangId); 
             return ['success' => true, 'trang_thai' => $trangThai];
         } catch (\Exception $e) {
             return ['success' => false, 'message' => 'Lỗi: ' . $e->getMessage()];

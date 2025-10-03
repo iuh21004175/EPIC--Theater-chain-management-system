@@ -68,51 +68,173 @@
     </div>
 </footer>
 
-<div id="ai-chatbox" class="fixed bottom-10 right-10 z-50"  data-urlRealtiem="{{$_ENV['URL_SERVER_REALTIME']}}">
-    <input type="hidden" id="userid" value="{{$_SESSION['user']['id'] ?? ''}}">
-    <button id="btn-open-chat" class="ai-chatbot-btn group">
-        <span class="sr-only">Mở Chatbot AI</span>
-        <span class="ai-chatbot-icon flex items-center justify-center">
-            <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="22" cy="22" r="22" fill="#2563eb"/>
-                <g filter="url(#glow)">
-                    <path d="M22 13c-4.97 0-9 3.13-9 7 0 2.13 1.36 4.01 3.5 5.25V30a2 2 0 002 2h7a2 2 0 002-2v-4.75C29.64 24.01 31 22.13 31 20c0-3.87-4.03-7-9-7zm0 2c3.87 0 7 2.42 7 5s-3.13 5-7 5-7-2.42-7-5 3.13-5 7-5zm-2 10h4v5h-4v-5z" fill="#fff"/>
-                </g>
-                <defs>
-                    <filter id="glow" x="0" y="0" width="44" height="44" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                        <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
-                        <feMerge>
-                            <feMergeNode in="coloredBlur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
-                </defs>
-            </svg>
-        </span>
-    <span class="ai-chatbot-label-left">Epic AI Chat</span>
-    </button>
-    <div id="chatbox-panel" class="hidden bg-white rounded-2xl shadow-xl w-96 h-[500px] flex flex-col overflow-hidden border border-blue-200 animate-fade-in fixed bottom-24 right-10" data-url="{{$_ENV['URL_WEB_BASE']}}">
-        <div class="flex items-center justify-between bg-blue-600 text-white px-4 py-2">
-            <span class="font-semibold">Epic AI Chatbot</span>
-            <button id="btn-close-chat" class="text-white text-2xl leading-none hover:text-red-200">&times;</button>
-        </div>
-        <div id="chatbox-messages" class="flex-1 p-4 overflow-y-auto text-sm bg-blue-50 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
-        </div>
-        
-        <!-- Thêm khu vực tin nhắn nhanh -->
-        <div id="quick-messages" class="p-2 bg-blue-50 border-t border-blue-100 overflow-x-auto whitespace-nowrap h-16">
-            <div class="flex space-x-2 pb-1">
-                <!-- Các nút sẽ được tạo bởi JavaScript -->
+    <div id="ai-chatbox" class="fixed bottom-10 right-10 z-50"  data-urlRealtiem="{{$_ENV['URL_SERVER_REALTIME']}}">
+        <input type="hidden" id="userid" value="{{$_SESSION['user']['id'] ?? ''}}">
+        <button id="btn-open-chat" class="ai-chatbot-btn group">
+            <span class="sr-only">Mở Chatbot AI</span>
+            <span class="ai-chatbot-icon flex items-center justify-center">
+                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="22" cy="22" r="22" fill="#2563eb"/>
+                    <g filter="url(#glow)">
+                        <path d="M22 13c-4.97 0-9 3.13-9 7 0 2.13 1.36 4.01 3.5 5.25V30a2 2 0 002 2h7a2 2 0 002-2v-4.75C29.64 24.01 31 22.13 31 20c0-3.87-4.03-7-9-7zm0 2c3.87 0 7 2.42 7 5s-3.13 5-7 5-7-2.42-7-5 3.13-5 7-5zm-2 10h4v5h-4v-5z" fill="#fff"/>
+                    </g>
+                    <defs>
+                        <filter id="glow" x="0" y="0" width="44" height="44" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                            <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                </svg>
+            </span>
+        <span class="ai-chatbot-label-left">Epic AI Chat</span>
+        </button>
+        <div id="chatbox-panel" class="hidden bg-white rounded-2xl shadow-xl w-96 h-[500px] flex flex-col overflow-hidden border border-blue-200 animate-fade-in fixed bottom-24 right-10" data-url="{{$_ENV['URL_WEB_BASE']}}">
+            <div class="flex items-center justify-between bg-blue-600 text-white px-4 py-2">
+                <span class="font-semibold">Epic AI Chatbot</span>
+                <button id="btn-close-chat" class="text-white text-2xl leading-none hover:text-red-200">&times;</button>
             </div>
+            <div id="chatbox-messages" class="flex-1 p-4 overflow-y-auto text-sm bg-blue-50 scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
+            </div>
+            
+            <!-- Thêm khu vực tin nhắn nhanh -->
+            <div id="quick-messages" class="p-2 bg-blue-50 border-t border-blue-100 overflow-x-auto whitespace-nowrap h-16">
+                <div class="flex space-x-2 pb-1">
+                    <!-- Các nút sẽ được tạo bởi JavaScript -->
+                </div>
+            </div>
+            
+            <form id="chatbox-form" class="flex border-t bg-white p-2">
+                <input id="chatbox-input" autocomplete="off" type="text" class="flex-1 px-4 py-2 rounded-l-full border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Nhập câu hỏi...">
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-r-full hover:bg-blue-700 transition" type="submit">Gửi</button>
+            </form>
         </div>
-        
-        <form id="chatbox-form" class="flex border-t bg-white p-2">
-            <input id="chatbox-input" autocomplete="off" type="text" class="flex-1 px-4 py-2 rounded-l-full border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent" placeholder="Nhập câu hỏi...">
-            <button class="bg-blue-600 text-white px-4 py-2 rounded-r-full hover:bg-blue-700 transition" type="submit">Gửi</button>
-        </form>
     </div>
-</div>
+    <div class="chat-container" id="notifyBox">
+        <div class="chat-header">Tin nhắn mới từ Epic</div>
+        <div id="messages" class="chat-messages"></div>
+    </div>
+
     <style>
-        
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+
+        /* Box mini chat thông báo */
+        .chat-container {
+        width: 320px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        display: none; /* Ẩn mặc định */
+        flex-direction: column;
+        overflow: hidden;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        opacity: 1;
+        transition: opacity 0.5s;
+        z-index: 9999;
+        }
+
+        .chat-header {
+        background: #0084ff;
+        color: white;
+        padding: 10px;
+        font-weight: bold;
+        text-align: center;
+        font-size: 14px;
+        }
+
+        .chat-messages {
+        padding: 10px;
+        background: #f9f9f9;
+        min-height: 60px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        }
+
+        .message {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 18px;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 14px;
+        }
+        .message.left {
+        background: #e5e5ea;
+        color: black;
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        }
+        .message.right {
+        background: #0084ff;
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+        }
     </style>
+    
     <script type="module" src="{{$_ENV['URL_WEB_BASE']}}/js/chat.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const userInput = document.getElementById("userid");
+            if (userInput) {
+                const userId = userInput.value;
+
+                // Khởi tạo Pusher
+                const pusher = new Pusher("946ac90eed980a2ca855", {
+                    cluster: "ap1",
+                    forceTLS: true
+                });
+
+                const channel = pusher.subscribe(`khachhang-${userId}`);
+                channel.bind("new-message", function (data) {
+                    showNotifyBox(data.preview || data.noi_dung || "Bạn có tin nhắn mới!");
+                });
+            }
+        });
+
+        // Notify mini-box 
+        function showNotifyBox(msg) {
+            let notifyBox = document.getElementById("notifyBox");
+            if (!notifyBox) {
+                notifyBox = document.createElement("div");
+                notifyBox.id = "notifyBox";
+                notifyBox.className = "fixed bottom-20 right-6 bg-white shadow-lg rounded-lg border border-gray-200 w-64 z-50 hidden transition-opacity duration-500";
+                notifyBox.innerHTML = `
+                    <div class="p-3 flex items-start space-x-2 cursor-pointer">
+                        <div class="flex-shrink-0"></div>
+                        <div class="flex-1">
+                            <p class="text-sm text-gray-800 font-semibold">Tin nhắn mới</p>
+                            <p id="messages" class="text-xs text-gray-600 mt-1"></p>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(notifyBox);
+            }
+
+            const messages = notifyBox.querySelector("#messages");
+            messages.textContent = msg;
+
+            notifyBox.style.display = "block";
+            notifyBox.style.opacity = "1";
+
+            // Tự ẩn sau 5s
+            setTimeout(() => {
+                notifyBox.classList.add("toast-hide");
+                setTimeout(() => {
+                    notifyBox.style.display = "none";
+                    notifyBox.classList.remove("toast", "toast-hide");
+                }, 500);
+            }, 10000);
+
+            // Điều hướng khi click
+            notifyBox.onclick = () => {
+                window.location.href = "{{$_ENV['URL_WEB_BASE']}}/tu-van/chat-truc-tuyen";
+            };
+        }
+    </script>

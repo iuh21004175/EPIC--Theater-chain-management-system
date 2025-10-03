@@ -132,9 +132,72 @@
       <img id="full-image" src="">
     </div>
   </section>
+
+  <div class="chat-container" id="notifyBox">
+    <div class="chat-header">💬 Tin nhắn mới</div>
+    <div id="messages" class="chat-messages"></div>
+  </div>
+
 </main>
 
 <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+
+    /* Box mini chat thông báo */
+    .chat-container {
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      display: none; /* Ẩn mặc định */
+      flex-direction: column;
+      overflow: hidden;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      opacity: 1;
+      transition: opacity 0.5s;
+      z-index: 9999;
+    }
+
+    .chat-header {
+      background: #0084ff;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .chat-messages {
+      padding: 10px;
+      background: #f9f9f9;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .message {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 18px;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-size: 14px;
+    }
+    .message.left {
+      background: #e5e5ea;
+      color: black;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .message.right {
+      background: #0084ff;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
   .chatbox-fb {
     background: #fff;
     border-radius: 1.25rem;
