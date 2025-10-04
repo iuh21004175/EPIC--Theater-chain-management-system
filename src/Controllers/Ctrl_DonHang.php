@@ -13,6 +13,11 @@ class Ctrl_DonHang {
     public function index() {
         return view('customer.ve-cua-toi');
     }
+
+    public function donHang() {
+        return view('internal.don-hang');
+    }
+
     public function themDonHang() {
         header('Content-Type: application/json'); 
         $service = new Sc_DonHang();
@@ -104,6 +109,31 @@ class Ctrl_DonHang {
         }
     }
 
+    public function docDonHangKH($idKhachHang) {
+        $service = new Sc_DonHang();
+        try {
+            $donhang = $service->docDonHang($idKhachHang); // truyền id vào service
+            if ($donhang && count($donhang) > 0) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Lấy đơn hàng thành công',
+                    'data' => $donhang
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Không tìm thấy đơn hàng'
+                ]);
+            }
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ]);
+        }
+        exit;
+    }
+
     public function docDonHangOnline() {
         $service = new Sc_DonHang();
         try {
@@ -130,6 +160,30 @@ class Ctrl_DonHang {
         }
     }
 
+    public function docDonHangTheoRap($idRap) {
+        $service = new Sc_DonHang();
+        try {
+            $donhang = $service-> docDonHangTheoRap($idRap); // truyền id vào service
+            if ($donhang && count($donhang) > 0) {
+                echo json_encode([
+                    'success' => true, 
+                    'message' => 'Lấy đơn hàng thành công',
+                    'data' => $donhang
+                ]);
+            } else {
+                echo json_encode([
+                    'success' => false, 
+                    'message' => 'Không tìm thấy đơn hàng'
+                ]);
+            }
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false, 
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ]);
+        }
+        exit;
+    }
 
     public function guiDonHang() {
         header('Content-Type: application/json; charset=utf-8');

@@ -282,7 +282,8 @@ function openModalDetail(ve){
   const isCancelled = ve.trang_thai===0;
   const startTime = ve.ve?.[0]?.suat_chieu?.batdau ? new Date(ve.ve[0].suat_chieu.batdau) : null;
   const now = new Date();
-  const canCancel = !isCancelled && startTime && startTime > now;
+  const canCancel = !isCancelled && startTime && (now < new Date(startTime.getTime() - 15 * 60 * 1000));
+
 
   let html = `
     <div class="relative ${isCancelled?'modal-cancelled':''} space-y-2 p-2 max-h-[80vh] overflow-y-auto">

@@ -43,14 +43,21 @@ class Ctrl_XacThucCustomer
         }
     }
 
-    public function dangNhap()
+    public function dangNhap() 
     {
-        try{
+        try {
             $scXacThuc = new Sc_XacThucCustomer();
-            if ($scXacThuc->scDangNhap()) {
+            $result = $scXacThuc->scDangNhap();
+
+            if ($result === true) {
                 return [
-                    'status'   => 'success',
-                    'message'  => 'Đăng nhập thành công!'
+                    'status'  => 'success',
+                    'message' => 'Đăng nhập thành công!'
+                ];
+            } elseif ($result === 'disabled') {
+                return [
+                    'status'  => 'error',
+                    'message' => 'Tài khoản của bạn bị vô hiệu hóa.'
                 ];
             } else {
                 return [
@@ -58,7 +65,7 @@ class Ctrl_XacThucCustomer
                     'message' => 'Email hoặc mật khẩu không đúng. Vui lòng thử lại.'
                 ];
             }
-        } catch( \Exception $e) {
+        } catch (\Exception $e) {
             return [
                 'status'  => 'error',
                 'message' => 'Đã xảy ra lỗi. Vui lòng thử lại sau.',

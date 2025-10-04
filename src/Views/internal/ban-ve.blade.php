@@ -580,6 +580,7 @@ function random9Digits() { return Math.floor(100000000 + Math.random() * 9000000
                         the_qua_tang_su_dung: 0,
                         tong_tien: totalBefore,
                         phuong_thuc_thanh_toan: 2,
+                        phuong_thuc_mua: 2,
                         ma_ve: maVe,
                         trang_thai: trangThai
                     })
@@ -670,6 +671,7 @@ function random9Digits() { return Math.floor(100000000 + Math.random() * 9000000
                         the_qua_tang_su_dung: 0,
                         tong_tien: totalBefore,
                         phuong_thuc_thanh_toan: 1,
+                        phuong_thuc_mua: 2,
                         ma_ve: maVe,
                         trang_thai: trangThai
                     })

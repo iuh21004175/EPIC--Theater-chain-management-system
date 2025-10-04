@@ -9,6 +9,21 @@
         function khachHang() {
             return view('internal.khach-hang');
         }
+        public function docKhachHang(){
+            $service = new Sc_KhachHang();
+            try {
+                $result = $service->doc();
+                return [
+                    'success' => true,
+                    'data' => $result
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải danh sách khách hàng: ' . $e->getMessage()
+                ];
+            }
+        }
         function thongTinKhachHang() {
             $scKhachHang = new Sc_KhachHang();
             $user = $_SESSION['user'];
@@ -69,6 +84,28 @@
             exit; // đảm bảo không xuất thêm content ngoài JSON
         }
 
+         public function suaTrangThai($argc){
+            $service = new Sc_KhachHang();
+            try {
+                $result = $service->updateTrangThai($argc['id']);
+                if ($result) {
+                    return [
+                        'success' => true,
+                        'message' => 'Cập nhật trạng thái thành công'
+                    ];
+                } else {
+                    return [
+                        'success' => false,
+                        'message' => 'Cập nhật trạng thái thất bại'
+                    ];
+                }
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi cập nhật trạng thái: ' . $e->getMessage()
+                ];
+            }
+        }
 
     }
 ?>

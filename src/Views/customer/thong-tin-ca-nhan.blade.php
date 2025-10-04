@@ -56,6 +56,14 @@
                         <span id="tb_gioi_tinh" class="text-red-500 text-sm"></span>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-y-4 md:gap-x-6 items-center">
+                    <label for="phone" class="md:col-span-1 text-gray-700 px-4 font-medium text-right md:text-left">Số điện thoại:</label>
+                    <div class="md:col-span-2">
+                        <input type="tel" id="phone" class="block w-full px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300" value="">
+                        <span id="tb_phone" class="text-red-500 text-sm"></span>
+                    </div>
+                </div>
             </div>
             <div class="mt-8 flex justify-center space-x-4">
                  <button id="btnUpdate" class="bg-red-600 hover:bg-red-700 mb-2 text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500">
@@ -80,6 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("email").value = data.email ?? "";
             document.getElementById("ngay_sinh").value = data.ngay_sinh ?? "";
             document.getElementById("gioi_tinh").value = data.gioi_tinh ?? "";
+            document.getElementById("phone").value = data.so_dien_thoai ?? "";
         }
     } catch (err) {
         console.error("Lỗi fetch:", err);
@@ -125,11 +134,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         errEl.textContent = ""; return true;
     };
 
+    const checkPhone = () => {
+        const val = document.getElementById("phone").value.trim();
+        const errEl = document.getElementById("tb_phone");
+        const regex = /^(03|05|07|08|09)[0-9]{8}$/;
+
+        if (!val) {
+            errEl.textContent = "Số điện thoại không được để trống!";
+            return false;
+        }
+        if (!regex.test(val)) {
+            errEl.textContent = "Số điện thoại phải gồm 10 số và bắt đầu bằng 03, 05, 07, 08 hoặc 09!";
+            return false;
+        }
+
+        errEl.textContent = "";
+        return true;
+    };
+
     // Blur events
     document.getElementById('ho_ten').addEventListener('blur', checkName);
     document.getElementById('email').addEventListener('blur', checkEmail);
     document.getElementById('ngay_sinh').addEventListener('blur', checkNgaySinh);
     document.getElementById('gioi_tinh').addEventListener('blur', checkGender);
+    document.getElementById('phone').addEventListener('blur', checkPhone);
 
     // Click update
     document.getElementById("btnUpdate").addEventListener('click', async (e) => {
@@ -140,7 +168,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             ho_ten: document.getElementById("ho_ten").value.trim(),
             email: document.getElementById("email").value.trim(),
             ngay_sinh: document.getElementById("ngay_sinh").value,
-            gioi_tinh: document.getElementById("gioi_tinh").value
+            gioi_tinh: document.getElementById("gioi_tinh").value,
+            so_dien_thoai: document.getElementById("phone").value.trim()
         };
 
         try {

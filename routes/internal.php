@@ -17,8 +17,9 @@ use App\Controllers\Ctrl_SuatChieu;
 use App\Controllers\Ctrl_LichLamViec;
 use App\Controllers\Ctrl_DuyetSuatChieu;
 use App\Controllers\Ctrl_KhachHang;
-
 use App\Controllers\Ctrl_TuVan;
+use App\Controllers\Ctrl_DonHang;
+
 use function App\Core\view;
 
 // Vai trò: Quản trị viên, Nhân viên, Khách hàng
@@ -48,6 +49,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/ban-ve', [Ctrl_Phim::class, 'banVe', ['Nhân viên']]);
     $r->addRoute('GET', '/yeu-cau', [Ctrl_LichLamViec::class, 'yeuCau', ['Nhân viên']]);
     $r->addRoute('GET', '/khach-hang', [Ctrl_KhachHang::class, 'khachHang', ['Nhân viên']]);
+    $r->addRoute('GET', '/don-hang', [Ctrl_DonHang::class, 'donHang', ['Nhân viên']]);
     $r->addRoute('GET', '/duyet-suat-chieu', [Ctrl_DuyetSuatChieu::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/duyet-suat-chieu/{id:\d+}', [Ctrl_DuyetSuatChieu::class, 'chiTiet', ['Quản lý chuỗi rạp']]);
     // Tư vấn

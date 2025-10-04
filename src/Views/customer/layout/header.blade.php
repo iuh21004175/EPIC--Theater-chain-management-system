@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Epic Cinema</title>
-   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
-    <style>
+    <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
+    <style>    
         .btn-outline-primary-custom {
             color: #007bff;
             background-color: transparent;
@@ -146,6 +146,8 @@
                 </div>
             </div>
             <a href="{{$_ENV['URL_WEB_BASE']}}/goc-dien-anh" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Góc điện ảnh</a>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/san-pham" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Sản phẩm</a>
+            <a href="{{$_ENV['URL_WEB_BASE']}}/tin-tuc" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Tin tức</a>
             <a href="{{$_ENV['URL_WEB_BASE']}}/lich-chieu" class="text-gray-600 hover:text-red-600 font-semibold text-base transition duration-300 no-underline">Xem phim trực tuyến</a>
             <div class="relative group" id="rap-dropdown">
                 <button class="text-gray-600 hover:text-red-600 font-semibold flex items-center gap-1">
@@ -164,6 +166,9 @@
             <?php if (isset($_SESSION['user'])): 
                 $user = $_SESSION['user']; 
             ?>
+                <!-- Hidden input để Pusher notify -->
+                <input type="hidden" id="userid" value="<?= htmlspecialchars($user['id']) ?>">
+
                 <!-- Dropdown user -->
                 <div id="user-dropdown" class="relative group">
                     <button id="btn-user" class="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-md hover:bg-gray-200 transition">
@@ -181,9 +186,6 @@
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/the-qua-tang" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Thẻ quà tặng</a>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/doi-mat-khau" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đổi mật khẩu</a>
                         <a href="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat" class="block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đăng xuất</a>
-                        <!-- <form method="POST" action="{{ $_ENV['URL_WEB_BASE'] }}/dang-xuat">
-                            <button type="submit" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white">Đăng xuất</button>
-                        </form> -->
                     </div>
                 </div>
             <?php else: ?>
@@ -193,6 +195,8 @@
                 </button>
             <?php endif; ?>
         </div>
+
+    </div>  
     </div>
 </header>
 
@@ -276,14 +280,31 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="block text-gray-700 font-medium">Mật khẩu</label>
-                    <input type="password" id="registerPassword" name="registerPassword" class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500" placeholder="Tạo mật khẩu mạnh">
-                    <span id="tbRegisterPassword" class="text-red-500 text-sm mt-1 block"></span>
+                    <label class="block text-gray-700 font-medium">Số điện thoại</label>
+                    <input type="text" id="registerPhone" name="registerPhone"
+                        class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Nhập số điện thoại">
+                    <span id="tbRegisterPhone" class="text-red-500 text-sm mt-1 block"></span>
                 </div>
-                <div class="form-group">
-                    <label class="block text-gray-700 font-medium">Nhập lại mật khẩu</label>
-                    <input type="password" id="registerPasswordConfirm" name="registerPasswordConfirm" class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500" placeholder="Nhập lại mật khẩu">
-                    <span id="tbRegisterPasswordConfirm" class="text-red-500 text-sm mt-1 block"></span>
+
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <!-- Mật khẩu -->
+                    <div class="form-group flex-1">
+                        <label class="block text-gray-700 font-medium">Mật khẩu</label>
+                        <input type="password" id="registerPassword" name="registerPassword"
+                            class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Tạo mật khẩu mạnh">
+                        <span id="tbRegisterPassword" class="text-red-500 text-sm mt-1 block"></span>
+                    </div>
+
+                    <!-- Nhập lại mật khẩu -->
+                    <div class="form-group flex-1">
+                        <label class="block text-gray-700 font-medium">Nhập lại mật khẩu</label>
+                        <input type="password" id="registerPasswordConfirm" name="registerPasswordConfirm"
+                            class="w-full border border-gray-300 rounded-md p-2 mt-1 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Nhập lại mật khẩu">
+                        <span id="tbRegisterPasswordConfirm" class="text-red-500 text-sm mt-1 block"></span>
+                    </div>
                 </div>
                 
                 <div class="form-group flex items-center">
@@ -350,6 +371,7 @@
 </div>
 
 </body>
+
 <script>
     const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
     const salt = "{{ $_ENV['URL_SALT'] }}";
@@ -366,92 +388,92 @@
             .replace(/^-+|-+$/g, ""); // bỏ dấu - thừa
     }
    
-if (rapMenu) {
-    fetch(baseUrl + "/api/rap-phim-khach")
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.data.length > 0) {
-                data.data.forEach(rap => {
-                    const encoded = base64Encode(rap.id + salt);
-                    const a = document.createElement('a');
-                    a.href = `${baseUrl}/rap/${slugify(rap.ten)}-${encoded}`;
-                    a.textContent = rap.ten;
-                    a.className = "block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap";
-                    rapMenu.appendChild(a);
-                });
-            } else {
-                rapMenu.innerHTML = `<div class="px-4 py-2 text-gray-500">Không có rạp nào</div>`;
-            }
-        })
-        .catch(err => console.error('Lỗi load rạp:', err));
-}
-
-if (phimMenu) {
-    fetch(baseUrl + "/api/loai-phim")
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.data.length > 0) {
-                phimMenu.innerHTML = "";
-                data.data.forEach(loai => {
-                    const a = document.createElement("a");
-                    a.href = `${baseUrl}/phim?theLoai=${loai.id}`; 
-                    a.textContent = loai.ten;
-                    a.className = "block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap";
-                    phimMenu.appendChild(a);
-                });
-            } else {
-                phimMenu.innerHTML = '<div class="px-4 py-2 text-gray-500">Không có thể loại</div>';
-            }
-        })
-        .catch(err => console.error("Lỗi load thể loại:", err));
-}
-
-
-document.getElementById('btnSendReset').addEventListener('click', function() {
-    const btn = this; // nút
-    const email = document.getElementById('forgotEmail').value.trim();
-    const tbForgotEmail = document.getElementById('tbForgotEmail');
-
-    if(email === '') {
-        tbForgotEmail.textContent = 'Vui lòng nhập email.';
-        return;
+    if (rapMenu) {
+        fetch(baseUrl + "/api/rap-phim-khach")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    data.data.forEach(rap => {
+                        const encoded = base64Encode(rap.id + salt);
+                        const a = document.createElement('a');
+                        a.href = `${baseUrl}/rap/${slugify(rap.ten)}-${encoded}`;
+                        a.textContent = rap.ten;
+                        a.className = "block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap";
+                        rapMenu.appendChild(a);
+                    });
+                } else {
+                    rapMenu.innerHTML = `<div class="px-4 py-2 text-gray-500">Không có rạp nào</div>`;
+                }
+            })
+            .catch(err => console.error('Lỗi load rạp:', err));
     }
 
-    // đổi chữ nút
-    const originalText = btn.textContent;
-    btn.textContent = 'Đang gửi...';
-    btn.disabled = true;
+    if (phimMenu) {
+        fetch(baseUrl + "/api/loai-phim")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data.length > 0) {
+                    phimMenu.innerHTML = "";
+                    data.data.forEach(loai => {
+                        const a = document.createElement("a");
+                        a.href = `${baseUrl}/phim?theLoai=${loai.id}`; 
+                        a.textContent = loai.ten;
+                        a.className = "block px-4 py-2 text-gray-700 hover:bg-red-600 hover:text-white whitespace-nowrap";
+                        phimMenu.appendChild(a);
+                    });
+                } else {
+                    phimMenu.innerHTML = '<div class="px-4 py-2 text-gray-500">Không có thể loại</div>';
+                }
+            })
+            .catch(err => console.error("Lỗi load thể loại:", err));
+    }
 
-    fetch(baseUrl + "/api/reset-password", {  
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email })
-    })
-    .then(res => res.json())
-    .then(data => {
-        tbForgotEmail.textContent = data.message; 
-    })
-    .catch(err => {
-        console.error('Lỗi kiểm tra email / gửi mail:', err);
-        tbForgotEmail.textContent = 'Có lỗi xảy ra, vui lòng thử lại.';
-    })
-    .finally(() => {
-        // trả lại chữ nút
-        btn.textContent = originalText;
-        btn.disabled = false;
+
+    document.getElementById('btnSendReset').addEventListener('click', function() {
+        const btn = this; // nút
+        const email = document.getElementById('forgotEmail').value.trim();
+        const tbForgotEmail = document.getElementById('tbForgotEmail');
+
+        if(email === '') {
+            tbForgotEmail.textContent = 'Vui lòng nhập email.';
+            return;
+        }
+
+        // đổi chữ nút
+        const originalText = btn.textContent;
+        btn.textContent = 'Đang gửi...';
+        btn.disabled = true;
+
+        fetch(baseUrl + "/api/reset-password", {  
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            tbForgotEmail.textContent = data.message; 
+        })
+        .catch(err => {
+            console.error('Lỗi kiểm tra email / gửi mail:', err);
+            tbForgotEmail.textContent = 'Có lỗi xảy ra, vui lòng thử lại.';
+        })
+        .finally(() => {
+            // trả lại chữ nút
+            btn.textContent = originalText;
+            btn.disabled = false;
+        });
+        
     });
-    
-});
 
-document.querySelectorAll("nav a").forEach(link => {
-    const currentPath = window.location.pathname.replace(/\/$/, "");
-    const linkPath = new URL(link.href).pathname.replace(/\/$/, "");
-    
-    if (linkPath === currentPath) {
-        link.classList.remove("text-gray-600", "hover:text-red-600");
-        link.classList.add("text-red-600", "font-bold");
-    }
-});
+    document.querySelectorAll("nav a").forEach(link => {
+        const currentPath = window.location.pathname.replace(/\/$/, "");
+        const linkPath = new URL(link.href).pathname.replace(/\/$/, "");
+        
+        if (linkPath === currentPath) {
+            link.classList.remove("text-gray-600", "hover:text-red-600");
+            link.classList.add("text-red-600", "font-bold");
+        }
+    });
 
 </script>
 <script src="{{ $_ENV['URL_WEB_BASE'] }}/customer/js/auth.js"></script>

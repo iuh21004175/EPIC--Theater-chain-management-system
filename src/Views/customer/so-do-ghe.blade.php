@@ -491,7 +491,7 @@ async function handlePaymentSuccess(donhangId) {
     let html = `
       <div class="relative ${isCancelled ? 'modal-cancelled' : ''} space-y-2 p-2 max-h-[80vh] overflow-y-auto">
         ${isCancelled ? `<div class="modal-cancelled-overlay"><span>Đã hoàn vé</span></div>` : ''}
-        <div class="p-3 bg-white rounded shadow">
+        <div class="p-3 bg-white rounded shadow">a
           <h5 class="font-bold text-lg flex items-center gap-2">
             ${ve.ve?.[0]?.suat_chieu?.phim?.ten_phim || 'Không xác định'}
             <span class="inline-block px-2 py-0.5 text-xs font-semibold text-white bg-red-500 rounded">
@@ -698,7 +698,12 @@ function updateSelectedSeats(selectedSeatsContainer, totalPriceEl, continueConta
     if (selectedSeats.length === 0 && selectedFood.length === 0) {
         selectedSeatsContainer.innerHTML = '<div class="text-gray-500 text-sm">Chưa chọn ghế</div>';
         continueContainer.classList.add("hidden");
-    } else {
+    } 
+    if (selectedSeats.length > 8) {
+            alert("Bạn chỉ được chọn tối đa 8 ghế!");
+            return;
+    }
+    else {
         // Xử lý ghế: gom nhóm theo giá
         const groupedSeats = selectedSeats.reduce((acc, seat) => {
             const key = seat.gia; // có thể đổi thành seat.loai_ghe nếu muốn gom theo loại ghế

@@ -295,6 +295,22 @@
                     </div>
                     <span class="text-xs text-center font-medium text-gray-700">Tư vấn</span>
             </a>
+            <!-- Quản lý đơn hàng -->
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/don-hang"
+            class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]"
+            data-tooltip="Quản lý đơn hàng">
+                <div class="w-12 h-12 flex items-center justify-center bg-blue-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6 text-blue-600"
+                        fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 3h18l-2 13H5L3 3zm3 16a2 2 0 104 0 2 2 0 00-4 0zm10 0a2 2 0 104 0 2 2 0 00-4 0z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Quản lý đơn hàng</span>
+            </a>
+
             <!-- Quản lý khách hàng -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/khach-hang" 
                 class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" 

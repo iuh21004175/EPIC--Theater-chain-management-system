@@ -5,6 +5,38 @@
 <title>Đặt vé xem online - EPIC CINEMAS</title>
 <link rel="stylesheet" href="{{ $_ENV['URL_WEB_BASE'] }}/css/tailwind.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <!-- Quality Selector Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-quality-levels@2.1.0/dist/videojs-contrib-quality-levels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/videojs-hls-quality-selector@1.1.1/dist/videojs-hls-quality-selector.min.js"></script>
+    
+    <style>
+        .quality-selector {
+            margin: 10px 0;
+        }
+        .quality-selector select {
+            padding: 5px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+        }
+        .video-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .video-js .vjs-big-play-button {
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            font-size: 3em !important; /* chỉnh kích thước nút */
+            border: none !important;
+            background-color: rgba(0, 0, 0, 0.5) !important; /* nền mờ */
+            color: white !important;
+        }
+    </style>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
 @include('customer.layout.header')
@@ -203,9 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function renderVideoPhim(phim, goiFull = false) {
     const suatChieuDiv = document.getElementById('suatChieu');
-    const videoUrl = `${urlMinio}/${phim.video_url}`;
+    const videoUrl = `${urlMinio}/private/${phim.video_url}`;
     const filename = phim.video_url.split('/').pop() || "video.mp4";
-    
+
     function startCountdown(duration, donhangId) {
         const countdownEl = document.getElementById("countdownTimer");
         const soDoGheUrl = window.location.href;
@@ -220,13 +252,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (time < 0) {
                 clearInterval(interval);
                 alert("Hết thời gian thanh toán. Vui lòng đặt lại!");
-                window.location.href = soDoGheUrl; 
+                window.location.href = soDoGheUrl;
             }
         }, 1000);
     }
 
     // Lấy trạng thái mua phim từ server
-    fetch(`${baseUrl}/api/lay-trang-thai-mua-phim?khachHangId=${currentUserId}&phimId=${phim.id}`)
+    fetch(`${baseUrl}/api/lay-trang-thai-mua-phim?khachHangId=${currentUserId}`)
         .then(res => res.json())
         .then(data => {
             let daMua = false;
@@ -236,34 +268,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const duocXem = daMua || goiFull;
 
             suatChieuDiv.innerHTML = `
-                <div class="relative aspect-video w-full max-w-4xl mx-auto rounded-xl overflow-hidden shadow-lg">
-                    <video controls class="w-full h-full ${duocXem ? '' : 'filter blur-sm'}">
-                        <source src="${videoUrl}" type="video/mp4">
-                        Trình duyệt của bạn không hỗ trợ video.
-                    </video>
-                    ${!duocXem 
-                        ? `<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white gap-4">
-                            <p class="text-xl font-semibold">Bạn chưa mua gói để xem phim này!</p>
-                            <button id="buyMovieBtn" class="px-6 py-2 bg-red-500 rounded-lg hover:bg-red-600 font-semibold">
-                                <i class="fas fa-ticket-alt"></i> Mua gói
-                            </button>
-                        </div>` 
-                        : ''
-                    }
+                <div class="video-container w-full max-w-4xl mx-auto">
+                    <!-- Selector chất lượng đặt ngoài video -->
+                    <div class="quality-selector mb-2">
+                        <label for="quality-select" class="mr-2">Chọn chất lượng:</label>
+                        <select id="quality-select" class="border px-2 py-1 rounded">
+                            <option value="auto">Tự động</option>
+                        </select>
+                    </div>
+
+                    <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg">
+                        <video 
+                            id="my-video" 
+                            class="video-js vjs-default-skin ${duocXem ? '' : 'filter blur-sm'}" 
+                            controls 
+                            preload="auto" 
+                            data-setup='{}'>
+                            ${duocXem 
+                                ? `<source src="${urlMinio}/private/${phim.video_url}" type="application/x-mpegURL">`
+                            : ''}
+                            <p class="vjs-no-js">
+                                To view this video please enable JavaScript, and consider upgrading to a web browser that
+                                <a href="https://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a>.
+                            </p>
+                        </video>
+
+                        ${!duocXem 
+                            ? `<div class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center text-white gap-4">
+                                <p class="text-xl font-semibold">Bạn chưa mua gói để xem phim này!</p>
+                                <button id="buyMovieBtn" class="px-6 py-2 bg-red-500 rounded-lg hover:bg-red-600 font-semibold">
+                                    <i class="fas fa-ticket-alt"></i> Mua gói
+                                </button>
+                                </div>` 
+                            : ''
+                        }
+                    </div>
+
+                    ${duocXem ? `
+                    <div class="w-full flex justify-end mt-3">
+                        <button id="downloadVideoBtn" 
+                            class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
+                            <i class="fas fa-download"></i> Tải xuống
+                        </button>
+                    </div>` : ''}
                 </div>
-                ${duocXem ? `<div class="w-full flex justify-end mt-2">
-                    <button id="downloadVideoBtn" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
-                        <i class="fas fa-download"></i> Tải xuống
-                    </button>
-                </div>` : ''}
-            `;
+                `;
+
+            // Khởi tạo video player sau khi render DOM
+            initVideoPlayer();
 
             // Nút mua phim
             if (!duocXem) {
                 const random9Digits = () => Math.floor(100000000 + Math.random() * 900000000);
                 const maVe = random9Digits();
 
-                // Gắn sự kiện click cho nút mua phim
                 document.getElementById('buyMovieBtn').addEventListener('click', async () => {
                     try {
                         // Check login khi bấm
@@ -273,7 +331,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (loginData.status !== "success") {
                             alert("Bạn chưa đăng nhập!");
                             openModal(modalLogin);
-                            return; // thoát hàm nếu chưa login
+                            return;
                         }
 
                         const userName = loginData.user?.ho_ten || 'Khách';
@@ -284,7 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ 
-                                phim_id: idPhim,
+                                // phim_id: idPhim,
                                 tong_tien: 30000,
                                 ma_ve: maVe,
                                 phuong_thuc_mua: 1
@@ -306,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         const jMua = await resMua.json();
                         if (!jMua.success) throw new Error(jMua.message);
-                        
+
                         suatChieu.classList.add("hidden");
                         const soTien = 30000;
                         const qrUrl = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${soTien}&des=DH${donhangId}`;
@@ -321,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                         QR.classList.remove("hidden");
 
-                        // Bắt đầu đếm ngược 5 phút (300 giây)
+                        // Bắt đầu đếm ngược 5 phút
                         startCountdown(300, donhangId);
 
                         const interval = setInterval(async () => {
@@ -349,7 +407,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-
             // Nút download
             if (duocXem) {
                 const btn = document.getElementById('downloadVideoBtn');
@@ -366,13 +423,86 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                 });
             }
-
         })
         .catch(err => {
             console.error("Lỗi khi lấy trạng thái mua phim:", err);
         });
 }
 
+    function initVideoPlayer() {
+        const videoEl = document.getElementById('my-video');
+        if (!videoEl) return; // nếu chưa có video thì thoát
+
+        // Nếu đã tồn tại player trước đó thì destroy
+        if (videojs.getPlayer('my-video')) {
+            videojs.getPlayer('my-video').dispose();
+        }
+
+        const player = videojs('my-video', {
+            fluid: true,
+            responsive: true,
+            html5: {
+                hls: {
+                    overrideNative: !videojs.browser.IS_SAFARI
+                }
+            }
+        });
+
+        player.ready(function() {
+            console.log('Video player is ready');
+
+            // Khởi tạo quality levels và quality selector
+            const qualityLevels = player.qualityLevels();
+            const qualitySelector = document.getElementById('quality-select');
+
+            // Xóa option cũ
+            qualitySelector.innerHTML = '<option value="auto">Tự động</option>';
+
+            qualityLevels.on('addqualitylevel', function(event) {
+                const quality = event.qualityLevel;
+                console.log('Quality level added:', quality);
+
+                const option = document.createElement('option');
+                option.value = quality.height + 'p';
+                option.textContent = quality.height + 'p (' + Math.round(quality.bitrate / 1000) + ' kbps)';
+                option.setAttribute('data-index', qualityLevels.length - 1);
+                qualitySelector.appendChild(option);
+            });
+
+            qualitySelector.addEventListener('change', function() {
+                const selectedValue = this.value;
+
+                if (selectedValue === 'auto') {
+                    for (let i = 0; i < qualityLevels.length; i++) {
+                        qualityLevels[i].enabled = true;
+                    }
+                } else {
+                    for (let i = 0; i < qualityLevels.length; i++) {
+                        qualityLevels[i].enabled = false;
+                    }
+                    const selectedOption = this.options[this.selectedIndex];
+                    const qualityIndex = selectedOption.getAttribute('data-index');
+                    if (qualityIndex !== null) {
+                        qualityLevels[qualityIndex].enabled = true;
+                    }
+                }
+            });
+
+            player.on('error', function() {
+                const error = player.error();
+                console.error('Video error:', error);
+                alert('Lỗi phát video: ' + (error.message || 'Không thể phát video'));
+            });
+
+            player.on('loadstart', () => console.log('Video loading started'));
+            player.on('loadedmetadata', () => console.log('Video metadata loaded', qualityLevels));
+            player.on('canplay', () => console.log('Video can start playing'));
+
+            
+        });
+    }
+
+ 
     // function renderVideoPhim(phim) {
     //     const suatChieuDiv = document.getElementById('suatChieu');
 

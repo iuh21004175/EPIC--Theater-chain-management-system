@@ -194,6 +194,24 @@ document.addEventListener('DOMContentLoaded', function() {
             errorElement.textContent = "";
             return true;
         }
+        
+        function checkPhone() {
+            const inputElement = document.getElementById('registerPhone');
+            const errorElement = document.getElementById('tbRegisterPhone');
+            const regex = /^(03|05|07|08|09)[0-9]{8}$/;
+
+            if (inputElement.value.trim() === "") {
+                errorElement.textContent = "Số điện thoại không được để trống!";
+                return false;
+            }
+            if (!regex.test(inputElement.value)) {
+                errorElement.textContent = "Số điện thoại phải gồm 10 số và bắt đầu bằng 03, 05, 07, 08 hoặc 09!";
+                return false;
+            }
+
+            errorElement.textContent = "";
+            return true;
+        }
 
         // --- Event Listeners for validation on blur/change ---
         document.getElementById('loginEmail').addEventListener('blur', (e) => checkEmail(e.target, document.getElementById('tbLoginEmail')));
@@ -206,6 +224,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         document.getElementById('registerPasswordConfirm').addEventListener('blur', checkPasswordConfirm);
         document.getElementById('registerName').addEventListener('blur', checkName);
+        document.getElementById('registerPhone').addEventListener('blur', checkPhone);
         document.getElementById('txtNgaySinh').addEventListener('blur', checkNgaySinh);
         document.getElementById('sexSelect').addEventListener('change', checkGender);
 
@@ -247,6 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             let isNameValid = checkName();
+            let isPhoneValid = checkPhone();
             let isEmailValid = checkEmail(document.getElementById('registerEmail'), document.getElementById('tbRegisterEmail'));
             let isGenderValid = checkGender();
             let isDateValid = checkNgaySinh();
@@ -254,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let isPasswordConfirmValid = checkPasswordConfirm();
             let isTermsChecked = document.getElementById('termsCheckbox').checked;
 
-            if (isNameValid && isEmailValid && isGenderValid && isDateValid && isPasswordValid && isPasswordConfirmValid && isTermsChecked) {
+            if (isNameValid && isPhoneValid && isEmailValid && isGenderValid && isDateValid && isPasswordValid && isPasswordConfirmValid && isTermsChecked) {
                 const form = document.getElementById('registerForm');
                 const formData = new FormData(form);
                 const btnSave = document.getElementById('btnSave');
