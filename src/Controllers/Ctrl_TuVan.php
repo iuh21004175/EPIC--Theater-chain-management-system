@@ -13,6 +13,9 @@
         public function pageNhanVienTuVan() {
             return view('internal.tu-van');
         }
+        public function khachHangDatLichGoiVideo() {
+            return view('customer.dat-lich-goi-video');
+        }
         public function khachHangLayDanhSachPhienChat(){
             $scTuVan = new Sc_TuVan();
             try {

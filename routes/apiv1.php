@@ -24,6 +24,7 @@ use App\Controllers\Ctrl_Banner;
 use App\Controllers\Ctrl_MuaPhim;
 use App\Controllers\Ctrl_TuVan;
 use App\Controllers\Ctrl_ChatBotAI;
+use App\Controllers\Ctrl_ThongKe;
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
@@ -98,6 +99,13 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('DELETE', '/banner/{id:\d+}', [Ctrl_Banner::class, 'xoa', ['Admin']]);
     $r->addRoute('PUT', '/banner/cap-nhat-side-show', [Ctrl_Banner::class, 'sapXep', ['Admin']]);
     $r->addRoute('GET', '/danh-sach-phien-chat', [Ctrl_TuVan::class, 'nhanVienLayDanhSachPhienChatPhanTrang', ['Nhân viên']]);
+    $r->addRoute('GET', '/thong-ke/tong-quat', [Ctrl_ThongKe::class, 'thongKeTongQuatTheoRap', ['Quản lý rạp']]);   
+    $r->addRoute('GET', '/thong-ke/phan-tich', [Ctrl_ThongKe::class, 'thongKePhanTichTheoRap', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/thong-ke/doanh-thu-top-10-phim', [Ctrl_ThongKe::class, 'thongKeTop10PhimTheoRap', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/thong-ke/doanh-thu-top-10-san-pham', [Ctrl_ThongKe::class, 'thongKeTop10SanPhamTheoRap', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/thong-ke/hieu-qua-khung-gio-suat-chieu', [Ctrl_ThongKe::class, 'thongKeHieuQuaKhungGioSuatChieu', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/thong-ke/xu-huong-khach-hang-theo-thoi-gian', [Ctrl_ThongKe::class, 'thongKeXuHuongKhachHangTheoThoiGian', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/thong-ke/chi-tiet', [Ctrl_ThongKe::class, 'thongKeChiTietTheoRap', ['Quản lý rạp']]);
     // Khách hàng
     $r->addRoute('POST', '/dang-ky', [Ctrl_XacThucCustomer::class, 'dangKy']);
     $r->addRoute('GET', '/google', [Ctrl_XacThucCustomer::class, 'googleLogin']);

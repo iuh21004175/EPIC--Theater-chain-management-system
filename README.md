@@ -55,3 +55,5 @@ sudo ln -s /etc/nginx/sites-available/minio.conf /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 sudo systemctl status nginx
+
+6. Port server chroma: 8000

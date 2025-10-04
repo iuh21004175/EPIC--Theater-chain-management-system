@@ -27,6 +27,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/ve-cua-toi', [Ctrl_DonHang::class, 'index']);
     $r->addRoute('GET', '/the-qua-tang', [Ctrl_TheQuaTang::class, 'index']);
     $r->addRoute('GET', '/tu-van/chat-truc-tuyen', [Ctrl_TuVan::class, 'pageChatTrucTuyen']);
+    $r->addRoute('GET', '/tu-van/goi-video', [Ctrl_TuVan::class, 'khachHangDatLichGoiVideo']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

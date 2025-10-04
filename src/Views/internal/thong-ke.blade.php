@@ -4,7 +4,7 @@
 
 @section('head')
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="{{$_ENV['URL_INTERNAL_BASE']}}/js/thong-ke.js"></script>
+<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/thong-ke.js"></script>
 @endsection
 
 @section('breadcrumbs')
@@ -19,7 +19,7 @@
 @endsection
 
 @section('content')
-<div class="bg-white shadow-md rounded-lg">
+<div class="bg-white shadow-md rounded-lg" id="thong-ke-app" data-url="{{$_ENV['URL_WEB_BASE']}}">
     <div class="px-4 py-5 sm:px-6">
         <h2 class="text-xl font-semibold text-gray-800">Thống kê và phân tích kinh doanh</h2>
         <p class="mt-1 text-sm text-gray-600">Dữ liệu phân tích để tối ưu hoạt động kinh doanh</p>
@@ -29,15 +29,6 @@
     <div class="px-4 py-3 bg-gray-50 border-t border-b border-gray-200">
         <div class="flex flex-wrap items-center justify-between">
             <div class="flex space-x-4 mb-2 md:mb-0">
-                <div>
-                    <label for="filter-type" class="block text-sm font-medium text-gray-700">Loại thống kê</label>
-                    <select id="filter-type" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
-                        <option value="all">Tất cả</option>
-                        <option value="movie">Theo phim</option>
-                        <option value="food">Theo đồ ăn</option>
-                        <option value="showtime">Theo suất chiếu</option>
-                    </select>
-                </div>
                 <div>
                     <label for="date-range" class="block text-sm font-medium text-gray-700">Khoảng thời gian</label>
                     <select id="date-range" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">

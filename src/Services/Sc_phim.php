@@ -139,9 +139,29 @@
         }
         public function docPhim($page, $tuKhoaTimKiem = null, $trangThai = null, $theLoaiId = null, $idRap = null, $doTuoi = null, $year = null, $dangChieu = null, $xemNhieu = null) {
             $query = Phim::with(['TheLoai.TheLoai']);
-            if($_SESSION['UserInternal']['VaiTro'] == 'Quản lý rạp'){
+            
+            // Nếu người dùng là Quản lý rạp, chỉ lấy phim được phân phối cho rạp của họ
+            if(isset($_SESSION['UserInternal']['VaiTro']) && $_SESSION['UserInternal']['VaiTro'] == 'Quản lý rạp') {
+                $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
                 
+                if($idRapPhim) {
+                    // Lấy danh sách ID phim được phân phối cho rạp này
+                    $phimIdsDaPhanPhoi = [];
+                    $phanPhoiRecords = PhanPhoiPhim::where('id_rapphim', $idRapPhim)->get();
+                    foreach ($phanPhoiRecords as $record) {
+                        $phimIdsDaPhanPhoi[] = $record->id_phim;
+                    }
+                    
+                    // Chỉ lấy phim đã được phân phối cho rạp này
+                    if (!empty($phimIdsDaPhanPhoi)) {
+                        $query->whereIn('id', $phimIdsDaPhanPhoi);
+                    } else {
+                        // Nếu không có phim nào được phân phối, trả về kết quả rỗng
+                        $query->whereRaw('1=0');
+                    }
+                }
             }
+            
             if ($tuKhoaTimKiem) {
                 $query->where(function($q) use ($tuKhoaTimKiem) {
                     $q->where('ten_phim', 'LIKE', "%$tuKhoaTimKiem%")
@@ -160,7 +180,8 @@
                 });
             }
 
-            if ($idRap) {
+            // Nếu tham số idRap được truyền vào, ưu tiên dùng tham số này
+            if ($idRap && !isset($_SESSION['UserInternal']['VaiTro'])) {
                 $phimIdsDaPhanPhoi = \App\Models\PhanPhoiPhim::where('id_rapphim', $idRap)->pluck('id_phim')->toArray();
                 if (!empty($phimIdsDaPhanPhoi)) {
                     $query->whereNotIn('id', $phimIdsDaPhanPhoi);

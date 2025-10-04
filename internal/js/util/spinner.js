@@ -38,9 +38,10 @@ const Spinner = {
                 break;
         }
 
-        // Tạo container cho spinner
+        // Tạo container cho spinner với ID duy nhất
+        const timestamp = Date.now();
         const spinnerContainer = document.createElement('div');
-        spinnerContainer.id = 'epic-spinner-' + Date.now();
+        spinnerContainer.id = 'epic-spinner-' + timestamp;
         spinnerContainer.className = 'epic-spinner-container';
         
         // Thiết lập style cho container
@@ -55,19 +56,24 @@ const Spinner = {
         spinnerContainer.style.justifyContent = 'center'; // căn giữa chiều dọc
         spinnerContainer.style.zIndex = '9999';
         
-        // FIX: Add pointer events none to prevent blocking clicks
-        spinnerContainer.style.pointerEvents = 'none';
-        
         if (config.overlay) {
-            spinnerContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
-            // FIX: Re-enable pointer events for overlay
-            spinnerContainer.style.pointerEvents = 'auto';
+            spinnerContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.8)'; // Tăng độ mờ lên 0.8
+            spinnerContainer.style.backdropFilter = 'blur(2px)'; // Thêm hiệu ứng mờ
+            spinnerContainer.style.pointerEvents = 'auto'; // Cho phép bắt sự kiện để ngăn tương tác
+        } else {
+            spinnerContainer.style.pointerEvents = 'none';
         }
 
-        // FIX: Create an inner container for the spinner to ensure proper display
+        // Tạo container bên trong để cải thiện hiển thị spinner
         const spinnerInner = document.createElement('div');
         spinnerInner.style.position = 'relative';
         spinnerInner.style.display = 'inline-block';
+        
+        // Tạo hiệu ứng shadow xung quanh spinner để nổi bật
+        spinnerInner.style.padding = '15px';
+        spinnerInner.style.borderRadius = '50%';
+        spinnerInner.style.boxShadow = '0 0 15px rgba(0, 0, 0, 0.1)';
+        spinnerInner.style.backgroundColor = 'white';
         
         // Tạo spinner
         const spinner = document.createElement('div');
@@ -77,12 +83,13 @@ const Spinner = {
         spinner.style.border = `${borderWidth} solid rgba(0, 0, 0, 0.1)`;
         spinner.style.borderRadius = '50%';
         spinner.style.borderTop = `${borderWidth} solid ${config.color}`;
-        spinner.style.animation = 'epic-spin 1s linear infinite';
+        spinner.style.borderRight = `${borderWidth} solid ${config.color}`;
+        spinner.style.animation = 'epic-spin 1s cubic-bezier(0.55, 0.25, 0.25, 0.7) infinite';
         
-        // FIX: Add the spinner to the inner container first
+        // Thêm spinner vào container bên trong
         spinnerInner.appendChild(spinner);
         
-        // Thêm inner container vào container chính
+        // Thêm container bên trong vào container chính
         spinnerContainer.appendChild(spinnerInner);
         
         // Thêm văn bản nếu có
@@ -90,10 +97,14 @@ const Spinner = {
             const textElement = document.createElement('div');
             textElement.className = 'epic-spinner-text';
             textElement.textContent = config.text;
-            textElement.style.marginTop = '12px';
-            textElement.style.color = '#374151'; // gray-700
-            textElement.style.fontSize = '14px';
-            textElement.style.fontWeight = '500';
+            textElement.style.marginTop = '15px';
+            textElement.style.color = '#111827'; // Tối hơn để dễ nhìn
+            textElement.style.fontSize = '15px';
+            textElement.style.fontWeight = '600';
+            textElement.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            textElement.style.padding = '5px 12px';
+            textElement.style.borderRadius = '4px';
+            textElement.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
             spinnerContainer.appendChild(textElement);
         }
         
