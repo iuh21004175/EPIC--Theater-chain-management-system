@@ -1,6 +1,10 @@
 import Spinner from './util/spinner.js';
 
 let currentWeekStart;
+
+// Khai báo các biến toàn cục để các hàm helper có thể truy cập
+let moviesData = [];
+let roomsData = [];
 let nhatKyData = [];
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -492,48 +496,116 @@ document.addEventListener('DOMContentLoaded', function() {
         const logContent = document.getElementById('log-content');
         if (!logContent) return;
         if (!nhatKyData.length) {
-            logContent.innerHTML = '<div class="text-gray-500 text-center">Chưa có nhật ký.</div>';
+            logContent.innerHTML = '<div class="text-gray-500 text-center py-8">Chưa có nhật ký.</div>';
             return;
         }
-        const actionColors = {
-            0: 'bg-blue-50 text-blue-700',     // Tạo
-            1: 'bg-yellow-50 text-yellow-800', // Cập nhật
-            2: 'bg-red-50 text-red-700',       // Xóa
-            3: 'bg-green-50 text-green-700',   // Duyệt
-            4: 'bg-gray-100 text-gray-700',    // Từ chối
-            default: 'bg-gray-50 text-gray-700'
-        };
-        const rows = nhatKyData.map(item => {
-            const time = new Date(item.created_at);
-            const timeStr = `${time.getHours().toString().padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')} ${time.getDate().toString().padStart(2, '0')}/${(time.getMonth()+1).toString().padStart(2, '0')}/${time.getFullYear()}`;
-            const batdauStr = item.batdau
-                ? ' - ' + (() => {
-                    const d = new Date(item.batdau);
-                    return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')} ${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-                })()
-                : '';
-            const hanhDong = ({
-                0: 'Tạo',
-                1: 'Cập nhật',
-                2: 'Xóa',
-                3: 'Duyệt',
-                4: 'Từ chối'
-            })[item.hanh_dong] ?? 'Khác';
-            const colorClass = actionColors[item.hanh_dong] || actionColors.default;
-            const phim = item.ten_phim ? ` - ${item.ten_phim}` : '';
-            const batdau = item.batdau ? `${batdauStr}` : '';
-            const isNew = item.da_xem == 0;
-            return `
-                <div class="py-2 border-b last:border-0 ${colorClass}">
-                    <div class="text-sm flex flex-wrap items-center">
-                        <span class="font-medium">${hanhDong}</span>${phim}${batdau}
-                        ${isNew ? '<span class="ml-2 inline-block px-2 py-0.5 text-xs rounded bg-yellow-400 text-white align-middle">Mới</span>' : ''}
+        
+        // Nhóm nhật ký theo phim (giữ nguyên thứ tự từ API - mới nhất trước)
+        const groupedByMovie = {};
+        nhatKyData.forEach(log => {
+            const movieId = log.id_phim;
+            if (!groupedByMovie[movieId]) {
+                groupedByMovie[movieId] = {
+                    movieInfo: log.phim || { ten_phim: log.ten_phim || 'Không rõ' },
+                    logs: [],
+                    latestTime: null // Lưu thời gian log mới nhất
+                };
+            }
+            groupedByMovie[movieId].logs.push(log);
+            // Cập nhật thời gian log mới nhất của nhóm phim này
+            const logTime = new Date(log.created_at).getTime();
+            if (!groupedByMovie[movieId].latestTime || logTime > groupedByMovie[movieId].latestTime) {
+                groupedByMovie[movieId].latestTime = logTime;
+            }
+        });
+        
+        // Sắp xếp các nhóm phim theo log mới nhất (phim có log mới nhất sẽ hiển thị trước)
+        const sortedMovieGroups = Object.values(groupedByMovie).sort((a, b) => {
+            return (b.latestTime || 0) - (a.latestTime || 0);
+        });
+        
+        // Render nhật ký theo format giống ảnh
+        let html = '';
+        sortedMovieGroups.forEach(movieGroup => {
+            const movie = movieGroup.movieInfo;
+            const posterUrl = getMoviePosterUrl({ phim: movie });
+            const movieTitle = movie.ten_phim || 'Không rõ';
+            const movieDuration = movie.thoi_luong || getMovieDuration({ id_phim: movie.id }) || 85;
+            
+            html += `
+                <div class="mb-6 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                    <div class="flex items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b">
+                        <img src="${posterUrl}" alt="${movieTitle}" class="w-16 h-24 object-cover rounded-md shadow-sm mr-4">
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-800">${movieTitle}</h3>
+                            <p class="text-sm text-gray-600 mt-1">
+                                <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                ${movieDuration} phút
+                            </p>
+                        </div>
                     </div>
-                    <div class="text-xs text-gray-500">${timeStr}</div>
+                    <div class="divide-y divide-gray-100">`;
+            
+            movieGroup.logs.forEach(log => {
+                const hanhDongLabel = getHanhDongLabel(log.hanh_dong);
+                const hanhDongClass = getHanhDongClass(log.hanh_dong);
+                const timeDisplay = formatLogTime(log.created_at);
+                
+                const batDauDate = log.batdau ? new Date(log.batdau) : null;
+                const batDauTime = batDauDate ? `${batDauDate.getHours().toString().padStart(2, '0')}:${batDauDate.getMinutes().toString().padStart(2, '0')}` : 'N/A';
+                const batDauDateStr = batDauDate ? `${batDauDate.getDate().toString().padStart(2, '0')}/${(batDauDate.getMonth()+1).toString().padStart(2, '0')}/${batDauDate.getFullYear()}` : 'N/A';
+                
+                const roomName = log.ten_phong || 'Không rõ';
+                const rapName = log.ten_rap || 'Không rõ';
+                
+                html += `
+                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="${hanhDongClass}">${hanhDongLabel}</span>
+                                </div>
+                                <div class="text-sm text-gray-700 space-y-1">
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                        <span class="font-medium">Rạp:</span>
+                                        <span class="ml-1">${rapName}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <span class="font-medium">Giờ chiếu:</span>
+                                        <span class="ml-1">${batDauTime} - ${batDauDateStr}</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                        </svg>
+                                        <span class="font-medium">Phòng:</span>
+                                        <span class="ml-1">${roomName}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right ml-4">
+                                <div class="text-xs text-gray-500">${timeDisplay}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
                 </div>
             `;
-        }).join('');
-        logContent.innerHTML = `<div>${rows}</div>`;
+        });
+        
+        logContent.innerHTML = html;
     });
     btnCloseLog.addEventListener('click', () => {
         logModal.classList.add('hidden');
@@ -541,6 +613,92 @@ document.addEventListener('DOMContentLoaded', function() {
     logModal.addEventListener('click', (e) => {
         if (e.target === logModal) logModal.classList.add('hidden');
     });
+
+    // Fetch movies and rooms data for log display
+    async function fetchMoviesAndRooms() {
+        try {
+            const [moviesRes, roomsRes] = await Promise.all([
+                fetch(`${showtimeListing.dataset.url}/api/phim`),
+                fetch(`${showtimeListing.dataset.url}/api/phong-chieu`)
+            ]);
+            const moviesData_result = await moviesRes.json();
+            const roomsData_result = await roomsRes.json();
+            
+            if (moviesData_result.success) {
+                moviesData = moviesData_result.data;
+            }
+            if (roomsData_result.success) {
+                roomsData = roomsData_result.data;
+            }
+        } catch (e) {
+            console.error('Error fetching movies and rooms:', e);
+        }
+    }
+    fetchMoviesAndRooms();
 });
 
+// Các hàm helper cho modal nhật ký (giống suat-chieu.js)
+function getMoviePosterUrl(log) {
+    const urlMinio = document.getElementById('showtime-listing').dataset.urlminio;
+    if (log && log.phim && log.phim.poster_url) {
+        return `${urlMinio}/${log.phim.poster_url}`;
+    }
+    return 'https://via.placeholder.com/64x80?text=No+Image';
+}
+
+function getMovieDuration(log) {
+    const phim = moviesData.find(m => m.ID === log.id_phim);
+    return phim ? phim.ThoiLuong : 85;
+}
+
+function getTinhTrangFromLog(log) {
+    const labels = ['Chờ duyệt', 'Đã duyệt', 'Từ chối', 'Chờ duyệt lại'];
+    const classes = [
+        'px-2 py-1 text-xs font-medium rounded bg-yellow-100 text-yellow-800',
+        'px-2 py-1 text-xs font-medium rounded bg-green-100 text-green-800',
+        'px-2 py-1 text-xs font-medium rounded bg-red-100 text-red-800',
+        'px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800'
+    ];
+    
+    const tinhTrang = log.tinh_trang !== undefined ? log.tinh_trang : 0;
+    
+    return {
+        label: labels[tinhTrang] || labels[0],
+        class: classes[tinhTrang] || classes[0]
+    };
+}
+
+function getHanhDongLabel(hanhDong) {
+    const labels = ['Tạo mới', 'Cập nhật', 'Xóa', 'Duyệt', 'Từ chối', 'Duyệt từ kế hoạch'];
+    return labels[hanhDong] || 'Không rõ';
+}
+
+function getHanhDongClass(hanhDong) {
+    const classes = [
+        'px-2 py-1 text-xs font-medium rounded bg-blue-50 text-blue-700 border border-blue-200',      // 0 - Tạo mới
+        'px-2 py-1 text-xs font-medium rounded bg-amber-50 text-amber-700 border border-amber-200',   // 1 - Cập nhật
+        'px-2 py-1 text-xs font-medium rounded bg-red-50 text-red-700 border border-red-200',         // 2 - Xóa
+        'px-2 py-1 text-xs font-medium rounded bg-green-50 text-green-700 border border-green-200',   // 3 - Duyệt
+        'px-2 py-1 text-xs font-medium rounded bg-gray-50 text-gray-700 border border-gray-200',      // 4 - Từ chối
+        'px-2 py-1 text-xs font-medium rounded bg-purple-50 text-purple-700 border border-purple-200' // 5 - Duyệt từ kế hoạch
+    ];
+    return classes[hanhDong] || classes[0];
+}
+
+function formatLogTime(timestamp) {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (minutes < 1) return 'Vừa xong';
+    if (minutes < 60) return `${minutes} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    if (days < 7) return `${days} ngày trước`;
+    
+    return date.toLocaleDateString('vi-VN');
+}
 

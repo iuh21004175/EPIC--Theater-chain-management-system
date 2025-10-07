@@ -8,6 +8,7 @@ use App\Controllers\Ctrl_DonHang;
 use App\Controllers\Ctrl_SanPhamAnUong;
 use App\Controllers\Ctrl_TheQuaTang;
 use App\Controllers\Ctrl_TuVan;
+use App\Controllers\Ctrl_GoiVideo;
 use function App\Core\view;
 
 // Vai trò: Khách hàng thành viên, Khách hàng vãng lại
@@ -30,6 +31,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/san-pham', [Ctrl_SanPhamAnUong::class, 'sanPham']);
     $r->addRoute('GET', '/tu-van/chat-truc-tuyen', [Ctrl_TuVan::class, 'pageChatTrucTuyen']);
     $r->addRoute('GET', '/tu-van/goi-video', [Ctrl_TuVan::class, 'khachHangDatLichGoiVideo']);
+    $r->addRoute('GET', '/tu-van/dat-lich-goi-video', [Ctrl_GoiVideo::class, 'pageDatLichGoiVideo']);
+    $r->addRoute('GET', '/video-call', [Ctrl_GoiVideo::class, 'pageVideoCall']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
@@ -43,7 +46,8 @@ $uri = rawurldecode($uri);
 $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 switch ($routeInfo[0]) {
     case FastRoute\Dispatcher::NOT_FOUND:
-        echo $_SERVER['REQUEST_URI'];
+        http_response_code(404);
+        echo view("customer.404");
         break;
     case FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
         $allowedMethods = $routeInfo[1];

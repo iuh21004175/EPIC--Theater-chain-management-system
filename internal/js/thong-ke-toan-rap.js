@@ -16,6 +16,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const applyFilterBtn = document.getElementById('btn-apply-filter');
     const compareToggle = document.getElementById('toggle-compare');
     const cinemaFilter = document.getElementById('cinema-filter');
+    
+    // Initialize state variables BEFORE using them
+    let currentDateRange = 30;
+    let compareWithPrevious = false;
+    let selectedCinema = 'all';
+    let currentTimePeriod = 'daily';
+
+    // Bắt đầu khởi tạo dữ liệu khi trang đã tải xong
+    try {
+        initializeKPICards();
+        initializeCharts();
+        initializeTables();
+        updateLastUpdateTime();
+    } catch (error) {
+        console.error('Lỗi khởi tạo:', error);
+    }
+    
+    // Update last update time
+    function updateLastUpdateTime() {
+        const lastUpdateElement = document.getElementById('last-update');
+        if (lastUpdateElement) {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('vi-VN', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            lastUpdateElement.textContent = timeString;
+        }
+    }
+    
+    // Update time every minute
+    setInterval(updateLastUpdateTime, 60000);
 
     // Set up initial dates
     const today = new Date();
@@ -24,12 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     dateStartInput.valueAsDate = thirtyDaysAgo;
     dateEndInput.valueAsDate = today;
-
-    // Initialize state
-    let currentDateRange = 30;
-    let compareWithPrevious = false;
-    let selectedCinema = 'all';
-    let currentTimePeriod = 'daily';
 
     // Date range selector event
     dateRangeSelector.addEventListener('change', function() {
@@ -126,52 +153,134 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // KPI Cards Functions
-    function initializeKPICards() {
-        document.getElementById('total-revenue').textContent = formatCurrency(5750000000);
-        document.getElementById('total-tickets').textContent = formatNumber(115000);
-        document.getElementById('avg-occupancy').textContent = formatPercent(68.5);
-        document.getElementById('fnb-revenue').textContent = formatCurrency(1250000000);
-        
-        document.getElementById('revenue-trend').querySelector('span').textContent = '+12.5%';
-        document.getElementById('tickets-trend').querySelector('span').textContent = '+8.7%';
-        document.getElementById('occupancy-trend').querySelector('span').textContent = '-2.3%';
-        document.getElementById('fnb-trend').querySelector('span').textContent = '+15.2%';
+    async function initializeKPICards() {
+        await fetchAndUpdateKPICards();
     }
 
-    function updateKPICards() {
-        // Update with random data for demo
-        const revenueChange = (Math.random() * 20 - 5).toFixed(1);
-        const ticketsChange = (Math.random() * 20 - 5).toFixed(1);
-        const occupancyChange = (Math.random() * 10 - 5).toFixed(1);
-        const fnbChange = (Math.random() * 25 - 5).toFixed(1);
-        
-        document.getElementById('total-revenue').textContent = formatCurrency(Math.floor(Math.random() * 2000000000) + 5000000000);
-        document.getElementById('total-tickets').textContent = formatNumber(Math.floor(Math.random() * 50000) + 100000);
-        document.getElementById('avg-occupancy').textContent = formatPercent(Math.floor(Math.random() * 20) + 60);
-        document.getElementById('fnb-revenue').textContent = formatCurrency(Math.floor(Math.random() * 500000000) + 1000000000);
-        
-        // Update trends
-        updateTrendIndicator('revenue-trend', revenueChange);
-        updateTrendIndicator('tickets-trend', ticketsChange);
-        updateTrendIndicator('occupancy-trend', occupancyChange);
-        updateTrendIndicator('fnb-trend', fnbChange);
+    async function updateKPICards() {
+        await fetchAndUpdateKPICards();
+    }
+
+    async function fetchAndUpdateKPICards() {
+        try {
+            // Get filter values
+            const tuNgay = dateStartInput.value;
+            const denNgay = dateEndInput.value;
+            const idRap = selectedCinema;
+            const soSanh = compareWithPrevious;
+
+            // Build API URL
+            const params = new URLSearchParams({
+                tuNgay: tuNgay,
+                denNgay: denNgay,
+                idRap: idRap,
+                soSanh: soSanh ? 'true' : 'false'
+            });
+
+            const baseUrl = document.getElementById('btn-apply-filter').dataset.url || '';
+            const apiUrl = `${baseUrl}/api/thong-ke-toan-rap/tong-quat?${params.toString()}`;
+
+            // Show loading state
+            showLoadingState();
+
+            // Fetch data from API
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                const data = result.data;
+
+                // Update KPI values
+                document.getElementById('total-revenue').textContent = formatCurrency(data.tong_doanh_thu || 0);
+                document.getElementById('total-tickets').textContent = formatNumber(data.tong_ve_ban || 0);
+                document.getElementById('avg-occupancy').textContent = formatPercent(data.ty_le_lap_day || 0);
+                document.getElementById('fnb-revenue').textContent = formatCurrency(data.doanh_thu_fnb || 0);
+
+                // Update trend indicators if comparison is enabled
+                if (soSanh && data.so_sanh) {
+                    updateTrendIndicator('revenue-trend', data.so_sanh.doanh_thu_phan_tram_thay_doi || 0);
+                    updateTrendIndicator('tickets-trend', data.so_sanh.ve_phan_tram_thay_doi || 0);
+                    updateTrendIndicator('occupancy-trend', data.so_sanh.ty_le_lap_day_phan_tram_thay_doi || 0);
+                    updateTrendIndicator('fnb-trend', data.so_sanh.fnb_phan_tram_thay_doi || 0);
+                } else {
+                    // Hide trend indicators if comparison is disabled
+                    hideTrendIndicators();
+                }
+
+                showToast('Đã cập nhật dữ liệu thống kê');
+            } else {
+                throw new Error(result.message || 'Không thể tải dữ liệu');
+            }
+
+        } catch (error) {
+            console.error('Error fetching KPI data:', error);
+            showToast('Lỗi khi tải dữ liệu: ' + error.message);
+            
+            // Show default values on error
+            document.getElementById('total-revenue').textContent = formatCurrency(0);
+            document.getElementById('total-tickets').textContent = formatNumber(0);
+            document.getElementById('avg-occupancy').textContent = formatPercent(0);
+            document.getElementById('fnb-revenue').textContent = formatCurrency(0);
+            hideTrendIndicators();
+        }
+    }
+
+    function showLoadingState() {
+        document.getElementById('total-revenue').textContent = '---';
+        document.getElementById('total-tickets').textContent = '---';
+        document.getElementById('avg-occupancy').textContent = '---';
+        document.getElementById('fnb-revenue').textContent = '---';
+    }
+
+    function hideTrendIndicators() {
+        const trendElements = ['revenue-trend', 'tickets-trend', 'occupancy-trend', 'fnb-trend'];
+        trendElements.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.display = 'none';
+            }
+        });
     }
 
     function updateTrendIndicator(elementId, changePercent) {
         const element = document.getElementById(elementId);
+        if (!element) return;
+
+        // Show the element
+        element.style.display = 'inline-flex';
+
         const iconElement = element.querySelector('svg');
         const textElement = element.querySelector('span');
         
-        textElement.textContent = `${changePercent > 0 ? '+' : ''}${changePercent}%`;
+        const percentValue = parseFloat(changePercent);
+        textElement.textContent = `${percentValue > 0 ? '+' : ''}${percentValue.toFixed(1)}%`;
         
-        if (changePercent > 0) {
-            element.classList.add('stats-card-trend-up');
-            element.classList.remove('stats-card-trend-down');
+        // Remove all existing classes
+        element.className = 'inline-flex items-center text-xs font-bold px-3 py-1.5 rounded-full border';
+        
+        if (percentValue > 0) {
+            // Positive trend - green
+            element.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
             iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />';
-        } else {
-            element.classList.add('stats-card-trend-down');
-            element.classList.remove('stats-card-trend-up');
+        } else if (percentValue < 0) {
+            // Negative trend - red
+            element.classList.add('bg-red-100', 'text-red-700', 'border-red-300');
             iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />';
+        } else {
+            // No change - gray
+            element.classList.add('bg-gray-100', 'text-gray-700', 'border-gray-300');
+            iconElement.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14" />';
         }
     }
 
@@ -913,14 +1022,5 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             tableBody.appendChild(row);
         });
-    }
-
-    // Bắt đầu khởi tạo dữ liệu khi trang đã tải xong
-    try {
-        initializeKPICards();
-        initializeCharts();
-        initializeTables();
-    } catch (error) {
-        console.error("Error during initialization:", error);
     }
 });

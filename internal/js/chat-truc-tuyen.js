@@ -1031,6 +1031,13 @@ async function sendMessageWithImage(message, imageFile, sessionId, idNhanVien, i
         errorDiv.textContent = 'Lỗi khi tải lên ảnh. Vui lòng thử lại.';
         messageDiv.appendChild(errorDiv);
     }
+    finally{
+        // ẨN IMAGE PREVIEW SAU KHI GỬI THÀNH CÔNG
+        const imagePreviewContainer = document.getElementById('image-preview');
+        if (imagePreviewContainer) {
+            imagePreviewContainer.style.display = 'none';
+        }
+    }
 }
 
 // Thêm tin nhắn mới vào cuối danh sách chat hiện tại

@@ -134,5 +134,32 @@
                 ];
             }
         }
+
+        /**
+         * API thống kê toàn rạp (cho Admin/Quản lý chuỗi rạp)
+         * Hiển thị: Tổng doanh thu, Tổng vé bán, Tỉ lệ lấp đầy, Doanh thu F&B
+         * Tham số: tuNgay, denNgay, idRap (optional - nếu muốn filter theo rạp cụ thể)
+         * So sánh: soSanhVoiKyTruoc (true/false)
+         */
+        public function thongKeToanRap(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                // Lấy tham số từ GET request
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01'); // Mặc định từ ngày đầu tháng
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t'); // Mặc định đến ngày cuối tháng
+                $idRap = $_GET['idRap'] ?? 'all'; // 'all' = tất cả rạp, hoặc ID rạp cụ thể
+                $soSanhVoiKyTruoc = isset($_GET['soSanh']) && $_GET['soSanh'] === 'true';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->thongKeTongQuanToanRap($tuNgay, $denNgay, $idRap, $soSanhVoiKyTruoc)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

@@ -1481,6 +1481,198 @@
             'tong_so_ghe' => $tongSoGhe
         ];
     }
+
+    /**
+     * Thống kê toàn rạp - Hiển thị các chỉ số tổng quan
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @param bool $soSanhVoiKyTruoc Có so sánh với kỳ trước không
+     * @return array Dữ liệu thống kê tổng quan
+     */
+    public function thongKeTongQuanToanRap($tuNgay, $denNgay, $idRap = 'all', $soSanhVoiKyTruoc = false) {
+        // Định dạng thời gian
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+        
+        // Tính khoảng thời gian kỳ trước (để so sánh)
+        $soNgayTrongKhoang = (int)$tuNgayDate->diff($denNgayDate)->format('%a') + 1;
+        $tuNgayKyTruocDate = clone $tuNgayDate;
+        $denNgayKyTruocDate = clone $tuNgayDate;
+        $tuNgayKyTruocDate->modify('-' . $soNgayTrongKhoang . ' days');
+        $denNgayKyTruocDate->modify('-1 day');
+        $tuNgayKyTruocQuery = $tuNgayKyTruocDate->format('Y-m-d H:i:s');
+        $denNgayKyTruocQuery = $denNgayKyTruocDate->format('Y-m-d H:i:s');
+        
+        // -------------------- KỲ HIỆN TẠI --------------------
+        
+        // 1. TỔNG DOANH THU (Vé + F&B)
+        $doanhThuVe = $this->tinhDoanhThuVe($idRap, $tuNgayQuery, $denNgayQuery);
+        $doanhThuFnB = $this->tinhDoanhThuFnB($idRap, $tuNgayQuery, $denNgayQuery);
+        $tongDoanhThu = $doanhThuVe + $doanhThuFnB;
+        
+        // 2. TỔNG VÉ BÁN
+        $tongVeBan = $this->tinhTongVeBan($idRap, $tuNgayQuery, $denNgayQuery);
+        
+        // 3. TỈ LỆ LẤP ĐẦY
+        $tyLeLapDay = $this->tinhTyLeLapDay($idRap, $tuNgayQuery, $denNgayQuery);
+        
+        // -------------------- KỲ TRƯỚC (Nếu cần so sánh) --------------------
+        $phanTramThayDoiDoanhThu = 0;
+        $phanTramThayDoiVeBan = 0;
+        $phanTramThayDoiLapDay = 0;
+        $phanTramThayDoiFnB = 0;
+        
+        if ($soSanhVoiKyTruoc) {
+            // Tính các chỉ số kỳ trước
+            $doanhThuVeKyTruoc = $this->tinhDoanhThuVe($idRap, $tuNgayKyTruocQuery, $denNgayKyTruocQuery);
+            $doanhThuFnBKyTruoc = $this->tinhDoanhThuFnB($idRap, $tuNgayKyTruocQuery, $denNgayKyTruocQuery);
+            $tongDoanhThuKyTruoc = $doanhThuVeKyTruoc + $doanhThuFnBKyTruoc;
+            
+            $tongVeBanKyTruoc = $this->tinhTongVeBan($idRap, $tuNgayKyTruocQuery, $denNgayKyTruocQuery);
+            $tyLeLapDayKyTruoc = $this->tinhTyLeLapDay($idRap, $tuNgayKyTruocQuery, $denNgayKyTruocQuery);
+            
+            // Tính phần trăm thay đổi
+            $phanTramThayDoiDoanhThu = $tongDoanhThuKyTruoc > 0 
+                ? (($tongDoanhThu - $tongDoanhThuKyTruoc) / $tongDoanhThuKyTruoc) * 100 
+                : 0;
+            
+            $phanTramThayDoiVeBan = $tongVeBanKyTruoc > 0 
+                ? (($tongVeBan - $tongVeBanKyTruoc) / $tongVeBanKyTruoc) * 100 
+                : 0;
+            
+            $phanTramThayDoiLapDay = $tyLeLapDayKyTruoc > 0 
+                ? (($tyLeLapDay - $tyLeLapDayKyTruoc) / $tyLeLapDayKyTruoc) * 100 
+                : 0;
+            
+            $phanTramThayDoiFnB = $doanhThuFnBKyTruoc > 0 
+                ? (($doanhThuFnB - $doanhThuFnBKyTruoc) / $doanhThuFnBKyTruoc) * 100 
+                : 0;
+        }
+        
+        return [
+            'tong_doanh_thu' => round($tongDoanhThu, 0),
+            'tong_ve_ban' => $tongVeBan,
+            'ty_le_lap_day' => round($tyLeLapDay, 2),
+            'doanh_thu_fnb' => round($doanhThuFnB, 0),
+            'so_sanh' => $soSanhVoiKyTruoc ? [
+                'phan_tram_thay_doi_doanh_thu' => round($phanTramThayDoiDoanhThu, 2),
+                'phan_tram_thay_doi_ve_ban' => round($phanTramThayDoiVeBan, 2),
+                'phan_tram_thay_doi_lap_day' => round($phanTramThayDoiLapDay, 2),
+                'phan_tram_thay_doi_fnb' => round($phanTramThayDoiFnB, 2),
+            ] : null,
+            'thong_tin_khoang_thoi_gian' => [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay,
+                'so_ngay' => $soNgayTrongKhoang,
+            ]
+        ];
+    }
+    
+    /**
+     * Tính tổng doanh thu từ vé
+     */
+    private function tinhDoanhThuVe($idRap, $tuNgay, $denNgay) {
+        $query = Ve::whereBetween('ngay_tao', [$tuNgay, $denNgay])
+            ->where('trang_thai', 2); // Vé đã thanh toán
+        
+        if ($idRap !== 'all') {
+            $query->whereHas('suatchieu', function($q) use ($idRap) {
+                $q->whereHas('phongChieu', function($subQuery) use ($idRap) {
+                    $subQuery->where('id_rapphim', $idRap);
+                });
+            });
+        }
+        
+        return $query->sum('gia_ve');
+    }
+    
+    /**
+     * Tính tổng doanh thu từ F&B
+     */
+    private function tinhDoanhThuFnB($idRap, $tuNgay, $denNgay) {
+        $query = ChiTietDonHang::join('donhang', 'chitiet_donhang.donhang_id', '=', 'donhang.id')
+            ->join('san_pham', 'chitiet_donhang.sanpham_id', '=', 'san_pham.id')
+            ->whereBetween('donhang.ngay_dat', [$tuNgay, $denNgay])
+            ->where('donhang.trang_thai', 2); // Đơn hàng đã thanh toán
+        
+        if ($idRap !== 'all') {
+            $query->where('san_pham.id_rapphim', $idRap);
+        }
+        
+        // Tính tổng doanh thu = sum(so_luong * don_gia)
+        $chiTiet = $query->get(['chitiet_donhang.so_luong', 'chitiet_donhang.don_gia']);
+        $tongDoanhThu = 0;
+        
+        foreach ($chiTiet as $item) {
+            $tongDoanhThu += ($item->so_luong * $item->don_gia);
+        }
+        
+        return $tongDoanhThu;
+    }
+    
+    /**
+     * Tính tổng số vé đã bán
+     */
+    private function tinhTongVeBan($idRap, $tuNgay, $denNgay) {
+        $query = Ve::whereBetween('ngay_tao', [$tuNgay, $denNgay])
+            ->where('trang_thai', 2); // Vé đã thanh toán
+        
+        if ($idRap !== 'all') {
+            $query->whereHas('suatchieu', function($q) use ($idRap) {
+                $q->whereHas('phongChieu', function($subQuery) use ($idRap) {
+                    $subQuery->where('id_rapphim', $idRap);
+                });
+            });
+        }
+        
+        return $query->count();
+    }
+    
+    /**
+     * Tính tỉ lệ lấp đầy trung bình (%)
+     */
+    private function tinhTyLeLapDay($idRap, $tuNgay, $denNgay) {
+        // Lấy danh sách suất chiếu trong khoảng thời gian
+        $query = SuatChieu::whereBetween('batdau', [$tuNgay, $denNgay])
+            ->where('tinh_trang', 1); // Đã duyệt
+        
+        if ($idRap !== 'all') {
+            $query->whereHas('phongChieu', function($q) use ($idRap) {
+                $q->where('id_rapphim', $idRap);
+            });
+        }
+        
+        $danhSachSuatChieu = $query->get();
+        
+        if ($danhSachSuatChieu->count() === 0) {
+            return 0;
+        }
+        
+        $tongSoGhe = 0;
+        $tongSoVeDaBan = 0;
+        
+        foreach ($danhSachSuatChieu as $suatChieu) {
+            // Lấy số ghế từ phòng chiếu
+            $soGhe = $suatChieu->phongChieu->so_luong_ghe ?? 0;
+            $tongSoGhe += $soGhe;
+            
+            // Đếm số vé đã bán cho suất chiếu này
+            $soVeDaBan = Ve::where('suat_chieu_id', $suatChieu->id)
+                ->where('trang_thai', 2) // Vé đã thanh toán
+                ->count();
+            $tongSoVeDaBan += $soVeDaBan;
+        }
+        
+        if ($tongSoGhe === 0) {
+            return 0;
+        }
+        
+        return ($tongSoVeDaBan / $tongSoGhe) * 100;
+    }
     }
     
 ?>

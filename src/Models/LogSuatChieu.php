@@ -7,7 +7,7 @@
         protected $fillable = [
             'id',
             'id_suatchieu',
-            'hanh_dong', // 0 - Tạo, 1 - Cập nhật, 2 - Xóa,  3 - Duyệt, 4 - Từ chối
+            'hanh_dong', // 0 - Tạo, 1 - Cập nhật, 2 - Xóa, 3 - Duyệt, 4 - Từ chối, 5 - Duyệt từ kế hoạch
             'batdau',
             'id_phim',
             'ten_phim',
@@ -18,6 +18,9 @@
         ];
         public function suatChieu() {
             return $this->belongsTo(SuatChieu::class, 'id_suatchieu');
+        }
+        public function phim() {
+            return $this->belongsTo(Phim::class, 'id_phim');
         }
     }
 ?>

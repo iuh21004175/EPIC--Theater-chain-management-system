@@ -1,17 +1,17 @@
+import Spinner from './util/spinner.js';
+
 document.addEventListener('DOMContentLoaded', async function() {
     // Lấy danh sách vị trí công việc từ API
     let viTriCongViecs = [];
     let phanCongTuan = []; // Lưu dữ liệu phân công của tuần hiện tại
-    const tbody = document.getElementById('template-table-body');
     // Fetch vị trí công việc từ API
     async function fetchViTriCongViecs() {
         try {
-            const url = tbody?.dataset.url;
+            const url = document.getElementById('nv-list')?.dataset.url || '';
             const res = await fetch(`${url}/api/vi-tri-cong-viec`);
             const data = await res.json();  
             if (data.success && Array.isArray(data.data)) {
                 viTriCongViecs = data.data;
-                
             } else {
                 viTriCongViecs = [];
             }
@@ -30,114 +30,62 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
     }
     await fetchViTriCongViecs();
-    
-    const ngayTypes = [
-        { key: "thuong", label: "Ngày thường" },
-        { key: "cuoituan", label: "Cuối tuần" },
-        { key: "le", label: "Ngày lễ" },
-        { key: "tet", label: "Ngày tết" }
-    ];
-    const caTypes = [
-        { key: "morning", label: "Ca sáng" },
-        { key: "afternoon", label: "Ca chiều" },
-        { key: "evening", label: "Ca tối" }
-    ];
-    let currentCa = "morning";
-    let templateData = {}; // {ca: {vitri: {ngay: value}}}
-
-    
-
-    // Render bảng bố cục
-    function renderTemplateTable() {
-        tbody.innerHTML = viTriCongViecs.map(vt => `
-            <tr>
-                <td class="border px-4 py-2 bg-gray-50 text-left">${vt.ten}</td>
-                ${ngayTypes.map(ngay => `
-                    <td class="border px-2 py-2">
-                        <input type="number" min="0" class="w-16 border rounded px-2 py-1 text-center"
-                            value="${(templateData[currentCa]?.[vt.id]?.[ngay.key] ?? '')}"
-                            data-vitri="${vt.id}" data-ngay="${ngay.key}" />
-                    </td>
-                `).join('')}
-            </tr>
-        `).join('');
-        // Lưu dữ liệu khi nhập
-        tbody.querySelectorAll('input[type="number"]').forEach(input => {
-            input.oninput = function() {
-                if (!templateData[currentCa]) templateData[currentCa] = {};
-                if (!templateData[currentCa][this.dataset.vitri]) templateData[currentCa][this.dataset.vitri] = {};
-                templateData[currentCa][this.dataset.vitri][this.dataset.ngay] = this.value;
-            };
-        });
-    }
-
-    // Hiển thị modal
-    document.getElementById('btn-template').onclick = async function() {
-        document.getElementById('modal-template').classList.remove('hidden');
-        renderTemplateTable();
-    };
-    document.getElementById('btn-close-template').onclick =
-    document.getElementById('btn-cancel-template').onclick = function() {
-        document.getElementById('modal-template').classList.add('hidden');
-    };
-
-    // Chuyển ca
-    document.querySelectorAll('.ca-btn').forEach(btn => {
-        btn.onclick = function() {
-            document.querySelectorAll('.ca-btn').forEach(b => b.classList.remove('bg-blue-600', 'text-white', 'bg-gray-200', 'text-gray-700'));
-            this.classList.add('bg-blue-600', 'text-white');
-            currentCa = this.dataset.ca;
-            renderTemplateTable();
-        };
-    });
-
-    // Lưu bố cục (tùy ý xử lý)
-    document.getElementById('btn-save-template').onclick = function() {
-        document.getElementById('modal-template').classList.add('hidden');
-        // alert(JSON.stringify(templateData));
-    };
 
     // --- Nhân viên phân trang ---
     let nhanViens = [];
+    let nhanViensFiltered = []; // Danh sách đã lọc
     let nvPagination = { current_page: 1, per_page: 10, total: 0, total_pages: 1 };
     const nvList = document.getElementById('nv-list');
     const nvPaginationBar = document.getElementById('nv-pagination-bar');
 
     async function fetchNhanViens(page = 1) {
+        const spinner = Spinner.show({ target: '#nv-list', size: 'sm', text: 'Đang tải...' });
         try {
             const url = nvList.dataset.url || '';
             const res = await fetch(`${url}/api/nhan-vien?page=${page}&per_page=10`);
             const data = await res.json();
             if (data.success && Array.isArray(data.data)) {
                 nhanViens = data.data;
+                nhanViensFiltered = [...nhanViens]; // Reset filter
                 nvPagination = data.pagination;
             } else {
                 nhanViens = [];
+                nhanViensFiltered = [];
                 nvPagination = { current_page: 1, per_page: 10, total: 0, total_pages: 1 };
             }
         } catch (e) {
             nhanViens = [];
+            nhanViensFiltered = [];
             nvPagination = { current_page: 1, per_page: 10, total: 0, total_pages: 1 };
+        } finally {
+            Spinner.hide(spinner);
         }
     }
 
     function renderNhanVienList() {
-        nvList.innerHTML = nhanViens.filter(nv => nv.trang_thai == 1).map(nv => {
+        const activeNVs = nhanViensFiltered.filter(nv => nv.trang_thai == 1);
+        
+        // Cập nhật số lượng
+        const countBadge = document.getElementById('nv-count');
+        if (countBadge) {
+            countBadge.textContent = activeNVs.length;
+        }
+        
+        nvList.innerHTML = activeNVs.map(nv => {
             const hasAvatar = nv.avatar_url && nv.avatar_url.trim() !== '';
-            const firstChar = nv.ten ? nv.ten.trim().charAt(0) : '?';
+            const firstChar = nv.ten ? nv.ten.trim().charAt(0).toUpperCase() : '?';
             return `
-            <div class="nv-card flex items-center gap-2 p-2 border rounded bg-gray-50 hover:bg-blue-50 cursor-move"
+            <div class="nv-card flex items-center gap-3 p-3 border border-gray-200 rounded-lg bg-white hover:bg-blue-50 hover:border-blue-300 cursor-move transition-all shadow-sm hover:shadow-md"
              draggable="true" data-id="${nv.id}">
             ${
                 hasAvatar
-                ? `<img src="${nv.avatar_url}" class="w-10 h-10 rounded-full border" alt="${firstChar}">`
-                : `<div class="w-10 h-10 flex items-center justify-center rounded-full border bg-gray-300 text-gray-700 font-bold text-lg">${firstChar}</div>`
+                ? `<img src="${nv.avatar_url}" class="w-12 h-12 rounded-full border-2 border-gray-200" alt="${firstChar}">`
+                : `<div class="w-12 h-12 flex items-center justify-center rounded-full border-2 border-blue-300 bg-gradient-to-br from-blue-400 to-blue-600 text-white font-bold text-xl shadow-md">${firstChar}</div>`
             }
-            <div>
-                <div class="font-semibold">${nv.ten}</div>
-                
+            <div class="flex-1">
+                <div class="font-semibold text-gray-800">${nv.ten}</div>
+                <div class="text-xs text-gray-500 mt-0.5">Kéo để phân công</div>
             </div>
-            
             </div>
             `;
         }).join('');
@@ -157,7 +105,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
         let html = '';
         for (let i = 1; i <= nvPagination.total_pages; i++) {
-            html += `<button class="px-2 py-1 rounded ${i === nvPagination.current_page ? 'bg-blue-600 text-white' : 'bg-gray-200'}" data-page="${i}">${i}</button>`;
+            html += `<button class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                i === nvPagination.current_page 
+                ? 'bg-blue-600 text-white shadow-md' 
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }" data-page="${i}">${i}</button>`;
         }
         nvPaginationBar.innerHTML = html;
         nvPaginationBar.querySelectorAll('button').forEach(btn => {
@@ -165,6 +117,22 @@ document.addEventListener('DOMContentLoaded', async function() {
                 await fetchNhanViens(Number(this.dataset.page));
                 renderNhanVienList();
             };
+        });
+    }
+
+    // Filter nhân viên theo tên
+    const nvFilterInput = document.getElementById('nv-filter');
+    if (nvFilterInput) {
+        nvFilterInput.addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase().trim();
+            if (searchText === '') {
+                nhanViensFiltered = [...nhanViens];
+            } else {
+                nhanViensFiltered = nhanViens.filter(nv => 
+                    nv.ten.toLowerCase().includes(searchText)
+                );
+            }
+            renderNhanVienList();
         });
     }
 
@@ -176,6 +144,22 @@ document.addEventListener('DOMContentLoaded', async function() {
         const start = currentWeekStart.format('DD/MM/YYYY');
         const end = currentWeekStart.add(6, 'day').format('DD/MM/YYYY');
         weekTitle.textContent = `Tuần ${weekNumber} (${start} - ${end})`;
+        
+        // Vô hiệu hóa nút sao chép nếu là tuần hiện tại hoặc quá khứ
+        const btnCopy = document.getElementById('btn-copy-week');
+        const today = dayjs();
+        const currentWeekMonday = today.startOf('week').add(1, 'day');
+        
+        // So sánh bằng timestamp hoặc isBefore/isSame
+        if (currentWeekStart.isBefore(currentWeekMonday, 'day') || currentWeekStart.isSame(currentWeekMonday, 'day')) {
+            // Tuần hiện tại hoặc quá khứ
+            btnCopy.disabled = true;
+            btnCopy.title = 'Chỉ có thể sao chép cho tuần tương lai';
+        } else {
+            // Tuần tương lai
+            btnCopy.disabled = false;
+            btnCopy.title = 'Sao chép phân công từ tuần trước sang tuần này';
+        }
     }
 
     // --- Phân công ---
@@ -190,20 +174,114 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     let ngayLoaiMap = {}; // { 'YYYY-MM-DD': 'le' | 'tet' | 'cuoituan' | 'thuong' }
 
+    // Sao chép phân công từ tuần trước
+    async function copyPreviousWeek() {
+        const confirmCopy = confirm('Bạn có chắc muốn sao chép phân công từ tuần trước?\n\nLưu ý: Chỉ sao chép vào các ô trống trong tuần hiện tại.');
+        if (!confirmCopy) return;
+
+        const spinner = Spinner.show({ text: 'Đang sao chép phân công...', overlay: true });
+        try {
+            // Lấy phân công tuần trước
+            const prevWeekStart = currentWeekStart.subtract(7, 'day');
+            const prevStart = prevWeekStart.format('YYYY-MM-DD');
+            const prevEnd = prevWeekStart.add(6, 'day').format('YYYY-MM-DD');
+            
+            const url = phancongMainTbody.dataset.url || '';
+            const res = await fetch(`${url}/api/phan-cong?bat_dau=${prevStart}&ket_thuc=${prevEnd}`);
+            const data = await res.json();
+            
+            if (!data.success || !Array.isArray(data.data) || data.data.length === 0) {
+                alert('Tuần trước không có phân công nào để sao chép!');
+                return;
+            }
+            
+            const prevPhanCong = data.data;
+            let copiedCount = 0;
+            let skippedCount = 0;
+            
+            // Duyệt qua từng phân công tuần trước
+            for (const pc of prevPhanCong) {
+                // Tính ngày tương ứng tuần hiện tại (cộng 7 ngày)
+                const newDate = dayjs(pc.ngay).add(7, 'day').format('YYYY-MM-DD');
+                
+                // Kiểm tra xem ngày mới có trong tuần hiện tại không
+                const currentStart = currentWeekStart.format('YYYY-MM-DD');
+                const currentEnd = currentWeekStart.add(6, 'day').format('YYYY-MM-DD');
+                
+                if (newDate < currentStart || newDate > currentEnd) {
+                    continue; // Bỏ qua nếu không trong tuần hiện tại
+                }
+                
+                // Xác định ca
+                let caKey = '';
+                if (pc.ca === 'Ca sáng') caKey = 'morning';
+                else if (pc.ca === 'Ca chiều') caKey = 'afternoon';
+                else if (pc.ca === 'Ca tối') caKey = 'evening';
+                
+                // Kiểm tra xem ô đích đã có nhân viên này chưa
+                const existingPc = phanCongTuan.find(p => 
+                    p.ngay === newDate && 
+                    p.ca === pc.ca && 
+                    p.id_nhanvien === pc.id_nhanvien &&
+                    p.id_congviec === pc.id_congviec
+                );
+                
+                if (existingPc) {
+                    skippedCount++;
+                    continue; // Bỏ qua nếu đã tồn tại
+                }
+                
+                // Tạo phân công mới
+                const formData = new FormData();
+                formData.append('id_nhanvien', pc.id_nhanvien);
+                formData.append('id_congviec', pc.id_congviec);
+                formData.append('ngay', newDate);
+                formData.append('ca', pc.ca);
+                
+                const createRes = await fetch(`${url}/api/phan-cong`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const createData = await createRes.json();
+                if (createData.success) {
+                    copiedCount++;
+                }
+            }
+            
+            // Reload lại bảng phân công
+            await reloadPhanCongTable();
+            
+            // Thông báo kết quả
+            alert(`Sao chép thành công!\n\n✓ Đã sao chép: ${copiedCount} phân công\n${skippedCount > 0 ? `⊘ Đã bỏ qua: ${skippedCount} phân công (đã tồn tại)` : ''}`);
+            
+        } catch (error) {
+            console.error('Lỗi khi sao chép tuần trước:', error);
+            alert('Có lỗi xảy ra khi sao chép. Vui lòng thử lại!');
+        } finally {
+            Spinner.hide(spinner);
+        }
+    }
+
     async function fetchLoaiNgayOfWeek(startDay) {
-        // Gọi API lấy danh sách ngày đặc biệt trong tháng
-        const thang = startDay.month() + 1;
-        const nam = startDay.year();
-        const url = tbody?.dataset.url || '';
-        const res = await fetch(`${url}/api/gan-ngay/${thang}-${nam}`);
-        const data = await res.json();
-        ngayLoaiMap = {};
-        if (data.success && Array.isArray(data.data)) {
-            data.data.forEach(item => {
-                ngayLoaiMap[item.ngay] = item.loai_ngay === 'Ngày tết' ? 'tet'
-                    : item.loai_ngay === 'Ngày lễ' ? 'le'
-                    : 'dac_biet';
-            });
+        try {
+            // Gọi API lấy danh sách ngày đặc biệt trong tháng
+            const thang = startDay.month() + 1;
+            const nam = startDay.year();
+            const url = document.getElementById('nv-list')?.dataset.url || '';
+            const res = await fetch(`${url}/api/gan-ngay/${thang}-${nam}`);
+            const data = await res.json();
+            ngayLoaiMap = {};
+            if (data.success && Array.isArray(data.data)) {
+                data.data.forEach(item => {
+                    ngayLoaiMap[item.ngay] = item.loai_ngay === 'Ngày tết' ? 'tet'
+                        : item.loai_ngay === 'Ngày lễ' ? 'le'
+                        : 'dac_biet';
+                });
+            }
+        } catch (error) {
+            console.error('Lỗi khi lấy loại ngày:', error);
+            ngayLoaiMap = {};
         }
     }
 
@@ -230,18 +308,25 @@ document.addEventListener('DOMContentLoaded', async function() {
         let days = [];
         let today = dayjs();
         let d = currentWeekStart;
-        phancongHeaderRow.innerHTML = `<th class="border px-4 py-2 bg-gray-100">Ca / Ngày</th>` +
+        phancongHeaderRow.innerHTML = `<th class="border-2 border-gray-300 px-4 py-3 bg-gradient-to-br from-gray-100 to-gray-200 font-bold text-gray-700">Ca / Ngày</th>` +
             Array.from({length: 7}).map((_, i) => {
                 const day = d.add(i, 'day');
                 days.push(day);
                 const isToday = day.isSame(today, 'day');
-                return `<th class="border px-4 py-2 ${isToday ? 'bg-green-200 font-bold' : 'bg-gray-100'}">${thuLabels[i]}<br><span class="text-xs">${day.format('DD/MM')}</span></th>`;
+                return `<th class="border-2 border-gray-300 px-4 py-3 ${
+                    isToday 
+                    ? 'bg-gradient-to-br from-green-400 to-green-500 text-white font-bold shadow-md' 
+                    : 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700 font-semibold'
+                }">
+                    <div class="text-sm">${thuLabels[i]}</div>
+                    <div class="text-xs font-normal mt-1">${day.format('DD/MM')}</div>
+                </th>`;
             }).join('');
 
         // Render body
         phancongMainTbody.innerHTML = caLabels.map(ca => {
-            return `<tr>
-                <td class="border px-4 py-2 bg-gray-50 font-semibold">${ca.label}</td>
+            return `<tr class="hover:bg-gray-50 transition-colors">
+                <td class="border-2 border-gray-300 px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 font-semibold text-gray-700">${ca.label}</td>
                 ${days.map(day => {
                     const loai = getLoaiNgay(day);
                     // Xác định giờ bắt đầu của ca
@@ -254,14 +339,16 @@ document.addEventListener('DOMContentLoaded', async function() {
                     const isPast = cellTime.isBefore(now, 'minute');
                     let cellClass = '';
                     if (isPast) {
-                        cellClass = 'bg-gray-300 text-gray-500 opacity-80 border-gray-300';
+                        cellClass = 'bg-gray-200 text-gray-400 opacity-70 border-gray-300 cursor-not-allowed';
                     } else {
-                        cellClass = getCellBgClass(loai);
+                        cellClass = getCellBgClass(loai) + ' hover:shadow-inner';
                     }
-                    return `<td class="border px-2 py-2 phancong-cell ${cellClass}" 
+                    return `<td class="border-2 border-gray-300 px-2 py-2 phancong-cell ${cellClass} transition-all relative" 
                         data-ca="${ca.key}" data-date="${day.format('YYYY-MM-DD')}" 
                         data-loai="${loai}">
-                        <div class="phancong-dropzone min-h-[40px]"></div>
+                        <div class="phancong-dropzone min-h-[60px] rounded-md relative">
+                            <span class="phancong-count absolute top-1 right-1 bg-white text-xs font-bold text-gray-600 px-2 py-0.5 rounded-full shadow-sm hidden">0</span>
+                        </div>
                     </td>`;
                 }).join('')}
             </tr>`;
@@ -396,12 +483,14 @@ document.addEventListener('DOMContentLoaded', async function() {
                                             await fetch(`${url}/api/phan-cong/${phanCongId}`, { method: 'DELETE' });
                                         }
                                         nvDiv.remove();
+                                        updateCellCount(cell); // Cập nhật số lượng
                                         if (cell && cell.querySelectorAll('.phancong-nv').length === 0 && cell._phancongTooltip) {
                                             cell._phancongTooltip.remove();
                                             cell._phancongTooltip = null;
                                         }
                                     };
                                 }
+                                updateCellCount(cell); // Cập nhật số lượng
                                 modal.remove();
                             } else {
                                 alert('Không thể phân công. Vui lòng thử lại!');
@@ -485,6 +574,10 @@ document.addEventListener('DOMContentLoaded', async function() {
                 `);
             }
         });
+        // Cập nhật số lượng cho tất cả các ô
+        phancongMainTbody.querySelectorAll('.phancong-cell').forEach(cell => {
+            updateCellCount(cell);
+        });
         // Gắn lại sự kiện xóa cho tất cả nút xóa nhân viên trong ô
         phancongMainTbody.querySelectorAll('.phancong-nv-remove').forEach(btn => {
             btn.onclick = async function(e) {
@@ -497,20 +590,52 @@ document.addEventListener('DOMContentLoaded', async function() {
                     await fetch(`${url}/api/phan-cong/${phanCongId}`, { method: 'DELETE' });
                 }
                 nvDiv.remove();
-                cell._phancongTooltip.remove();
-                cell._phancongTooltip = null;
+                updateCellCount(cell); // Cập nhật số lượng
+                if (cell._phancongTooltip) {
+                    cell._phancongTooltip.remove();
+                    cell._phancongTooltip = null;
+                }
             };
         });
     }
 
+    // Hàm cập nhật số lượng nhân viên trong ô
+    function updateCellCount(cell) {
+        const dropzone = cell.querySelector('.phancong-dropzone');
+        const countBadge = dropzone.querySelector('.phancong-count');
+        const nvCount = dropzone.querySelectorAll('.phancong-nv').length;
+        
+        if (countBadge) {
+            countBadge.textContent = nvCount;
+            if (nvCount > 0) {
+                countBadge.classList.remove('hidden');
+                // Màu sắc theo số lượng
+                if (nvCount >= 3) {
+                    countBadge.className = 'phancong-count absolute top-1 right-1 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm';
+                } else if (nvCount >= 2) {
+                    countBadge.className = 'phancong-count absolute top-1 right-1 bg-blue-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm';
+                } else {
+                    countBadge.className = 'phancong-count absolute top-1 right-1 bg-yellow-500 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm';
+                }
+            } else {
+                countBadge.classList.add('hidden');
+            }
+        }
+    }
+
     // Khi chuyển tuần, fetch lại loại ngày và render bảng
     async function reloadPhanCongTable() {
-        await fetchLoaiNgayOfWeek(currentWeekStart);
-        // Lấy ngày bắt đầu và kết thúc tuần
-        const start = currentWeekStart.format('YYYY-MM-DD');
-        const end = currentWeekStart.add(6, 'day').format('YYYY-MM-DD');
-        await fetchPhanCongTuan(start, end);
-        renderPhanCongTable();
+        const spinner = Spinner.show({ target: '#phancong-main-table', text: 'Đang tải lịch phân công...', overlay: true });
+        try {
+            await fetchLoaiNgayOfWeek(currentWeekStart);
+            // Lấy ngày bắt đầu và kết thúc tuần
+            const start = currentWeekStart.format('YYYY-MM-DD');
+            const end = currentWeekStart.add(6, 'day').format('YYYY-MM-DD');
+            await fetchPhanCongTuan(start, end);
+            renderPhanCongTable();
+        } finally {
+            Spinner.hide(spinner);
+        }
     }
 
     // Sửa lại sự kiện chuyển tuần:
@@ -524,10 +649,58 @@ document.addEventListener('DOMContentLoaded', async function() {
         updateWeekTitle();
         await reloadPhanCongTable();
     };
+    
+    // Sao chép tuần trước
+    document.getElementById('btn-copy-week').onclick = copyPreviousWeek;
+    
+    // Xóa toàn bộ phân công trong tuần
+    document.getElementById('btn-clear-week').onclick = async function() {
+        if (!confirm('Bạn có chắc muốn xóa TOÀN BỘ phân công trong tuần này?\n\nHành động này KHÔNG THỂ HOÀN TÁC!')) {
+            return;
+        }
+        
+        const spinner = Spinner.show({ text: 'Đang xóa phân công...', overlay: true });
+        try {
+            const url = phancongMainTbody.dataset.url || '';
+            let deletedCount = 0;
+            let errorCount = 0;
+            
+            // Xóa từng phân công
+            for (const pc of phanCongTuan) {
+                try {
+                    const res = await fetch(`${url}/api/phan-cong/${pc.id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) {
+                        deletedCount++;
+                    } else {
+                        errorCount++;
+                    }
+                } catch (err) {
+                    errorCount++;
+                }
+            }
+            
+            // Reload lại bảng
+            await reloadPhanCongTable();
+            
+            // Thông báo kết quả
+            if (errorCount === 0) {
+                alert(`Đã xóa thành công ${deletedCount} phân công!`);
+            } else {
+                alert(`Đã xóa ${deletedCount} phân công.\nLỗi: ${errorCount} phân công không thể xóa.`);
+            }
+        } catch (error) {
+            console.error('Lỗi khi xóa tuần:', error);
+            alert('Có lỗi xảy ra. Vui lòng thử lại!');
+        } finally {
+            Spinner.hide(spinner);
+        }
+    };
 
     // --- Khởi tạo ---
     await reloadPhanCongTable();
     await fetchNhanViens(1);
+    nhanViensFiltered = [...nhanViens]; // Khởi tạo danh sách filtered
     renderNhanVienList();
     updateWeekTitle();
 

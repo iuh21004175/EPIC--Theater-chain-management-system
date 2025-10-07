@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Đặt lịch gọi video tư vấn - EPIC CINEMAS</title>
 <link rel="stylesheet" href="{{ $_ENV['URL_WEB_BASE'] }}/css/tailwind.css">
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
 
@@ -34,7 +35,7 @@
                     </svg>
                 </button>
 
-                <span id="current-month" class="text-lg font-medium text-gray-900"></span>
+                <span id="current-month" class="text-lg font-medium text-gray-900" data-url="{{$_ENV['URL_WEB_BASE']}}"></span>
 
                 <button id="next-month" class="text-gray-400 hover:text-red-500 transition-colors p-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -79,6 +80,25 @@
                 <div class="flex items-center">
                     <div class="w-4 h-4 bg-red-100 border border-red-300 rounded mr-2"></div>
                     <span class="text-gray-600">Ngày hiện tại</span>
+                </div>
+            </div>
+            
+            <!-- Danh sách các cuộc gọi video đã đặt -->
+            <div class="mt-8 border-t pt-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-1 h-6 bg-blue-600 mr-2"></div>
+                        <h3 class="text-xl font-bold">Lịch tư vấn đã đặt</h3>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="mr-3 text-sm font-medium">Ngày: <span id="selected-date-display">Chưa chọn</span></span>
+                        <button id="book-appointment-btn" class="hidden px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
+                            Đặt lịch
+                        </button>
+                    </div>
+                </div>
+                <div id="scheduled-calls" class="mt-4">
+                    <p class="text-gray-500 text-center py-4">Chọn một ngày để xem lịch tư vấn đã đặt</p>
                 </div>
             </div>
         </div>

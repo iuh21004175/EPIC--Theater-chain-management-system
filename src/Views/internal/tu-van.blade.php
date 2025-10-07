@@ -4,8 +4,9 @@
 @section('head')
 <!-- Spinner và toast sẽ được render động -->
 
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/chat-truc-tuyen.js"></script>
-<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/video-call.js"></script>
+<script type="module" src="{{$_ENV['URL_INTERNAL_BASE']}}/js/duyet-lich-goi-video.js"></script>
 <style>
     .chatbox-fb-header {
         background: linear-gradient(90deg, #2563eb 60%, #60a5fa 100%);
@@ -291,10 +292,33 @@
     </div>
     <!-- Tab: Gọi video -->
     <div id="tab-video" class="tab-content" style="display:none;">
-        <div class="flex flex-col items-center justify-center h-[60vh]">
-            <h2 class="text-2xl font-bold text-blue-700 mb-4">Gọi video tư vấn khách hàng</h2>
-            <div id="video-call-container">
-                <!-- JS sẽ render giao diện gọi video tại đây -->
+        <div class="bg-white shadow-md rounded-lg" id="duyet-lich-goi-video-app" data-url="{{$_ENV['URL_WEB_BASE']}}" data-urlinternal="{{$_ENV['URL_INTERNAL_BASE']}}" >
+            <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                <h2 class="text-xl font-semibold text-gray-800">Quản lý lịch gọi video tư vấn</h2>
+                <p class="mt-1 text-sm text-gray-600">Danh sách yêu cầu gọi video từ khách hàng</p>
+            </div>
+
+            <!-- Danh sách lịch -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chủ đề</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời gian đặt</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nhân viên</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lich-table-body" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                Đang tải dữ liệu...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -334,6 +358,10 @@
             tabVideo.style.display = '';
             tabChat.classList.remove('active');
             tabChat.style.display = 'none';
+            
+            // Trigger event để duyet-lich-goi-video.js biết tab đã được mở
+            const videoTabOpenedEvent = new Event('videoTabOpened');
+            document.dispatchEvent(videoTabOpenedEvent);
         });
     });
 </script>

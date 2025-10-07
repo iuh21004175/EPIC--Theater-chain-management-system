@@ -19,6 +19,7 @@ use App\Controllers\Ctrl_DuyetSuatChieu;
 use App\Controllers\Ctrl_KhachHang;
 use App\Controllers\Ctrl_TuVan;
 use App\Controllers\Ctrl_DonHang;
+use App\Controllers\Ctrl_GoiVideo;
 
 use function App\Core\view;
 
@@ -54,6 +55,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/duyet-suat-chieu/{id:\d+}', [Ctrl_DuyetSuatChieu::class, 'chiTiet', ['Quản lý chuỗi rạp']]);
     // Tư vấn
     $r->addRoute('GET', '/tu-van', [Ctrl_TuVan::class, 'pageNhanVienTuVan', ['Nhân viên']]);
+    $r->addRoute('GET', '/duyet-lich-goi-video', [Ctrl_GoiVideo::class, 'pageDuyetLichGoiVideo', ['Nhân viên']]);
+    $r->addRoute('GET', '/video-call', [Ctrl_GoiVideo::class, 'pageVideoCall', ['Nhân viên']]);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

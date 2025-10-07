@@ -30,6 +30,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Xử lý các nút phân tích
+    document.getElementById('btn-movie-analysis').addEventListener('click', function() {
+        switchAnalysisTab(this, 'movie');
+    });
+    
+    document.getElementById('btn-food-analysis').addEventListener('click', function() {
+        switchAnalysisTab(this, 'food');
+    });
+    
+    document.getElementById('btn-showtime-analysis').addEventListener('click', function() {
+        switchAnalysisTab(this, 'showtime');
+    });
+
     // Xử lý xuất dữ liệu
     document.getElementById('btn-export-data').addEventListener('click', function() {
         exportData();
@@ -42,6 +55,12 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
     fetchData('7days');
 });
+
+// Biến global để lưu loại phân tích hiện tại và dữ liệu
+let currentAnalysisType = 'movie';
+let cachedMoviesData = [];
+let cachedFoodsData = [];
+let cachedShowtimesData = [];
 
 // Khởi tạo dashboard với dữ liệu mẫu
 function initializeDashboard() {
@@ -385,6 +404,45 @@ function transformShowtimesData(hieuQuaKhungGioData) {
         revenue: item.tong_doanh_thu,
         contribution: item.ty_le_dong_gop || 0,
         trend: item.so_voi_ky_truoc?.ty_le || 0
+    }));
+}
+
+// Hàm transform dữ liệu phim từ API chi tiết
+function transformDetailMoviesData(phanTichPhim) {
+    if (!Array.isArray(phanTichPhim)) return [];
+    
+    return phanTichPhim.map(phim => ({
+        name: phim.ten_phim,
+        revenue: parseFloat(phim.doanh_thu) || 0,
+        tickets: parseInt(phim.so_luot) || 0,
+        contribution: parseFloat(phim.ty_le_dong_gop) || 0,
+        trend: parseFloat(phim.so_voi_ky_truoc?.ty_le) || 0
+    }));
+}
+
+// Hàm transform dữ liệu đồ ăn từ API chi tiết
+function transformDetailFoodsData(phanTichDoAn) {
+    if (!Array.isArray(phanTichDoAn)) return [];
+    
+    return phanTichDoAn.map(sp => ({
+        name: sp.ten_san_pham,
+        revenue: parseFloat(sp.doanh_thu) || 0,
+        quantity: parseInt(sp.so_luot) || 0,
+        contribution: parseFloat(sp.ty_le_dong_gop) || 0,
+        trend: parseFloat(sp.so_voi_ky_truoc?.ty_le) || 0
+    }));
+}
+
+// Hàm transform dữ liệu suất chiếu từ API chi tiết
+function transformDetailShowtimesData(phanTichSuatChieu) {
+    if (!Array.isArray(phanTichSuatChieu)) return [];
+    
+    return phanTichSuatChieu.map(sc => ({
+        time: sc.khung_gio,
+        occupancy: parseFloat(sc.ty_le_lap_day) || 0,
+        revenue: parseFloat(sc.doanh_thu) || 0,
+        contribution: parseFloat(sc.ty_le_dong_gop) || 0,
+        trend: parseFloat(sc.so_voi_ky_truoc?.ty_le) || 0
     }));
 }
 
@@ -753,8 +811,13 @@ async function fetchMoviesData(startDate, endDate) {
             // Cập nhật biểu đồ top phim
             const moviesData = transformMoviesData(top10PhimData);
             
-            // Cập nhật bảng phân tích
-            updateAnalysisTable(moviesData, 'movie');
+            // Lưu vào cache
+            cachedMoviesData = moviesData;
+            
+            // Cập nhật bảng phân tích nếu đang ở tab phim
+            if (currentAnalysisType === 'movie') {
+                updateAnalysisTable(moviesData, 'movie');
+            }
             
             // Khởi tạo biểu đồ
             initializeTopMoviesChart(moviesData);
@@ -814,8 +877,13 @@ async function fetchFoodsData(startDate, endDate) {
         if (top10SanPhamData.success && top10SanPhamData.data) {
             const foodsData = transformFoodsData(top10SanPhamData);
             
-            // Cập nhật bảng phân tích
-            updateAnalysisTable(foodsData, 'food');
+            // Lưu vào cache
+            cachedFoodsData = foodsData;
+            
+            // Cập nhật bảng phân tích nếu đang ở tab đồ ăn
+            if (currentAnalysisType === 'food') {
+                updateAnalysisTable(foodsData, 'food');
+            }
             
             // Luôn hiển thị biểu đồ, ngay cả khi không có dữ liệu
             initializeTopFoodsChart(foodsData);
@@ -880,8 +948,13 @@ async function fetchShowtimesData(startDate, endDate) {
             // Cập nhật biểu đồ hiệu quả khung giờ
             const showtimesData = transformShowtimesData(hieuQuaKhungGioData);
             
-            // Cập nhật bảng phân tích
-            updateAnalysisTable(showtimesData, 'showtime');
+            // Lưu vào cache
+            cachedShowtimesData = showtimesData;
+            
+            // Cập nhật bảng phân tích nếu đang ở tab suất chiếu
+            if (currentAnalysisType === 'showtime') {
+                updateAnalysisTable(showtimesData, 'showtime');
+            }
             
             // Khởi tạo biểu đồ
             initializeShowtimeEffectivenessChart(showtimesData);
@@ -950,6 +1023,41 @@ async function fetchCustomerTrendsData(startDate, endDate) {
             const chiTietData = await fetchAPI(`${urlBase}/api/thong-ke/chi-tiet?tuNgay=${startDate}&denNgay=${endDate}`);
 
             if (chiTietData.success) {
+                // Transform và lưu dữ liệu vào cache
+                const moviesData = transformDetailMoviesData(chiTietData.data.phan_tich_phim || []);
+                const foodsData = transformDetailFoodsData(chiTietData.data.phan_tich_do_an || []);
+                const showtimesData = transformDetailShowtimesData(chiTietData.data.phan_tich_suat_chieu || []);
+                
+                console.log('📊 Chi tiết data transformed:', {
+                    movies: moviesData.length,
+                    foods: foodsData.length,
+                    showtimes: showtimesData.length
+                });
+                
+                // Lưu vào cache
+                cachedMoviesData = moviesData;
+                cachedFoodsData = foodsData;
+                cachedShowtimesData = showtimesData;
+                
+                console.log('💾 Cached data:', {
+                    movies: cachedMoviesData.length,
+                    foods: cachedFoodsData.length,
+                    showtimes: cachedShowtimesData.length,
+                    currentType: currentAnalysisType
+                });
+                
+                // Cập nhật bảng phân tích theo tab hiện tại
+                if (currentAnalysisType === 'movie') {
+                    console.log('🎬 Updating table with movies (current type is movie)');
+                    updateAnalysisTable(moviesData, 'movie');
+                } else if (currentAnalysisType === 'food') {
+                    console.log('🍿 Updating table with foods (current type is food)');
+                    updateAnalysisTable(foodsData, 'food');
+                } else if (currentAnalysisType === 'showtime') {
+                    console.log('🕐 Updating table with showtimes (current type is showtime)');
+                    updateAnalysisTable(showtimesData, 'showtime');
+                }
+                
                 // Kết hợp dữ liệu để tạo đề xuất kinh doanh
                 let adaptedData = {
                     success: true,
@@ -971,9 +1079,9 @@ async function fetchCustomerTrendsData(startDate, endDate) {
 
                 const recommendations = generateRecommendations(
                     transformOverviewData(adaptedData),
-                    transformMoviesData({success: true, data: {top_10_phim: chiTietData.data.phan_tich_phim || []}}),
-                    transformFoodsData({success: true, data: {top_10_san_pham: chiTietData.data.phan_tich_do_an || []}}),
-                    transformShowtimesData({success: true, data: {chiTietData: chiTietData.data.phan_tich_suat_chieu || []}}),
+                    moviesData,
+                    foodsData,
+                    showtimesData,
                     trendsData
                 );
                 
@@ -1785,6 +1893,13 @@ function updateBusinessRecommendations(recommendations) {
 
 // Hàm chuyển đổi tab phân tích
 function switchAnalysisTab(button, type) {
+    console.log('🔄 Switching to tab:', type);
+    console.log('📦 Cache status:', {
+        movies: cachedMoviesData.length,
+        foods: cachedFoodsData.length,
+        showtimes: cachedShowtimesData.length
+    });
+    
     // Reset all buttons to default style
     document.getElementById('btn-movie-analysis').className = 'px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500';
     document.getElementById('btn-food-analysis').className = 'px-3 py-2 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500';
@@ -1793,16 +1908,24 @@ function switchAnalysisTab(button, type) {
     // Set active button style
     button.className = 'px-3 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500';
     
-    // Fetch data based on tab
-    const dateRange = document.getElementById('date-range').value;
-    if (dateRange === 'custom') {
-        const startDate = document.getElementById('start-date').value;
-        const endDate = document.getElementById('end-date').value;
-        if (startDate && endDate) {
-            fetchData('custom', { startDate, endDate, filterType: type });
-        }
+    // Lưu loại phân tích hiện tại
+    currentAnalysisType = type;
+    
+    // Cập nhật bảng phân tích với dữ liệu đã cache
+    if (type === 'movie' && cachedMoviesData.length > 0) {
+        console.log('✅ Updating table with movies data');
+        updateAnalysisTable(cachedMoviesData, 'movie');
+    } else if (type === 'food' && cachedFoodsData.length > 0) {
+        console.log('✅ Updating table with foods data');
+        updateAnalysisTable(cachedFoodsData, 'food');
+    } else if (type === 'showtime' && cachedShowtimesData.length > 0) {
+        console.log('✅ Updating table with showtimes data');
+        updateAnalysisTable(cachedShowtimesData, 'showtime');
     } else {
-        fetchData(dateRange, { filterType: type });
+        console.log('⏳ No cache data, showing spinner');
+        // Nếu chưa có dữ liệu cache, hiển thị spinner
+        const tableBody = document.getElementById('analysis-table-body');
+        tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-8"><div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div><p class="mt-2 text-gray-500">Đang tải dữ liệu...</p></td></tr>';
     }
 }
 

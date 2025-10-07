@@ -9,6 +9,7 @@ use App\Controllers\Ctrl_Phim;
 use App\Controllers\Ctrl_Ghe;
 use App\Controllers\Ctrl_PhongChieu;
 use App\Controllers\Ctrl_SuatChieu;
+use App\Controllers\Ctrl_KeHoachSuatChieu;
 use App\Controllers\Ctrl_GanNgay;
 use App\Controllers\Ctrl_GiaVe;
 use App\Controllers\Ctrl_SanPhamAnUong;
@@ -23,6 +24,7 @@ use App\Controllers\Ctrl_DanhGia;
 use App\Controllers\Ctrl_Banner;
 use App\Controllers\Ctrl_MuaPhim;
 use App\Controllers\Ctrl_TuVan;
+use App\Controllers\Ctrl_GoiVideo;
 use App\Controllers\Ctrl_ChatBotAI;
 use App\Controllers\Ctrl_ThongKe;
 
@@ -59,7 +61,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('PUT', '/ghe/{id:\d+}', [Ctrl_Ghe::class, 'suaGhe', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/phong-chieu', [Ctrl_PhongChieu::class, 'themPhongChieu', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/phong-chieu/{id:\d+}', [Ctrl_PhongChieu::class, 'capNhatPhongChieu', ['Quản lý rạp']]);
-    $r->addRoute('GET', '/phong-chieu', [Ctrl_PhongChieu::class, 'docPhongChieu', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/phong-chieu', [Ctrl_PhongChieu::class, 'docPhongChieu', ['Quản lý rạp', 'Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/suat-chieu', [Ctrl_SuatChieu::class, 'themSuatChieu', ['Quản lý rạp']]);
     $r->addRoute('GET', '/suat-chieu', [Ctrl_SuatChieu::class, 'docSuatChieu', ['Quản lý chuỗi rạp', 'Quản lý rạp']]);
     $r->addRoute('GET', '/suat-chieu/tao-khung-gio-goi-y', [Ctrl_SuatChieu::class, 'taoKhungGioGoiY', ['Quản lý rạp']]);
@@ -84,6 +86,20 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/nhat-ky-suat-chieu', [Ctrl_SuatChieu::class, 'docNhatKy', ['Quản lý rạp', 'Quản lý chuỗi rạp']]);
     $r->addRoute('PUT', '/nhat-ky-suat-chieu/rap-da-xem', [Ctrl_SuatChieu::class, 'quanLyRapXemNhatKy', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/nhat-ky-suat-chieu/chuoi-rap-da-xem', [Ctrl_SuatChieu::class, 'quanLyChuoiXemNhatKy', ['Quản lý chuỗi rạp']]);
+    
+    // API cho kế hoạch suất chiếu (sử dụng controller riêng)
+    $r->addRoute('GET', '/ke-hoach-suat-chieu', [Ctrl_KeHoachSuatChieu::class, 'docKeHoach', ['Quản lý rạp', 'Quản lý chuỗi rạp']]);
+    $r->addRoute('POST', '/ke-hoach-suat-chieu', [Ctrl_KeHoachSuatChieu::class, 'luuKeHoach', ['Quản lý rạp']]);
+    $r->addRoute('DELETE', '/ke-hoach-suat-chieu/{id:\d+}', [Ctrl_KeHoachSuatChieu::class, 'xoaSuatChieuTrongKeHoach', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/ke-hoach-suat-chieu/tao-khung-gio-goi-y', [Ctrl_KeHoachSuatChieu::class, 'taoKhungGioGoiYChoKeHoach', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/ke-hoach-suat-chieu/kiem-tra-hop-le', [Ctrl_KeHoachSuatChieu::class, 'kiemTraSuatChieuKeHoachHopLe', ['Quản lý rạp']]);
+    
+    // API thống kê toàn rạp (cho Admin/Quản lý chuỗi rạp)
+    $r->addRoute('GET', '/thong-ke-toan-rap/tong-quat', [Ctrl_ThongKe::class, 'thongKeToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('POST', '/ke-hoach-suat-chieu/{id:\d+}/duyet', [Ctrl_KeHoachSuatChieu::class, 'duyetKeHoach', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('POST', '/ke-hoach-suat-chieu/{id:\d+}/tu-choi', [Ctrl_KeHoachSuatChieu::class, 'tuChoiKeHoach', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('POST', '/ke-hoach-suat-chieu/duyet-tuan', [Ctrl_KeHoachSuatChieu::class, 'duyetTuan', ['Quản lý chuỗi rạp']]);
+    
     $r->addRoute('GET', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'docViTri', ['Quản lý rạp']]);
     $r->addRoute('POST', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'themViTri', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/vi-tri-cong-viec/{id:\d+}', [Ctrl_PhanCong::class, 'suaViTri', ['Quản lý rạp']]);
@@ -164,6 +180,17 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/tao-phien-chat', [Ctrl_TuVan::class, 'khachHangTaoPhienChat']);
     $r->addRoute('GET', '/danh-sach-phien-chat-khach-hang', [Ctrl_TuVan::class, 'khachHangLayDanhSachPhienChat']);
     $r->addRoute('GET', '/chi-tiet-phien-chat/{id:\d+}', [Ctrl_TuVan::class, 'layChiTietPhienChat']);
+    
+    // Routes cho gọi video
+    $r->addRoute('POST', '/goi-video/dat-lich', [Ctrl_GoiVideo::class, 'khachHangDatLichGoiVideo']);
+    $r->addRoute('GET', '/goi-video/danh-sach-lich', [Ctrl_GoiVideo::class, 'nhanVienLayDanhSachLichCho', ['Nhân viên', 'Quản lý rạp']]);
+    $r->addRoute('POST', '/goi-video/{id:\d+}/chon-tu-van', [Ctrl_GoiVideo::class, 'nhanVienChonTuVan', ['Nhân viên', 'Quản lý rạp']]);
+    $r->addRoute('GET', '/goi-video/{id:\d+}/trang-thai', [Ctrl_GoiVideo::class, 'khachHangKiemTraTrangThai']);
+    $r->addRoute('POST', '/goi-video/{id:\d+}/huy', [Ctrl_GoiVideo::class, 'nhanVienHuyTuVan', ['Nhân viên', 'Quản lý rạp']]);
+    $r->addRoute('POST', '/goi-video/bat-dau', [Ctrl_GoiVideo::class, 'batDauCuocGoi']);
+    $r->addRoute('POST', '/goi-video/ket-thuc', [Ctrl_GoiVideo::class, 'ketThucCuocGoi']);
+    $r->addRoute('GET', '/lich-goi-video-theo-ngay', [Ctrl_GoiVideo::class, 'khachHangLayLichTheoNgay']);
+    $r->addRoute('POST', '/dat-lich-goi-video', [Ctrl_GoiVideo::class, 'datLichGoiVideo']);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

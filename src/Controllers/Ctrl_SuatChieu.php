@@ -220,5 +220,80 @@
                 ];
             }
         }
+        
+        public function docKeHoach(){
+            $service = new Sc_SuatChieu();
+            try{
+                $batDau = $_GET['batdau'] ?? null;
+                $ketThuc = $_GET['ketthuc'] ?? null;
+                
+                if(!$batDau || !$ketThuc){
+                    return [
+                        'success' => false,
+                        'message' => 'Thiếu tham số batdau hoặc ketthuc'
+                    ];
+                }
+                
+                $result = $service->docKeHoach($batDau, $ketThuc);
+                return [
+                    'success' => true,
+                    'message' => 'Đọc kế hoạch suất chiếu thành công',
+                    'data' => $result
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi đọc kế hoạch suất chiếu: ' . $e->getMessage()
+                ];
+            }
+        }
+        
+        public function luuKeHoach(){
+            $service = new Sc_SuatChieu();
+            try{
+                $data = json_decode(file_get_contents('php://input'), true);
+                $batDau = $data['batdau'] ?? null;
+                $ketThuc = $data['ketthuc'] ?? null;
+                
+                if(!$batDau || !$ketThuc){
+                    return [
+                        'success' => false,
+                        'message' => 'Thiếu tham số batdau hoặc ketthuc'
+                    ];
+                }
+                
+                $result = $service->luuSuatChieuVaoKeHoach($batDau, $ketThuc);
+                return [
+                    'success' => true,
+                    'message' => 'Lưu kế hoạch suất chiếu thành công',
+                    'data' => $result
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi lưu kế hoạch suất chiếu: ' . $e->getMessage()
+                ];
+            }
+        }
+        
+        public function xoaSuatChieuTrongKeHoach($argc){
+            $service = new Sc_SuatChieu();
+            try{
+                $idKeHoachChiTiet = $argc['id'];
+                $service->xoaSuatChieuKhoiKeHoach($idKeHoachChiTiet);
+                return [
+                    'success' => true,
+                    'message' => 'Xóa suất chiếu khỏi kế hoạch thành công',
+                ];
+            }
+            catch(\Exception $e){
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi xóa suất chiếu khỏi kế hoạch: ' . $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

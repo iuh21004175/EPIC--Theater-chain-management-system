@@ -1,5 +1,18 @@
 <?php
     session_start();
+    
+    // CORS Headers để cho phép Socket.IO server gọi API
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    header('Content-Type: application/json');
+    
+    // Handle preflight OPTIONS request
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit;
+    }
+    
     $uri = $_SERVER['REQUEST_URI'];
     if (stripos($uri, '/rapphim/api/') === 0) {
         $_SERVER['REQUEST_URI'] = str_ireplace('/rapphim/api/', '/', $uri);

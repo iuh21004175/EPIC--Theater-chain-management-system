@@ -3,6 +3,7 @@
     use App\Models\SuatChieu;
     use App\Models\LogSuatChieu;
     use App\Models\Phim;
+    use App\Models\KeHoachSuatChieu;
     use Carbon\Carbon;
 
     class Sc_SuatChieu {
@@ -28,14 +29,19 @@
                     'ketthuc' => $ketThuc,
                     'tinh_trang' => 0 // Mặc định là "Chờ duyệt"
                 ]);
+                // Load relationships để lấy thông tin
+                $suatChieu->load(['phim', 'phongChieu.rapChieuPhim']);
+                
                 $suatChieu->logSuatChieu()->create([
-                    'hanh_dong' => '0',
+                    'hanh_dong' => 0, // Tạo mới
                     'id_phim' => $suatChieu->phim->id ?? null,
                     'ten_phim' => $suatChieu->phim->ten_phim ?? null,
                     'batdau' => $suatChieu->batdau,
+                    'tinh_trang' => 0, // Chờ duyệt
+                    'ten_rap' => $suatChieu->phongChieu->rapChieuPhim->ten ?? 'Không rõ',
+                    'ten_phong' => $suatChieu->phongChieu->ten_phongchieu ?? 'Không rõ',
                     'da_xem' => 0, // Đánh dấu quản lý chuỗi rạp chưa xem
                     'rap_da_xem' => 1 // Đánh dấu rạp đã xem
-
                 ]);
             }
         }
@@ -72,10 +78,13 @@
                     $suatChieu->da_xem = 0; // Đánh dấu quản lý chuỗi rạp chưa xem lại
                 }
                 $suatChieu->logSuatChieu()->create([
-                    'hanh_dong' => '1', // Sửa suất chiếu
+                    'hanh_dong' => 1, // Cập nhật
                     'id_phim' => $suatChieu->phim->id ?? null,
                     'ten_phim' => $suatChieu->phim->ten_phim ?? null,
                     'batdau' => $suatChieu->batdau,
+                    'tinh_trang' => $suatChieu->tinh_trang,
+                    'ten_rap' => $suatChieu->phongChieu->rapChieuPhim->ten ?? 'Không rõ',
+                    'ten_phong' => $suatChieu->phongChieu->ten_phongchieu ?? 'Không rõ',
                     'da_xem' => 0, // Đánh dấu quản lý chuỗi rạp chưa xem
                     'rap_da_xem' => 1, // Đánh dấu rạp đã xem
                 ]);
@@ -90,15 +99,20 @@
                 exit();
             }
 
+            // Load relationships để lấy thông tin trước khi xóa
+            $suatChieu->load(['phim', 'phongChieu.rapChieuPhim']);
+            
             // Lưu log trước khi xóa
             $suatChieu->logSuatChieu()->create([
-                'hanh_dong' => 2, // 2 - Xóa
+                'hanh_dong' => 2, // Xóa
                 'id_phim' => $suatChieu->phim->id ?? null,
                 'ten_phim' => $suatChieu->phim->ten_phim ?? null,
                 'batdau' => $suatChieu->batdau,
+                'tinh_trang' => $suatChieu->tinh_trang,
+                'ten_rap' => $suatChieu->phongChieu->rapChieuPhim->ten ?? 'Không rõ',
+                'ten_phong' => $suatChieu->phongChieu->ten_phongchieu ?? 'Không rõ',
                 'da_xem' => 0, // Đánh dấu quản lý chuỗi rạp chưa xem
                 'rap_da_xem' => 1 // Đánh dấu rạp đã xem
-                // Thêm các trường khác nếu cần
             ]);
 
             $suatChieu->delete();
@@ -201,12 +215,18 @@
                 throw new \Exception("Suất chiếu không tồn tại");
                 exit();
             }
+            // Load relationships để lấy thông tin
+            $suatChieu->load(['phim', 'phongChieu.rapChieuPhim']);
+            
             $suatChieu->tinh_trang = 1; // Đã duyệt
             $suatChieu->logSuatChieu()->create([
-                'hanh_dong' => '3', // Duyệt suất chiếu
+                'hanh_dong' => 3, // Duyệt suất chiếu
                 'id_phim' => $suatChieu->phim->id ?? null,
                 'ten_phim' => $suatChieu->phim->ten_phim ?? null,
                 'batdau' => $suatChieu->batdau,
+                'tinh_trang' => 1, // Đã duyệt
+                'ten_rap' => $suatChieu->phongChieu->rapChieuPhim->ten ?? 'Không rõ',
+                'ten_phong' => $suatChieu->phongChieu->ten_phongchieu ?? 'Không rõ',
                 'da_xem' => 1, // Đánh dấu quản lý chuỗi rạp đã xem
                 'rap_da_xem' => 0 // Đánh dấu rạp chưa xem
             ]);
@@ -220,10 +240,19 @@
                 throw new \Exception("Suất chiếu không tồn tại");
                 exit();
             }
+            // Load relationships để lấy thông tin
+            $suatChieu->load(['phim', 'phongChieu.rapChieuPhim']);
+            
             $suatChieu->tinh_trang = 2; // Từ chối
             $suatChieu->ly_do = $lyDoTuChoi;
             $suatChieu->logSuatChieu()->create([
-                'hanh_dong' => '4', // Từ chối suất chiếu
+                'hanh_dong' => 4, // Từ chối suất chiếu
+                'id_phim' => $suatChieu->phim->id ?? null,
+                'ten_phim' => $suatChieu->phim->ten_phim ?? null,
+                'batdau' => $suatChieu->batdau,
+                'tinh_trang' => 2, // Từ chối
+                'ten_rap' => $suatChieu->phongChieu->rapChieuPhim->ten ?? 'Không rõ',
+                'ten_phong' => $suatChieu->phongChieu->ten_phongchieu ?? 'Không rõ',
                 'da_xem' => 1, // Đánh dấu quản lý chuỗi rạp đã xem
                 'rap_da_xem' => 0 // Đánh dấu rạp chưa xem
             ]);
@@ -377,25 +406,61 @@
             return $phimList;
         }
         public function docNhatKy($idRapPhim = null){
+            // Ưu tiên lấy ID rạp từ session nếu user là quản lý rạp
+            if (!$idRapPhim && isset($_SESSION['UserInternal']['ID_RapPhim'])) {
+                $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+            }
+            
             // Lấy ngày cách đây 7 ngày
             $bayNgayTruoc = Carbon::now()->subDays(7)->toDateString();
 
-            $query = LogSuatChieu::whereDate('created_at', '>=', $bayNgayTruoc);
+            // Sửa lại eager loading để đảm bảo load đầy đủ quan hệ
+            $query = LogSuatChieu::with(['suatChieu' => function($q) {
+                    $q->with(['phongChieu.rapChieuPhim']);
+                }, 'phim'])
+                ->whereDate('created_at', '>=', $bayNgayTruoc);
 
-            // Nếu truyền id rạp phim, chỉ lấy nhật ký của các suất chiếu thuộc rạp đó
+            // Nếu có ID rạp phim (Quản lý rạp) -> Chỉ lấy nhật ký của rạp đó
             if ($idRapPhim) {
                 $query->whereHas('suatChieu.phongChieu', function($q) use ($idRapPhim) {
                     $q->where('id_rapphim', $idRapPhim);
                 });
             }
-            else if(isset($_SESSION['UserInternal']['ID_RapPhim'])){
-                $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
-                $query->whereHas('suatChieu.phongChieu', function($q) use ($idRapPhim) {
-                    $q->where('id_rapphim', $idRapPhim);
-                });
-            }
+            // Nếu không có ID rạp phim (Quản lý chuỗi rạp) -> Lấy tất cả nhật ký
 
+            // Sắp xếp theo thời gian từ mới đến cũ (desc)
             $nhatKy = $query->orderBy('created_at', 'desc')->get();
+            // Đảm bảo các trường cần thiết được set (cho các log cũ chưa có)
+            $nhatKy = $nhatKy->map(function($log) {
+                // Nếu log chưa có tinh_trang (log cũ), lấy từ suatChieu
+                if ($log->tinh_trang === null && $log->suatChieu) {
+                    $log->tinh_trang = $log->suatChieu->tinh_trang;
+                } elseif ($log->tinh_trang === null) {
+                    $log->tinh_trang = 0;
+                }
+                
+                // Nếu log chưa có ten_phong (log cũ), lấy từ suatChieu
+                if (empty($log->ten_phong) && $log->suatChieu) {
+                    if (!$log->suatChieu->relationLoaded('phongChieu')) {
+                        $log->suatChieu->load('phongChieu');
+                    }
+                    $log->ten_phong = $log->suatChieu->phongChieu->ten_phongchieu ?? 'Không rõ';
+                } elseif (empty($log->ten_phong)) {
+                    $log->ten_phong = 'Không rõ';
+                }
+                
+                // Nếu log chưa có ten_rap (log cũ), lấy từ suatChieu
+                if (empty($log->ten_rap) && $log->suatChieu) {
+                    if (!$log->suatChieu->relationLoaded('phongChieu.rapChieuPhim')) {
+                        $log->suatChieu->load(['phongChieu.rapChieuPhim']);
+                    }
+                    $log->ten_rap = $log->suatChieu->phongChieu->rapChieuPhim->ten ?? 'Không rõ';
+                } elseif (empty($log->ten_rap)) {
+                    $log->ten_rap = 'Không rõ';
+                }
+                
+                return $log;
+            });
 
             return $nhatKy;
         }
@@ -415,6 +480,70 @@
             ->where('rap_da_xem', 0)
             ->update(['rap_da_xem' => 1]);
             return $nhatKy;
+        }
+        public function docKeHoach($batDau, $ketThuc){
+            $query = KeHoachSuatChieu::with(['keHoachChiTiet.phim', 'keHoachChiTiet.phongChieu']);
+            if(isset($_SESSION['UserInternal']['ID_RapPhim'])){
+                $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+                $query->whereHas('keHoachChiTiet.phongChieu', function($q) use ($idRapPhim) {
+                    $q->where('id_rapphim', $idRapPhim);
+                });
+            }
+            $query->where('batdau', '>=', $batDau)
+                  ->where('ketthuc', '<=', $ketThuc);
+            $keHoach = $query->orderBy('batdau', 'asc')->get();
+            return $keHoach;
+        }
+        public function luuSuatChieuVaoKeHoach($batDau, $ketThuc){
+            $idRapPhim = $_SESSION['UserInternal']['ID_RapPhim'];
+            $data = json_decode(file_get_contents('php://input'), true);
+            $danhSachSuatChieu = $data['danh_sach_suat_chieu'] ?? [];
+            
+            if(empty($danhSachSuatChieu)){
+                throw new \Exception("Không có suất chiếu nào để lưu");
+            }
+            
+            // Tìm hoặc tạo kế hoạch
+            $keHoach = KeHoachSuatChieu::where('batdau', $batDau)
+                        ->where('ketthuc', $ketThuc)
+                        ->first();
+            
+            if(!$keHoach){
+                $keHoach = KeHoachSuatChieu::create([
+                    'batdau' => $batDau,
+                    'ketthuc' => $ketThuc
+                ]);
+            }
+            
+            // Lưu chi tiết kế hoạch (suất chiếu)
+            foreach($danhSachSuatChieu as $suatChieu){
+                // Kiểm tra xem suất chiếu này đã tồn tại trong kế hoạch chưa
+                $exists = $keHoach->keHoachChiTiet()
+                    ->where('id_phim', $suatChieu['id_phim'])
+                    ->where('id_phongchieu', $suatChieu['id_phongchieu'])
+                    ->where('batdau', $suatChieu['batdau'])
+                    ->first();
+                
+                if(!$exists){
+                    $keHoach->keHoachChiTiet()->create([
+                        'id_phim' => $suatChieu['id_phim'],
+                        'id_phongchieu' => $suatChieu['id_phongchieu'],
+                        'batdau' => $suatChieu['batdau'],
+                        'ketthuc' => $suatChieu['ketthuc'],
+                        'tinh_trang' => 0 // Chờ duyệt
+                    ]);
+                }
+            }
+            
+            return $keHoach;
+        }
+        
+        public function xoaSuatChieuKhoiKeHoach($idKeHoachChiTiet){
+            $chiTiet = \App\Models\KeHoachChiTiet::find($idKeHoachChiTiet);
+            if(!$chiTiet){
+                throw new \Exception("Không tìm thấy suất chiếu trong kế hoạch");
+            }
+            $chiTiet->delete();
         }
     }
 ?>
