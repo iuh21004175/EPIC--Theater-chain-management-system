@@ -27,6 +27,7 @@ use App\Controllers\Ctrl_TuVan;
 use App\Controllers\Ctrl_GoiVideo;
 use App\Controllers\Ctrl_ChatBotAI;
 use App\Controllers\Ctrl_ThongKe;
+use App\Controllers\Ctrl_TinTuc;
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
@@ -103,10 +104,22 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'docViTri', ['Quản lý rạp']]);
     $r->addRoute('POST', '/vi-tri-cong-viec', [Ctrl_PhanCong::class, 'themViTri', ['Quản lý rạp']]);
     $r->addRoute('PUT', '/vi-tri-cong-viec/{id:\d+}', [Ctrl_PhanCong::class, 'suaViTri', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/doc-yeu-cau-da-gui', [Ctrl_PhanCong::class, 'docYCDaGui', ['Quản lý rạp']]);
+    $r->addRoute('PUT', '/duyet-yeu-cau-nghi/{id:\d+}', [Ctrl_PhanCong::class, 'sua1PhanCong', ['Quản lý rạp']]);
     $r->addRoute('POST', '/phan-cong', [Ctrl_PhanCong::class, 'phanCong1NhanVien', ['Quản lý rạp']]);
     $r->addRoute('DELETE', '/phan-cong/{id:\d+}', [Ctrl_PhanCong::class, 'xoa1PhanCong', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'docPhanCong', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong-theo-nv', [Ctrl_PhanCong::class, 'docPhanCongTheoNV', ['Nhân viên']]);
+    $r->addRoute('GET', '/lich-lam-viec', [Ctrl_PhanCong::class, 'docLichLamViec', ['Nhân viên']]);
+    $r->addRoute('GET', '/yeu-cau-lich', [Ctrl_PhanCong::class, 'docGuiYCLich', ['Nhân viên']]);
+    $r->addRoute('GET', '/yeu-cau-bai-viet', [Ctrl_TinTuc::class, 'docGuiYCBaiViet', ['Nhân viên']]);
+    $r->addRoute('POST', '/them-tin-tuc', [Ctrl_TinTuc::class, 'themTinTuc', ['Nhân viên', 'Quản lý rạp']]);
+    $r->addRoute('POST', '/sua-tin-tuc/{id}', [Ctrl_TinTuc::class, 'suaTinTuc', ['Nhân viên', 'Quản lý rạp']]);
+    $r->addRoute('GET', '/doc-tin-tuc-da-gui', [Ctrl_TinTuc::class, 'docTinTucDaGui', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/doc-tin-tuc-theo-rap', [Ctrl_TinTuc::class, 'docTinTucTheoRap', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/chi-tiet-tin-tuc/{id}', [Ctrl_TinTuc::class, 'chiTietTinTuc', ['Nhân viên', 'Quản lý rạp']]);
+    $r->addRoute('PUT', '/gui-yeu-cau-nghi/{id:\d+}', [Ctrl_PhanCong::class, 'sua1PhanCong', ['Nhân viên']]);
+    $r->addRoute('PUT', '/duyet-tin-tuc/{id:\d+}', [Ctrl_TinTuc::class, 'duyetTinTuc', ['Quản lý rạp']]);
     $r->addRoute('GET', '/doc-khach-hang', [Ctrl_KhachHang::class, 'docKhachHang', ['Nhân viên']]);
     $r->addRoute('GET', '/doc-don-hang-theo-rap/{id:\d+}', [Ctrl_DonHang::class, 'docDonHangTheoRap', ['Nhân viên']]);
     $r->addRoute('GET', '/doc-giao-dich/{id:\d+}', [Ctrl_DonHang::class, 'docDonHangKH', ['Nhân viên']]);
@@ -175,6 +188,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/them-mua-phim', [Ctrl_MuaPhim::class, 'themMuaPhim']);
     $r->addRoute('GET', '/lich-su-chat', [Ctrl_ChatBotAI::class, 'getMessages']);
     $r->addRoute('POST', '/gui-tin-nhan-chatbot', [Ctrl_ChatBotAI::class, 'addMessage']);
+    $r->addRoute('GET', '/doc-tin-tuc', [Ctrl_TinTuc::class, 'docTinTuc']);
+    $r->addRoute('GET', '/doc-chi-tiet-tin-tuc/{id}', [Ctrl_TinTuc::class, 'docChiTiet']);
 
     // Tư vấn
     $r->addRoute('POST', '/tao-phien-chat', [Ctrl_TuVan::class, 'khachHangTaoPhienChat']);

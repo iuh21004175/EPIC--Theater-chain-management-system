@@ -227,6 +227,35 @@
                 </div>
                 <span class="text-xs text-center font-medium text-gray-700">Thống kê</span>
             </a>
+            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/duyet-yeu-cau" 
+                class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" 
+                data-tooltip="Duyệt yêu cầu">
+                    <div class="w-12 h-12 flex items-center justify-center bg-teal-100 rounded-full mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" 
+                            class="h-6 w-6 text-teal-600" 
+                            fill="none" viewBox="0 0 24 24" 
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                d="M9 12h6m2 0a2 2 0 002-2V7a2 2 0 00-2-2h-2l-2-2H9L7 5H5a2 2 0 00-2 2v3a2 2 0 002 2m14 0v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7h14z" />
+                        </svg>
+                    </div>
+                    <span class="text-xs text-center font-medium text-gray-700">Duyệt yêu cầu</span>
+            </a>
+            <!-- Nút Quản lý tin tức -->
+            <a href="{{ $_ENV['URL_INTERNAL_BASE'] }}/tin-tuc" 
+                class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" 
+                data-tooltip="Quản lý tin tức">
+                <div class="w-12 h-12 flex items-center justify-center bg-yellow-100 rounded-full mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" 
+                        class="h-6 w-6 text-yellow-600" 
+                        fill="none" viewBox="0 0 24 24" 
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                            d="M19 11H5m14 4H5m14-8H5m2-2h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2z" />
+                    </svg>
+                </div>
+                <span class="text-xs text-center font-medium text-gray-700">Quản lý tin tức</span>
+            </a>
             @else
             <!-- Bán vé -->
             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/ban-ve" class="tooltip flex flex-col items-center bg-white rounded-md shadow hover:shadow-md p-4 transition-all hover:translate-y-[-2px]" data-tooltip="Bán vé">

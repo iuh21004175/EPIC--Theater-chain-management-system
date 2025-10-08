@@ -388,11 +388,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tìm kiếm
     searchInput.addEventListener('input', () => {
-        const q = searchInput.value.toLowerCase();
+        const q = searchInput.value.toLowerCase().trim();
         filteredCustomers = customers.filter(c =>
             c.email.toLowerCase().includes(q) || c.so_dien_thoai.includes(q)
         );
-        renderCustomers();
+
+        if (filteredCustomers.length === 0) {
+            customerList.innerHTML = `
+                <tr>
+                    <td colspan="5" class="text-center text-gray-500 py-4">
+                        Không tìm thấy khách hàng.
+                    </td>
+                </tr>`;
+            pagination.innerHTML = ''; // ẩn phân trang
+            return;
+        }
+
+        renderCustomers(filteredCustomers);
     });
 
     saveBtn.addEventListener('click', () => {

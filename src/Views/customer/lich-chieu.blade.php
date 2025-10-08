@@ -19,13 +19,13 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
                 <!-- Gói Cơ bản -->
-                <div class="border border-gray-200 rounded-xl p-6 text-center bg-white shadow hover:shadow-lg transition">
+                <!-- <div class="border border-gray-200 rounded-xl p-6 text-center bg-white shadow hover:shadow-lg transition">
                     <h3 class="text-xl font-semibold mb-2">Gói Cơ bản</h3>
                     <p class="text-gray-600 mb-4">Mua từng phim theo nhu cầu</p>
                     <p class="text-gray-500 mb-4">1 thiết bị cùng lúc</p>
                     <p class="text-2xl font-bold mb-4">30k / phim</p>
                     <button id="buy-coban" class="bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition">Đăng ký</button>
-                </div>
+                </div> -->
 
                 <!-- Gói VIP -->
                 <div class="border border-gray-200 rounded-xl p-6 text-center bg-white shadow hover:shadow-lg transition">
@@ -33,17 +33,17 @@
                     <p class="text-gray-600 mb-4">Truy cập toàn bộ thư viện phim</p>
                     <p class="text-gray-500 mb-4">1 thiết bị cùng lúc</p>
                     <p class="text-2xl font-bold mb-4">150k / tháng</p>
-                    <button class="bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition">Đăng ký</button>
+                    <button id="buy-coban" class="bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition">Đăng ký</button>
                 </div>
 
                 <!-- Gói Family -->
-                <div class="border border-gray-200 rounded-xl p-6 text-center bg-white shadow hover:shadow-lg transition">
+                <!-- <div class="border border-gray-200 rounded-xl p-6 text-center bg-white shadow hover:shadow-lg transition">
                     <h3 class="text-xl font-semibold mb-2">Gói Family</h3>
                     <p class="text-gray-600 mb-4">Truy cập toàn bộ thư viện phim</p>
                     <p class="text-gray-500 mb-4">2 thiết bị cùng lúc</p>
                     <p class="text-2xl font-bold mb-4">200k / tháng</p>
                     <button class="bg-red-600 text-white px-6 py-2 rounded-full hover:bg-red-700 transition">Đăng ký</button>
-                </div>
+                </div> -->
 
             </div>
         </section>

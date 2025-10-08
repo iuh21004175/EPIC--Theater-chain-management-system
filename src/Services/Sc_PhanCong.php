@@ -74,9 +74,11 @@
             return $phanCong;
         }
 
-        public function docPhanCongTheoNV($batdau, $ketthuc) {
+        public function docPhanCongTheoNV($batdau, $ketthuc)
+        {
             $phanCong = PhanCong::with(['nhanVien', 'congViec'])
                 ->where('id_nhanvien', $_SESSION['UserInternal']['ID'])
+                ->where('trang_thai', '!=', 2)
                 ->whereBetween('ngay', [$batdau, $ketthuc])
                 ->orderBy('ngay', 'asc')
                 ->orderBy('ca', 'asc')
@@ -85,5 +87,57 @@
             return $phanCong;
         }
 
+        public function docLichLamViec()
+        {
+            return PhanCong::where('id_nhanvien', $_SESSION['UserInternal']['ID'])
+                ->where('trang_thai', 0)
+                ->get();
+        }
+
+
+        public function docGuiYCLich()
+        {
+            $idNhanVien = $_SESSION['UserInternal']['ID'] ?? null;
+
+            return PhanCong::where('id_nhanvien', $idNhanVien)
+                ->whereNotNull('ly_do')
+                ->whereNotNull('trang_thai')
+                ->get();
+        }
+        public function sua1PhanCong($id)
+        {
+            $data = json_decode(file_get_contents('php://input'), true);
+
+            $ly_do = $data['ly_do'] ?? null;
+            $trang_thai = $data['trang_thai'] ?? '1'; 
+
+            $phanCong = PhanCong::find($id);
+
+            if (!$phanCong) {
+                throw new \Exception("Phân công không tồn tại.");
+            }
+
+            if (!empty($ly_do)) {
+                $phanCong->ly_do = $ly_do;
+            }
+
+            $phanCong->trang_thai = $trang_thai;
+
+            $phanCong->save();
+
+            return $phanCong;
+        }
+
+        public function docYCDaGui()
+        {
+            $idRap = $_SESSION['UserInternal']['ID_RapPhim'] ?? null;
+
+            return PhanCong::whereHas('nhanVien', function ($q) use ($idRap) {
+                    $q->where('id_rapphim', $idRap);
+                })
+                ->where('trang_thai', '!=', 0)
+                ->with(['nhanVien', 'congViec'])
+                ->get();
+        }
     }
 ?>

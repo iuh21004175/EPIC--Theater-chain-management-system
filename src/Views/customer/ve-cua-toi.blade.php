@@ -29,7 +29,7 @@
 </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 font-sans">
   @include('customer.layout.header')
   <div class="max-w-6xl mx-auto px-4 py-10">
 

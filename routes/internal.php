@@ -20,6 +20,7 @@ use App\Controllers\Ctrl_KhachHang;
 use App\Controllers\Ctrl_TuVan;
 use App\Controllers\Ctrl_DonHang;
 use App\Controllers\Ctrl_GoiVideo;
+use App\Controllers\Ctrl_TinTuc;
 
 use function App\Core\view;
 
@@ -43,6 +44,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/nhan-vien', [Ctrl_NhanVien::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/phan-cong', [Ctrl_PhanCong::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/thong-ke', [Ctrl_ThongKe::class, 'index', ['Quản lý rạp']]);
+    $r->addRoute('GET', '/duyet-yeu-cau', [Ctrl_PhanCong::class, 'duyetYeuCau', ['Quản lý rạp']]);
     $r->addRoute('GET', '/san-pham-an-uong', [Ctrl_SanPhamAnUong::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/suat-chieu', [Ctrl_SuatChieu::class, 'index', ['Quản lý rạp']]);
     $r->addRoute('GET', '/lich-lam-viec', [Ctrl_LichLamViec::class, 'index', ['Nhân viên']]);
@@ -51,6 +53,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/yeu-cau', [Ctrl_LichLamViec::class, 'yeuCau', ['Nhân viên']]);
     $r->addRoute('GET', '/khach-hang', [Ctrl_KhachHang::class, 'khachHang', ['Nhân viên']]);
     $r->addRoute('GET', '/don-hang', [Ctrl_DonHang::class, 'donHang', ['Nhân viên']]);
+    $r->addRoute('GET', '/tin-tuc', [Ctrl_TinTuc::class, 'tinTuc', ['Quản lý rạp']]);
     $r->addRoute('GET', '/duyet-suat-chieu', [Ctrl_DuyetSuatChieu::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/duyet-suat-chieu/{id:\d+}', [Ctrl_DuyetSuatChieu::class, 'chiTiet', ['Quản lý chuỗi rạp']]);
     // Tư vấn
