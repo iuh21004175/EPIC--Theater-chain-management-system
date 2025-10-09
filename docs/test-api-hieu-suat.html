@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Hiệu Suất Theo Rạp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #E11D48;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #E11D48;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #BE123C;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .error {
+            background: #fee;
+            border-color: #fcc;
+            color: #c33;
+        }
+        .success {
+            background: #efe;
+            border-color: #cfc;
+            color: #3c3;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 Test API Hiệu Suất Theo Rạp</h1>
+        
+        <div class="form-group">
+            <label>Base URL:</label>
+            <input type="text" id="baseUrl" value="http://localhost/rapphim">
+        </div>
+
+        <div class="form-group">
+            <label>Từ ngày:</label>
+            <input type="date" id="tuNgay" value="2025-09-08">
+        </div>
+
+        <div class="form-group">
+            <label>Đến ngày:</label>
+            <input type="date" id="denNgay" value="2025-10-08">
+        </div>
+
+        <div class="form-group">
+            <label>Rạp:</label>
+            <select id="idRap">
+                <option value="all">Tất cả rạp</option>
+                <option value="1">Rạp 1</option>
+                <option value="2">Rạp 2</option>
+                <option value="3">Rạp 3</option>
+            </select>
+        </div>
+
+        <button onclick="testAPI()">🚀 Test API</button>
+
+        <div class="loading" id="loading">
+            <p>⏳ Đang tải dữ liệu...</p>
+        </div>
+
+        <div class="result" id="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function testAPI() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const tuNgay = document.getElementById('tuNgay').value;
+            const denNgay = document.getElementById('denNgay').value;
+            const idRap = document.getElementById('idRap').value;
+
+            const params = new URLSearchParams({
+                tuNgay: tuNgay,
+                denNgay: denNgay,
+                idRap: idRap
+            });
+
+            const apiUrl = `${baseUrl}/api/thong-ke-toan-rap/hieu-suat-theo-rap?${params}`;
+
+            const resultDiv = document.getElementById('result');
+            const loadingDiv = document.getElementById('loading');
+
+            // Show loading
+            loadingDiv.classList.add('active');
+            resultDiv.style.display = 'none';
+
+            console.log('🔗 Testing API:', apiUrl);
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                // Hide loading
+                loadingDiv.classList.remove('active');
+                resultDiv.style.display = 'block';
+
+                if (response.ok && result.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = '✅ SUCCESS!\n\n' + 
+                        'Status: ' + response.status + '\n\n' +
+                        'Response:\n' + JSON.stringify(result, null, 2);
+                    
+                    console.log('✅ API Success:', result);
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = '❌ API Error\n\n' + 
+                        'Status: ' + response.status + '\n\n' +
+                        'Response:\n' + JSON.stringify(result, null, 2);
+                    
+                    console.error('❌ API Error:', result);
+                }
+            } catch (error) {
+                // Hide loading
+                loadingDiv.classList.remove('active');
+                resultDiv.style.display = 'block';
+                resultDiv.className = 'result error';
+                resultDiv.textContent = '❌ FETCH ERROR\n\n' + error.message + '\n\n' +
+                    'Kiểm tra:\n' +
+                    '1. Server đang chạy?\n' +
+                    '2. URL đúng chưa? (' + apiUrl + ')\n' +
+                    '3. CORS có được cấu hình chưa?\n' +
+                    '4. Route có được định nghĩa chưa?';
+                
+                console.error('❌ Fetch Error:', error);
+            }
+        }
+
+        // Set default dates
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            const thirtyDaysAgo = new Date(today);
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            
+            document.getElementById('denNgay').value = today.toISOString().split('T')[0];
+            document.getElementById('tuNgay').value = thirtyDaysAgo.toISOString().split('T')[0];
+        });
+    </script>
+</body>
+</html>

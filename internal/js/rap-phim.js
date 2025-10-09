@@ -11,6 +11,38 @@ document.addEventListener('DOMContentLoaded', function() {
     // Table body element for cinema list
     const tableBody = document.querySelector('table tbody');
     
+    // Preview Google Maps - Add Cinema
+    const cinemaMapInput = document.getElementById('cinema-map');
+    const cinemaMapPreview = document.getElementById('cinema-map-preview');
+    const cinemaMapIframe = document.getElementById('cinema-map-iframe');
+    
+    cinemaMapInput.addEventListener('input', function() {
+        const url = this.value.trim();
+        if (url && (url.startsWith('https://www.google.com/maps/embed') || url.startsWith('http://www.google.com/maps/embed'))) {
+            cinemaMapIframe.src = url;
+            cinemaMapPreview.classList.remove('hidden');
+        } else {
+            cinemaMapPreview.classList.add('hidden');
+            cinemaMapIframe.src = '';
+        }
+    });
+    
+    // Preview Google Maps - Edit Cinema
+    const editCinemaMapInput = document.getElementById('edit-cinema-map');
+    const editCinemaMapPreview = document.getElementById('edit-cinema-map-preview');
+    const editCinemaMapIframe = document.getElementById('edit-cinema-map-iframe');
+    
+    editCinemaMapInput.addEventListener('input', function() {
+        const url = this.value.trim();
+        if (url && (url.startsWith('https://www.google.com/maps/embed') || url.startsWith('http://www.google.com/maps/embed'))) {
+            editCinemaMapIframe.src = url;
+            editCinemaMapPreview.classList.remove('hidden');
+        } else {
+            editCinemaMapPreview.classList.add('hidden');
+            editCinemaMapIframe.src = '';
+        }
+    });
+    
     // Open Add Cinema Modal
     document.getElementById('btn-add-cinema').addEventListener('click', function() {
         openModal(modals.addCinema);
@@ -106,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const name = document.getElementById('cinema-name').value;
         const address = document.getElementById('cinema-address').value;
+        const mapUrl = document.getElementById('cinema-map').value;
         
         let isValid = validateCinemaForm(name, address, 'cinema');
         
@@ -114,6 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('ten', name);
             formData.append('diachi', address);
+            formData.append('ban_do', mapUrl);
             
             // Show spinner
             const spinner = Spinner.show({
@@ -166,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const cinemaId = document.getElementById('edit-cinema-id').value;
         const name = document.getElementById('edit-cinema-name').value;
         const address = document.getElementById('edit-cinema-address').value;
+        const mapUrl = document.getElementById('edit-cinema-map').value;
         
         let isValid = validateCinemaForm(name, address, 'edit-cinema');
         
@@ -174,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
             formData.append('ten', name);
             formData.append('diachi', address);
+            formData.append('ban_do', mapUrl);
             
             // Show spinner
             const spinner = Spinner.show({
@@ -352,6 +388,15 @@ document.addEventListener('DOMContentLoaded', function() {
         document.body.classList.remove('modal-active');
         modal.classList.add('opacity-0', 'pointer-events-none');
         modal.classList.remove('opacity-100');
+        
+        // Reset map previews when closing modal
+        if (modal.id === 'add-cinema-modal') {
+            document.getElementById('cinema-map-preview').classList.add('hidden');
+            document.getElementById('cinema-map-iframe').src = '';
+        } else if (modal.id === 'edit-cinema-modal') {
+            document.getElementById('edit-cinema-map-preview').classList.add('hidden');
+            document.getElementById('edit-cinema-map-iframe').src = '';
+        }
     }
     
     function validateCinemaForm(name, address, prefix) {
@@ -395,11 +440,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cinemaData) {
             document.getElementById('edit-cinema-name').value = cinemaData.ten;
             document.getElementById('edit-cinema-address').value = cinemaData.dia_chi;
+            document.getElementById('edit-cinema-map').value = cinemaData.ban_do || '';
+            
+            // Show map preview if URL exists
+            if (cinemaData.ban_do) {
+                const editCinemaMapIframe = document.getElementById('edit-cinema-map-iframe');
+                const editCinemaMapPreview = document.getElementById('edit-cinema-map-preview');
+                editCinemaMapIframe.src = cinemaData.ban_do;
+                editCinemaMapPreview.classList.remove('hidden');
+            }
         } 
         // Otherwise get it from the row (for backward compatibility)
         else {
             document.getElementById('edit-cinema-name').value = cinemaRow.querySelector('td:first-child div').textContent;
             document.getElementById('edit-cinema-address').value = cinemaRow.querySelector('td:nth-child(2) div').textContent;
+            document.getElementById('edit-cinema-map').value = '';
+            document.getElementById('edit-cinema-map-preview').classList.add('hidden');
         }
     }
     

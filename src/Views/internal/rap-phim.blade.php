@@ -206,6 +206,27 @@
                             <p class="text-red-500 text-xs italic hidden" id="cinema-address-error">Vui lòng nhập địa chỉ rạp phim.</p>
                         </div>
                         
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="cinema-map">
+                                URL Google Maps Embed
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-red-500" id="cinema-map" type="text" placeholder="https://www.google.com/maps/embed?pb=...">
+                            <p class="text-xs text-gray-500 mt-1">
+                                <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Lấy URL từ Google Maps → Share → Embed a map → Copy HTML → Lấy URL trong src="..."
+                            </p>
+                            
+                            <!-- Preview Map -->
+                            <div id="cinema-map-preview" class="mt-3 hidden">
+                                <p class="text-sm font-semibold text-gray-700 mb-2">Xem trước bản đồ:</p>
+                                <div class="border-2 border-gray-300 rounded-lg overflow-hidden">
+                                    <iframe id="cinema-map-iframe" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
                 
@@ -258,6 +279,27 @@
                             </label>
                             <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-red-500" id="edit-cinema-address" rows="2" placeholder="Nhập địa chỉ rạp phim"></textarea>
                             <p class="text-red-500 text-xs italic hidden" id="edit-cinema-address-error">Vui lòng nhập địa chỉ rạp phim.</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" for="edit-cinema-map">
+                                URL Google Maps Embed
+                            </label>
+                            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-red-500" id="edit-cinema-map" type="text" placeholder="https://www.google.com/maps/embed?pb=...">
+                            <p class="text-xs text-gray-500 mt-1">
+                                <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Lấy URL từ Google Maps → Share → Embed a map → Copy HTML → Lấy URL trong src="..."
+                            </p>
+                            
+                            <!-- Preview Map -->
+                            <div id="edit-cinema-map-preview" class="mt-3 hidden">
+                                <p class="text-sm font-semibold text-gray-700 mb-2">Xem trước bản đồ:</p>
+                                <div class="border-2 border-gray-300 rounded-lg overflow-hidden">
+                                    <iframe id="edit-cinema-map-iframe" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                </div>
+                            </div>
                         </div>
                         
                         

@@ -1673,6 +1673,854 @@
         
         return ($tongSoVeDaBan / $tongSoGhe) * 100;
     }
+
+    /**
+     * Xu hướng doanh thu toàn rạp theo thời gian
+     * Trả về dữ liệu cho biểu đồ line chart
+     * 
+     * @param string $tuNgay Ngày bắt đầu
+     * @param string $denNgay Ngày kết thúc
+     * @param mixed $idRap ID rạp hoặc 'all'
+     * @param string $loaiXuHuong 'daily', 'weekly', 'monthly'
+     * @return array Dữ liệu xu hướng doanh thu
+     */
+    public function xuHuongDoanhThuToanRap($tuNgay, $denNgay, $idRap = 'all', $loaiXuHuong = 'daily') {
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        
+        $danhSachNgay = [];
+        $danhSachDoanhThu = [];
+        
+        if ($loaiXuHuong === 'daily') {
+            // Xu hướng theo ngày
+            $currentDate = clone $tuNgayDate;
+            while ($currentDate <= $denNgayDate) {
+                $ngayBatDau = $currentDate->format('Y-m-d 00:00:00');
+                $ngayKetThuc = $currentDate->format('Y-m-d 23:59:59');
+                
+                $doanhThuVe = $this->tinhDoanhThuVe($idRap, $ngayBatDau, $ngayKetThuc);
+                $doanhThuFnB = $this->tinhDoanhThuFnB($idRap, $ngayBatDau, $ngayKetThuc);
+                
+                $danhSachNgay[] = $currentDate->format('d/m');
+                $danhSachDoanhThu[] = [
+                    'ngay' => $currentDate->format('Y-m-d'),
+                    'ngay_hien_thi' => $currentDate->format('d/m'),
+                    'doanh_thu_ve' => $doanhThuVe,
+                    'doanh_thu_fnb' => $doanhThuFnB,
+                    'tong_doanh_thu' => $doanhThuVe + $doanhThuFnB
+                ];
+                
+                $currentDate->modify('+1 day');
+            }
+        } elseif ($loaiXuHuong === 'weekly') {
+            // Xu hướng theo tuần
+            $currentDate = clone $tuNgayDate;
+            $weekStart = clone $currentDate;
+            $weekNumber = 1;
+            
+            while ($currentDate <= $denNgayDate) {
+                $weekEnd = clone $weekStart;
+                $weekEnd->modify('+6 days');
+                
+                if ($weekEnd > $denNgayDate) {
+                    $weekEnd = clone $denNgayDate;
+                }
+                
+                $ngayBatDau = $weekStart->format('Y-m-d 00:00:00');
+                $ngayKetThuc = $weekEnd->format('Y-m-d 23:59:59');
+                
+                $doanhThuVe = $this->tinhDoanhThuVe($idRap, $ngayBatDau, $ngayKetThuc);
+                $doanhThuFnB = $this->tinhDoanhThuFnB($idRap, $ngayBatDau, $ngayKetThuc);
+                
+                $danhSachNgay[] = 'Tuần ' . $weekNumber;
+                $danhSachDoanhThu[] = [
+                    'tuan' => $weekNumber,
+                    'tu_ngay' => $weekStart->format('d/m'),
+                    'den_ngay' => $weekEnd->format('d/m'),
+                    'ngay_hien_thi' => $weekStart->format('d/m') . ' - ' . $weekEnd->format('d/m'),
+                    'doanh_thu_ve' => $doanhThuVe,
+                    'doanh_thu_fnb' => $doanhThuFnB,
+                    'tong_doanh_thu' => $doanhThuVe + $doanhThuFnB
+                ];
+                
+                $weekStart->modify('+7 days');
+                $currentDate = clone $weekStart;
+                $weekNumber++;
+            }
+        } elseif ($loaiXuHuong === 'monthly') {
+            // Xu hướng theo tháng
+            $currentDate = clone $tuNgayDate;
+            
+            while ($currentDate <= $denNgayDate) {
+                $monthStart = clone $currentDate;
+                $monthStart->modify('first day of this month');
+                $monthEnd = clone $currentDate;
+                $monthEnd->modify('last day of this month');
+                
+                // Giới hạn trong khoảng tuNgay - denNgay
+                if ($monthStart < $tuNgayDate) {
+                    $monthStart = clone $tuNgayDate;
+                }
+                if ($monthEnd > $denNgayDate) {
+                    $monthEnd = clone $denNgayDate;
+                }
+                
+                $ngayBatDau = $monthStart->format('Y-m-d 00:00:00');
+                $ngayKetThuc = $monthEnd->format('Y-m-d 23:59:59');
+                
+                $doanhThuVe = $this->tinhDoanhThuVe($idRap, $ngayBatDau, $ngayKetThuc);
+                $doanhThuFnB = $this->tinhDoanhThuFnB($idRap, $ngayBatDau, $ngayKetThuc);
+                
+                $danhSachNgay[] = $currentDate->format('m/Y');
+                $danhSachDoanhThu[] = [
+                    'thang' => $currentDate->format('m'),
+                    'nam' => $currentDate->format('Y'),
+                    'ngay_hien_thi' => $currentDate->format('m/Y'),
+                    'doanh_thu_ve' => $doanhThuVe,
+                    'doanh_thu_fnb' => $doanhThuFnB,
+                    'tong_doanh_thu' => $doanhThuVe + $doanhThuFnB
+                ];
+                
+                $currentDate->modify('first day of next month');
+            }
+        }
+        
+        return [
+            'loai_xu_huong' => $loaiXuHuong,
+            'danh_sach_nhan' => $danhSachNgay,
+            'chi_tiet' => $danhSachDoanhThu
+        ];
+    }
+
+    /**
+     * Xu hướng vé bán toàn rạp theo thời gian
+     * Trả về dữ liệu cho biểu đồ line chart
+     * 
+     * @param string $tuNgay Ngày bắt đầu
+     * @param string $denNgay Ngày kết thúc
+     * @param mixed $idRap ID rạp hoặc 'all'
+     * @param string $loaiXuHuong 'daily', 'weekly', 'monthly'
+     * @return array Dữ liệu xu hướng vé bán
+     */
+    public function xuHuongVeBanToanRap($tuNgay, $denNgay, $idRap = 'all', $loaiXuHuong = 'daily') {
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        
+        $danhSachNgay = [];
+        $danhSachVe = [];
+        
+        if ($loaiXuHuong === 'daily') {
+            // Xu hướng theo ngày
+            $currentDate = clone $tuNgayDate;
+            while ($currentDate <= $denNgayDate) {
+                $ngayBatDau = $currentDate->format('Y-m-d 00:00:00');
+                $ngayKetThuc = $currentDate->format('Y-m-d 23:59:59');
+                
+                $soVeBan = $this->tinhTongVeBan($idRap, $ngayBatDau, $ngayKetThuc);
+                
+                $danhSachNgay[] = $currentDate->format('d/m');
+                $danhSachVe[] = [
+                    'ngay' => $currentDate->format('Y-m-d'),
+                    'ngay_hien_thi' => $currentDate->format('d/m'),
+                    'so_ve_ban' => $soVeBan
+                ];
+                
+                $currentDate->modify('+1 day');
+            }
+        } elseif ($loaiXuHuong === 'weekly') {
+            // Xu hướng theo tuần
+            $currentDate = clone $tuNgayDate;
+            $weekStart = clone $currentDate;
+            $weekNumber = 1;
+            
+            while ($currentDate <= $denNgayDate) {
+                $weekEnd = clone $weekStart;
+                $weekEnd->modify('+6 days');
+                
+                if ($weekEnd > $denNgayDate) {
+                    $weekEnd = clone $denNgayDate;
+                }
+                
+                $ngayBatDau = $weekStart->format('Y-m-d 00:00:00');
+                $ngayKetThuc = $weekEnd->format('Y-m-d 23:59:59');
+                
+                $soVeBan = $this->tinhTongVeBan($idRap, $ngayBatDau, $ngayKetThuc);
+                
+                $danhSachNgay[] = 'Tuần ' . $weekNumber;
+                $danhSachVe[] = [
+                    'tuan' => $weekNumber,
+                    'tu_ngay' => $weekStart->format('d/m'),
+                    'den_ngay' => $weekEnd->format('d/m'),
+                    'ngay_hien_thi' => $weekStart->format('d/m') . ' - ' . $weekEnd->format('d/m'),
+                    'so_ve_ban' => $soVeBan
+                ];
+                
+                $weekStart->modify('+7 days');
+                $currentDate = clone $weekStart;
+                $weekNumber++;
+            }
+        } elseif ($loaiXuHuong === 'monthly') {
+            // Xu hướng theo tháng
+            $currentDate = clone $tuNgayDate;
+            
+            while ($currentDate <= $denNgayDate) {
+                $monthStart = clone $currentDate;
+                $monthStart->modify('first day of this month');
+                $monthEnd = clone $currentDate;
+                $monthEnd->modify('last day of this month');
+                
+                // Giới hạn trong khoảng tuNgay - denNgay
+                if ($monthStart < $tuNgayDate) {
+                    $monthStart = clone $tuNgayDate;
+                }
+                if ($monthEnd > $denNgayDate) {
+                    $monthEnd = clone $denNgayDate;
+                }
+                
+                $ngayBatDau = $monthStart->format('Y-m-d 00:00:00');
+                $ngayKetThuc = $monthEnd->format('Y-m-d 23:59:59');
+                
+                $soVeBan = $this->tinhTongVeBan($idRap, $ngayBatDau, $ngayKetThuc);
+                
+                $danhSachNgay[] = $currentDate->format('m/Y');
+                $danhSachVe[] = [
+                    'thang' => $currentDate->format('m'),
+                    'nam' => $currentDate->format('Y'),
+                    'ngay_hien_thi' => $currentDate->format('m/Y'),
+                    'so_ve_ban' => $soVeBan
+                ];
+                
+                $currentDate->modify('first day of next month');
+            }
+        }
+        
+        return [
+            'loai_xu_huong' => $loaiXuHuong,
+            'danh_sach_nhan' => $danhSachNgay,
+            'chi_tiet' => $danhSachVe
+        ];
+    }
+
+    /**
+     * Top 10 phim có doanh thu cao nhất toàn rạp
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Danh sách 10 phim có doanh thu cao nhất
+     */
+    public function top10PhimToanRap($tuNgay, $denNgay, $idRap = 'all') {
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+
+        // Query doanh thu vé theo phim
+        $query = Ve::selectRaw('
+                phim.id as id_phim,
+                phim.ten_phim,
+                phim.poster_url,
+                SUM(ve.gia_ve) as doanh_thu_ve,
+                COUNT(ve.id) as so_ve_ban
+            ')
+            ->join('suatchieu', 've.suat_chieu_id', '=', 'suatchieu.id')
+            ->join('phim', 'suatchieu.id_phim', '=', 'phim.id')
+            ->join('phongchieu', 'suatchieu.id_phongchieu', '=', 'phongchieu.id')
+            ->whereBetween('ve.ngay_tao', [$tuNgayQuery, $denNgayQuery])
+            ->where('ve.trang_thai', 2); // Trạng thái 2: Đã đặt
+
+        // Filter theo rạp nếu cần
+        if ($idRap !== 'all') {
+            $query->where('phongchieu.id_rapphim', $idRap);
+        }
+
+        $result = $query->groupBy('phim.id', 'phim.ten_phim', 'phim.poster_url')
+            ->orderByRaw('SUM(ve.gia_ve) DESC')
+            ->limit(10)
+            ->get();
+
+        $danhSach = [];
+        foreach ($result as $item) {
+            $danhSach[] = [
+                'id_phim' => $item->id_phim,
+                'ten_phim' => $item->ten_phim,
+                'poster_url' => $item->poster_url,
+                'doanh_thu' => (float)$item->doanh_thu_ve,
+                'so_ve_ban' => (int)$item->so_ve_ban
+            ];
+        }
+
+        return [
+            'danh_sach' => $danhSach,
+            'tong_so' => count($danhSach)
+        ];
+    }
+
+    /**
+     * Top 10 sản phẩm F&B có doanh thu cao nhất toàn rạp
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Danh sách 10 sản phẩm có doanh thu cao nhất
+     */
+    public function top10SanPhamToanRap($tuNgay, $denNgay, $idRap = 'all') {
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+
+        // Query doanh thu sản phẩm
+        $query = ChiTietDonHang::selectRaw('
+                san_pham.id as id_san_pham,
+                san_pham.ten_san_pham,
+                san_pham.hinh_anh,
+                SUM(chi_tiet_don_hang.so_luong * chi_tiet_don_hang.gia_ban) as doanh_thu,
+                SUM(chi_tiet_don_hang.so_luong) as so_luong_ban
+            ')
+            ->join('san_pham', 'chi_tiet_don_hang.id_sanpham', '=', 'san_pham.id')
+            ->join('don_hang', 'chi_tiet_don_hang.id_donhang', '=', 'don_hang.id')
+            ->whereBetween('don_hang.ngay_tao', [$tuNgayQuery, $denNgayQuery])
+            ->where('don_hang.trang_thai', 'Đã thanh toán');
+
+        // Filter theo rạp nếu cần
+        if ($idRap !== 'all') {
+            $query->where('san_pham.id_rapphim', $idRap);
+        }
+
+        $result = $query->groupBy('san_pham.id', 'san_pham.ten_san_pham', 'san_pham.hinh_anh')
+            ->orderByRaw('SUM(chi_tiet_don_hang.so_luong * chi_tiet_don_hang.gia_ban) DESC')
+            ->limit(10)
+            ->get();
+
+        $danhSach = [];
+        foreach ($result as $item) {
+            $danhSach[] = [
+                'id_san_pham' => $item->id_san_pham,
+                'ten_san_pham' => $item->ten_san_pham,
+                'hinh_anh' => $item->hinh_anh,
+                'doanh_thu' => (float)$item->doanh_thu,
+                'so_luong_ban' => (int)$item->so_luong_ban
+            ];
+        }
+
+        return [
+            'danh_sach' => $danhSach,
+            'tong_so' => count($danhSach)
+        ];
+    }
+
+    /**
+     * API Top 10 sản phẩm F&B bán chay nhất (theo số lượng)
+     * Trả về danh sách 10 sản phẩm có SỐ LƯỢNG bán cao nhất (không phải doanh thu)
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Danh sách 10 sản phẩm bán chạy nhất
+     */
+    public function top10SanPhamBanChayNhat($tuNgay, $denNgay, $idRap = 'all') {
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+
+        // Query theo SỐ LƯỢNG bán (không phải doanh thu)
+        $query = ChiTietDonHang::selectRaw('
+                san_pham.id as id_san_pham,
+                san_pham.ten as ten_san_pham,
+                san_pham.hinh_anh,
+                SUM(chitiet_donhang.so_luong) as so_luong,
+                SUM(chitiet_donhang.so_luong * chitiet_donhang.don_gia) as doanh_thu
+             ')
+            ->join('san_pham', 'chitiet_donhang.sanpham_id', '=', 'san_pham.id')
+            ->join('donhang', 'chitiet_donhang.donhang_id', '=', 'donhang.id')
+            ->whereBetween('donhang.ngay_dat', [$tuNgayQuery, $denNgayQuery])
+            ->where('donhang.trang_thai', 2);        // Filter theo rạp nếu cần
+        if ($idRap !== 'all') {
+            $query->where('san_pham.id_rapphim', $idRap);
+        }
+
+        // Sắp xếp theo SỐ LƯỢNG (quantity), không phải doanh thu
+        $result = $query->groupBy('san_pham.id', 'san_pham.ten', 'san_pham.hinh_anh')
+            ->orderByRaw('SUM(chitiet_donhang.so_luong) DESC')
+            ->limit(10)
+            ->get();
+
+        $danhSach = [];
+        foreach ($result as $item) {
+            $danhSach[] = [
+                'id' => $item->id_san_pham,
+                'ten_san_pham' => $item->ten_san_pham,
+                'hinh_anh' => $item->hinh_anh,
+                'so_luong' => (int)$item->so_luong,
+                'doanh_thu' => (float)$item->doanh_thu
+            ];
+        }
+
+        return [
+            'danh_sach' => $danhSach,
+            'thoi_gian' => [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay
+            ]
+        ];
+    }
+
+    /**
+     * API Hiệu suất theo rạp - So sánh doanh thu giữa các rạp trong chuỗi
+     * Trả về dữ liệu cho biểu đồ cột so sánh doanh thu theo rạp
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Dữ liệu hiệu suất theo rạp
+     */
+    public function hieuSuatTheoRap($tuNgay, $denNgay, $idRap = 'all') {
+        // Định dạng thời gian
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+        
+        // Lấy tất cả rạp phim (hoặc rạp cụ thể nếu có filter)
+        $queryRap = RapPhim::select('id', 'ten');
+        
+        if ($idRap !== 'all') {
+            $queryRap->where('id', $idRap);
+        }
+        
+        $danhSachRap = $queryRap->get();
+        
+        // Xây dựng query để lấy doanh thu từng rạp
+        $doanhThuTheoRap = DonHang::selectRaw('
+                rapphim.id as id_rap,
+                SUM(donhang.tong_tien) as tong_doanh_thu,
+                COUNT(DISTINCT donhang.id) as so_don_hang,
+                COUNT(DISTINCT donhang.user_id) as so_khach_hang
+            ')
+            ->join('suatchieu', 'donhang.suat_chieu_id', '=', 'suatchieu.id')
+            ->join('phongchieu', 'suatchieu.id_phongchieu', '=', 'phongchieu.id')
+            ->join('rapphim', 'phongchieu.id_rapphim', '=', 'rapphim.id')
+            ->where('donhang.trang_thai', 2)
+            ->whereBetween('donhang.ngay_dat', [$tuNgayQuery, $denNgayQuery])
+            ->groupBy('rapphim.id')
+            ->get()
+            ->keyBy('id_rap'); // Chuyển thành array indexed by id_rap để dễ lookup
+        
+        // Kết hợp dữ liệu: tất cả rạp + doanh thu (nếu có)
+        $result = collect();
+        // Kết hợp dữ liệu: tất cả rạp + doanh thu (nếu có)
+        $result = collect();
+        
+        foreach ($danhSachRap as $rap) {
+            $doanhThu = $doanhThuTheoRap->get($rap->id);
+            
+            $result->push((object)[
+                'id_rap' => $rap->id,
+                'ten_rap' => $rap->ten,
+                'tong_doanh_thu' => $doanhThu ? (float)$doanhThu->tong_doanh_thu : 0,
+                'so_don_hang' => $doanhThu ? (int)$doanhThu->so_don_hang : 0,
+                'so_khach_hang' => $doanhThu ? (int)$doanhThu->so_khach_hang : 0
+            ]);
+        }
+        
+        // Sắp xếp theo doanh thu giảm dần
+        $result = $result->sortByDesc('tong_doanh_thu')->values();
+        
+        // Tính tổng doanh thu của tất cả rạp để tính phần trăm
+        $tongDoanhThuTatCa = $result->sum('tong_doanh_thu');
+        
+        // Format dữ liệu trả về
+        $danhSachRap = [];
+        foreach ($result as $item) {
+            $phanTramDongGop = $tongDoanhThuTatCa > 0 ? 
+                round(($item->tong_doanh_thu / $tongDoanhThuTatCa) * 100, 2) : 0;
+            
+            $danhSachRap[] = [
+                'id_rap' => (int)$item->id_rap,
+                'ten_rap' => $item->ten_rap,
+                'doanh_thu' => (float)$item->tong_doanh_thu,
+                'so_don_hang' => (int)$item->so_don_hang,
+                'so_khach_hang' => (int)$item->so_khach_hang,
+                'phan_tram_dong_gop' => (float)$phanTramDongGop
+            ];
+        }
+        
+        return [
+            'danh_sach_rap' => $danhSachRap,
+            'tong_doanh_thu' => (float)$tongDoanhThuTatCa,
+            'so_rap' => count($danhSachRap),
+            'thoi_gian' => [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay
+            ]
+        ];
+    }
+
+    /**
+     * API Cơ cấu doanh thu - Phân tích nguồn doanh thu
+     * Trả về dữ liệu cho biểu đồ donut chart về cơ cấu doanh thu
+     * Chỉ bao gồm 2 nguồn: Vé phim và Đồ ăn & Thức uống
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Dữ liệu cơ cấu doanh thu
+     */
+    public function coCauDoanhThuToanRap($tuNgay, $denNgay, $idRap = 'all') {
+        // Định dạng thời gian
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+        
+        // 1. DOANH THU VÉ PHIM
+        $doanhThuVe = $this->tinhDoanhThuVe($idRap, $tuNgayQuery, $denNgayQuery);
+        
+        // 2. DOANH THU ĐỒ ĂN & THỨC UỐNG
+        $doanhThuFnB = $this->tinhDoanhThuFnB($idRap, $tuNgayQuery, $denNgayQuery);
+        
+        // Tính tổng doanh thu (chỉ 2 nguồn)
+        $tongDoanhThu = $doanhThuVe + $doanhThuFnB;
+        
+        // Tính phần trăm từng loại
+        $phanTramVe = $tongDoanhThu > 0 ? round(($doanhThuVe / $tongDoanhThu) * 100, 1) : 0;
+        $phanTramFnB = $tongDoanhThu > 0 ? round(($doanhThuFnB / $tongDoanhThu) * 100, 1) : 0;
+        
+        return [
+            'chi_tiet' => [
+                [
+                    'loai' => 'Vé phim',
+                    'doanh_thu' => (float)$doanhThuVe,
+                    'phan_tram' => (float)$phanTramVe,
+                    'mau_sac' => '#EF4444' // Màu đỏ
+                ],
+                [
+                    'loai' => 'Đồ ăn & Thức uống',
+                    'doanh_thu' => (float)$doanhThuFnB,
+                    'phan_tram' => (float)$phanTramFnB,
+                    'mau_sac' => '#F59E0B' // Màu cam
+                ]
+            ],
+            'tong_doanh_thu' => (float)$tongDoanhThu,
+            'thoi_gian' => [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay
+            ]
+        ];
+    }
+
+    /**
+     * API Hiệu suất theo ngày trong tuần
+     * Trả về dữ liệu cho biểu đồ line chart về vé bán và tỷ lệ lấp đầy theo từng ngày trong tuần
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Dữ liệu hiệu suất theo ngày trong tuần
+     */
+    public function hieuSuatTheoNgayTrongTuan($tuNgay, $denNgay, $idRap = 'all') {
+        // Định dạng thời gian
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+        
+        // Khởi tạo mảng thống kê theo ngày trong tuần (2=Thứ Hai, 3=Thứ Ba,..., 8=Chủ Nhật)
+        $thongKeTheoThu = [
+            2 => ['ten' => 'Thứ Hai', 'so_ve_ban' => 0, 'tong_so_ghe' => 0, 'so_ghe_da_ban' => 0, 'doanh_thu' => 0],
+            3 => ['ten' => 'Thứ Ba', 'so_ve_ban' => 0, 'tong_so_ghe' => 0, 'so_ghe_da_ban' => 0, 'doanh_thu' => 0],
+            4 => ['ten' => 'Thứ Tư', 'so_ve_ban' => 0, 'tong_so_ghe' => 0, 'so_ghe_da_ban' => 0, 'doanh_thu' => 0],
+            5 => ['ten' => 'Thứ Năm', 'so_ve_ban' => 0, 'tong_so_ghe' => 0, 'so_ghe_da_ban' => 0, 'doanh_thu' => 0],
+            6 => ['ten' => 'Thứ Sáu', 'so_ve_ban' => 0, 'tong_so_ghe' => 0, 'so_ghe_da_ban' => 0, 'doanh_thu' => 0],
+            7 => ['ten' => 'Thứ Bảy', 'so_ve_ban' => 0, 'tong_so_ghe' => 0, 'so_ghe_da_ban' => 0, 'doanh_thu' => 0],
+            8 => ['ten' => 'Chủ Nhật', 'so_ve_ban' => 0, 'tong_so_ghe' => 0, 'so_ghe_da_ban' => 0, 'doanh_thu' => 0]
+        ];
+        
+        // Lấy danh sách suất chiếu trong khoảng thời gian
+        $querySuatChieu = SuatChieu::whereBetween('batdau', [$tuNgayQuery, $denNgayQuery])
+            ->where('tinh_trang', 1); // Đã duyệt
+        
+        if ($idRap !== 'all') {
+            $querySuatChieu->whereHas('phongChieu', function($q) use ($idRap) {
+                $q->where('id_rapphim', $idRap);
+            });
+        }
+        
+        $danhSachSuatChieu = $querySuatChieu->get();
+        
+        // Debug: Log số lượng suất chiếu tìm được
+        error_log("=== DEBUG hieuSuatTheoNgayTrongTuan ===");
+        error_log("So luong suat chieu: " . $danhSachSuatChieu->count());
+        error_log("Tu ngay: $tuNgayQuery");
+        error_log("Den ngay: $denNgayQuery");
+        
+        // Duyệt qua từng suất chiếu để thống kê
+        foreach ($danhSachSuatChieu as $suatChieu) {
+            $ngayBatDau = new \DateTime($suatChieu->batdau);
+            $thuTrongTuan = (int)$ngayBatDau->format('N'); // 1=Monday, 7=Sunday
+            
+            // Chuyển đổi: 1-6 giữ nguyên (Monday-Saturday), 7 (Sunday) -> 8
+            // Nhưng ta cần map: 1->2, 2->3, 3->4, 4->5, 5->6, 6->7, 7->8
+            $thuTrongTuan = $thuTrongTuan < 7 ? $thuTrongTuan + 1 : 8;
+            
+            // Debug: Log chi tiết suất chiếu
+            error_log("Suat chieu ID: {$suatChieu->id}, Ngay: {$suatChieu->batdau}, Thu: $thuTrongTuan");
+            
+            // Lấy số ghế của phòng chiếu
+            $soGhePhong = $suatChieu->phongChieu->so_luong_ghe ?? 0;
+            $thongKeTheoThu[$thuTrongTuan]['tong_so_ghe'] += $soGhePhong;
+            
+            // Đếm số vé đã bán cho suất chiếu này
+            $soVeDaBan = Ve::where('suat_chieu_id', $suatChieu->id)
+                ->where('trang_thai', 2) // Vé đã thanh toán
+                ->count();
+            
+            // Debug: Log số vé
+            error_log("  -> So ve ban (trang_thai=2): $soVeDaBan");
+            
+            $thongKeTheoThu[$thuTrongTuan]['so_ve_ban'] += $soVeDaBan;
+            $thongKeTheoThu[$thuTrongTuan]['so_ghe_da_ban'] += $soVeDaBan;
+            
+            // Tính doanh thu từ đơn hàng liên quan đến suất chiếu này
+            $doanhThuSuatChieu = DonHang::where('suat_chieu_id', $suatChieu->id)
+                ->where('trang_thai', 2) // Đã thanh toán
+                ->sum('tong_tien');
+            
+            // Debug: Log doanh thu
+            error_log("  -> Doanh thu: $doanhThuSuatChieu");
+            
+            $thongKeTheoThu[$thuTrongTuan]['doanh_thu'] += $doanhThuSuatChieu;
+        }
+        
+        // Tính tỷ lệ lấp đầy cho từng ngày
+        $ketQua = [];
+        foreach ($thongKeTheoThu as $thu => $data) {
+            $tyLeLapDay = $data['tong_so_ghe'] > 0 
+                ? round(($data['so_ghe_da_ban'] / $data['tong_so_ghe']) * 100, 1) 
+                : 0;
+            
+            $ketQua[] = [
+                'ngay' => $data['ten'],
+                'so_ve_ban' => (int)$data['so_ve_ban'],
+                'ty_le_lap_day' => (float)$tyLeLapDay,
+                'tong_so_ghe' => (int)$data['tong_so_ghe'],
+                'so_ghe_da_ban' => (int)$data['so_ghe_da_ban'],
+                'doanh_thu' => (float)$data['doanh_thu']
+            ];
+        }
+        
+        return [
+            'danh_sach' => $ketQua,
+            'thoi_gian' => [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay
+            ]
+        ];
+    }
+
+    /**
+     * API Hiệu suất theo giờ trong ngày
+     * Trả về dữ liệu cho biểu đồ area chart về tỷ lệ lấp đầy theo khung giờ
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Dữ liệu hiệu suất theo giờ
+     */
+    public function hieuSuatTheoGioTrongNgay($tuNgay, $denNgay, $idRap = 'all') {
+        // Định dạng thời gian
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+        
+        // Định nghĩa các khung giờ (từ 8:00 đến 23:00)
+        $khungGio = [];
+        for ($gio = 8; $gio <= 23; $gio++) {
+            $khungGio[] = [
+                'gio' => sprintf('%02d:00', $gio),
+                'gio_bat_dau' => $gio,
+                'gio_ket_thuc' => $gio + 1
+            ];
+        }
+        
+        // Khởi tạo mảng thống kê theo giờ
+        $thongKeTheoGio = [];
+        foreach ($khungGio as $kg) {
+            $thongKeTheoGio[$kg['gio']] = [
+                'gio' => $kg['gio'],
+                'so_suat_chieu' => 0,
+                'tong_so_ghe' => 0,
+                'so_ghe_da_ban' => 0,
+                'so_ve_ban' => 0,
+                'doanh_thu' => 0
+            ];
+        }
+        
+        // Lấy danh sách suất chiếu trong khoảng thời gian
+        $querySuatChieu = SuatChieu::whereBetween('batdau', [$tuNgayQuery, $denNgayQuery])
+            ->where('tinh_trang', 1); // Đã duyệt
+        
+        if ($idRap !== 'all') {
+            $querySuatChieu->whereHas('phongChieu', function($q) use ($idRap) {
+                $q->where('id_rapphim', $idRap);
+            });
+        }
+        
+        $danhSachSuatChieu = $querySuatChieu->get();
+        
+        // Duyệt qua từng suất chiếu để thống kê theo giờ
+        foreach ($danhSachSuatChieu as $suatChieu) {
+            $ngayGioBatDau = new \DateTime($suatChieu->batdau);
+            $gioBatDau = (int)$ngayGioBatDau->format('H'); // Lấy giờ (0-23)
+            
+            // Chỉ tính các suất chiếu trong khung giờ 8-23
+            if ($gioBatDau < 8 || $gioBatDau >= 23) {
+                continue;
+            }
+            
+            $khungGioKey = sprintf('%02d:00', $gioBatDau);
+            
+            // Đếm số suất chiếu
+            $thongKeTheoGio[$khungGioKey]['so_suat_chieu']++;
+            
+            // Lấy số ghế của phòng chiếu
+            $soGhePhong = $suatChieu->phongChieu->so_luong_ghe ?? 0;
+            $thongKeTheoGio[$khungGioKey]['tong_so_ghe'] += $soGhePhong;
+            
+            // Đếm số vé đã bán cho suất chiếu này
+            $soVeDaBan = Ve::where('suat_chieu_id', $suatChieu->id)
+                ->where('trang_thai', 2) // Vé đã thanh toán
+                ->count();
+            
+            $thongKeTheoGio[$khungGioKey]['so_ve_ban'] += $soVeDaBan;
+            $thongKeTheoGio[$khungGioKey]['so_ghe_da_ban'] += $soVeDaBan;
+            
+            // Tính doanh thu từ đơn hàng liên quan đến suất chiếu này
+            $doanhThuSuatChieu = DonHang::where('suat_chieu_id', $suatChieu->id)
+                ->where('trang_thai', 2) // Đã thanh toán
+                ->sum('tong_tien');
+            
+            $thongKeTheoGio[$khungGioKey]['doanh_thu'] += $doanhThuSuatChieu;
+        }
+        
+        // Tính tỷ lệ lấp đầy cho từng khung giờ
+        $ketQua = [];
+        foreach ($thongKeTheoGio as $data) {
+            $tyLeLapDay = $data['tong_so_ghe'] > 0 
+                ? round(($data['so_ghe_da_ban'] / $data['tong_so_ghe']) * 100, 1) 
+                : 0;
+            
+            $ketQua[] = [
+                'gio' => $data['gio'],
+                'so_suat_chieu' => (int)$data['so_suat_chieu'],
+                'so_ve_ban' => (int)$data['so_ve_ban'],
+                'ty_le_lap_day' => (float)$tyLeLapDay,
+                'tong_so_ghe' => (int)$data['tong_so_ghe'],
+                'so_ghe_da_ban' => (int)$data['so_ghe_da_ban'],
+                'doanh_thu' => (float)$data['doanh_thu']
+            ];
+        }
+        
+        return [
+            'danh_sach' => $ketQua,
+            'thoi_gian' => [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay
+            ]
+        ];
+    }
+
+    /**
+     * API Tỉ lệ doanh thu F&B trên mỗi đơn hàng
+     * Trả về dữ liệu cho biểu đồ cột về doanh thu F&B trung bình trên mỗi đơn hàng theo ngày
+     * 
+     * @param string $tuNgay Ngày bắt đầu (format: Y-m-d)
+     * @param string $denNgay Ngày kết thúc (format: Y-m-d)
+     * @param mixed $idRap ID của rạp cụ thể hoặc 'all' cho tất cả rạp
+     * @return array Dữ liệu tỉ lệ doanh thu F&B trên mỗi đơn hàng
+     */
+    public function tiLeDoanhThuFnBTrenDonHang($tuNgay, $denNgay, $idRap = 'all') {
+        // Định dạng thời gian
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+        
+        // Lấy dữ liệu doanh thu F&B theo ngày
+        $queryFnB = ChiTietDonHang::selectRaw('
+                DATE(donhang.ngay_dat) as ngay,
+                SUM(chitiet_donhang.so_luong * chitiet_donhang.don_gia) as tong_doanh_thu_fnb,
+                COUNT(DISTINCT donhang.id) as so_don_hang
+            ')
+            ->join('donhang', 'chitiet_donhang.donhang_id', '=', 'donhang.id')
+            ->join('san_pham', 'chitiet_donhang.sanpham_id', '=', 'san_pham.id')
+            ->whereBetween('donhang.ngay_dat', [$tuNgayQuery, $denNgayQuery])
+            ->where('donhang.trang_thai', 2); // Đã thanh toán
+        
+        // Filter theo rạp nếu cần
+        if ($idRap !== 'all') {
+            $queryFnB->where('san_pham.id_rapphim', $idRap);
+        }
+        
+        $resultFnB = $queryFnB->groupBy('ngay')
+            ->orderBy('ngay', 'ASC')
+            ->get();
+        
+        // Xây dựng mảng kết quả với tất cả các ngày trong khoảng
+        $ketQua = [];
+        $currentDate = clone $tuNgayDate;
+        
+        // Chuyển result thành array indexed by date để dễ lookup
+        $fnbByDate = [];
+        foreach ($resultFnB as $item) {
+            $fnbByDate[$item->ngay] = [
+                'tong_doanh_thu_fnb' => (float)$item->tong_doanh_thu_fnb,
+                'so_don_hang' => (int)$item->so_don_hang
+            ];
+        }
+        
+        // Duyệt qua từng ngày trong khoảng thời gian
+        while ($currentDate <= $denNgayDate) {
+            $ngayStr = $currentDate->format('Y-m-d');
+            $ngayHienThi = $currentDate->format('d/m');
+            
+            // Lấy dữ liệu F&B nếu có
+            $tongDoanhThuFnB = 0;
+            $soDonHang = 0;
+            $trungBinhFnBTrenDonHang = 0;
+            
+            if (isset($fnbByDate[$ngayStr])) {
+                $tongDoanhThuFnB = $fnbByDate[$ngayStr]['tong_doanh_thu_fnb'];
+                $soDonHang = $fnbByDate[$ngayStr]['so_don_hang'];
+                
+                // Tính trung bình F&B trên mỗi đơn hàng
+                if ($soDonHang > 0) {
+                    $trungBinhFnBTrenDonHang = round($tongDoanhThuFnB / $soDonHang);
+                }
+            }
+            
+            $ketQua[] = [
+                'ngay' => $ngayHienThi,
+                'ngay_day_du' => $ngayStr,
+                'tong_doanh_thu_fnb' => (float)$tongDoanhThuFnB,
+                'so_don_hang' => (int)$soDonHang,
+                'trung_binh_fnb_tren_don_hang' => (float)$trungBinhFnBTrenDonHang
+            ];
+            
+            $currentDate->modify('+1 day');
+        }
+        
+        return [
+            'danh_sach' => $ketQua,
+            'thoi_gian' => [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay
+            ]
+        ];
+    }
     }
     
 ?>

@@ -96,6 +96,16 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     
     // API thống kê toàn rạp (cho Admin/Quản lý chuỗi rạp)
     $r->addRoute('GET', '/thong-ke-toan-rap/tong-quat', [Ctrl_ThongKe::class, 'thongKeToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/xu-huong-doanh-thu', [Ctrl_ThongKe::class, 'xuHuongDoanhThuToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/xu-huong-ve-ban', [Ctrl_ThongKe::class, 'xuHuongVeBanToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/top-10-phim', [Ctrl_ThongKe::class, 'top10PhimToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/top-10-san-pham', [Ctrl_ThongKe::class, 'top10SanPhamToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/hieu-suat-theo-rap', [Ctrl_ThongKe::class, 'hieuSuatTheoRapToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/co-cau-doanh-thu', [Ctrl_ThongKe::class, 'coCauDoanhThuToanRap', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/hieu-suat-theo-ngay-trong-tuan', [Ctrl_ThongKe::class, 'hieuSuatTheoNgayTrongTuan', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/hieu-suat-theo-gio-trong-ngay', [Ctrl_ThongKe::class, 'hieuSuatTheoGioTrongNgay', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/top-10-san-pham-ban-chay', [Ctrl_ThongKe::class, 'top10SanPhamBanChayNhat', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/thong-ke-toan-rap/ti-le-doanh-thu-fnb-tren-don-hang', [Ctrl_ThongKe::class, 'tiLeDoanhThuFnBTrenDonHang', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/ke-hoach-suat-chieu/{id:\d+}/duyet', [Ctrl_KeHoachSuatChieu::class, 'duyetKeHoach', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/ke-hoach-suat-chieu/{id:\d+}/tu-choi', [Ctrl_KeHoachSuatChieu::class, 'tuChoiKeHoach', ['Quản lý chuỗi rạp']]);
     $r->addRoute('POST', '/ke-hoach-suat-chieu/duyet-tuan', [Ctrl_KeHoachSuatChieu::class, 'duyetTuan', ['Quản lý chuỗi rạp']]);

@@ -64,8 +64,8 @@
                     Khoảng thời gian
                 </label>
                 <select id="date-range" class="form-input rounded-lg w-full md:w-52 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all">
-                    <option value="7">7 ngày qua</option>
-                    <option value="30" selected>30 ngày qua</option>
+                    <option value="7" selected>7 ngày qua</option>
+                    <option value="30">30 ngày qua</option>
                     <option value="90">90 ngày qua</option>
                     <option value="365">365 ngày qua</option>
                     <option value="custom">Tùy chỉnh</option>
@@ -92,10 +92,7 @@
                 </label>
                 <select id="cinema-filter" class="form-input rounded-lg w-full md:w-52 border-gray-300 focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all">
                     <option value="all" selected>Tất cả rạp</option>
-                    <option value="1">EPIC Hà Nội</option>
-                    <option value="2">EPIC Hồ Chí Minh</option>
-                    <option value="3">EPIC Đà Nẵng</option>
-                    <option value="4">EPIC Cần Thơ</option>
+                    <!-- Options sẽ được load từ API -->
                 </select>
             </div>
             
@@ -124,7 +121,7 @@
     </div>
 
     <!-- KPI Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+    <div id="kpi-summary-cards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
         <!-- Total Revenue Card -->
         <div class="relative bg-gradient-to-br from-white via-red-50 to-white rounded-2xl shadow-2xl p-8 border-2 border-red-200 overflow-hidden group hover:shadow-3xl hover:-translate-y-2 transition-all duration-300">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 via-red-600 to-orange-500"></div>
@@ -271,7 +268,7 @@
                 <div class="w-1.5 h-7 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
                 <span>Top 10 phim có doanh thu cao nhất</span>
             </h2>
-            <div class="overflow-y-auto max-h-80 rounded-lg border border-gray-200">
+            <div class="overflow-y-auto max-h-80 rounded-lg border border-gray-200" style="min-height: 200px;">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="sticky top-0 bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
@@ -308,7 +305,6 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Đang tải dữ liệu...
                         </td></tr>
                     </tbody>
                 </table>
@@ -366,7 +362,7 @@
     <!-- Food & Beverage Analysis -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
         <!-- Top F&B Items -->
-        <div class="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200 hover:shadow-3xl hover:border-gray-300 transition-all duration-300">
+        <div id="fnb-analysis" class="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200 hover:shadow-3xl hover:border-gray-300 transition-all duration-300">
             <h2 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b-2 border-gray-200 flex items-center">
                 <div class="w-1.5 h-7 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
                 <span>Top 10 sản phẩm F&B bán chạy nhất</span>
@@ -419,7 +415,7 @@
         <div class="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200 hover:shadow-3xl hover:border-gray-300 transition-all duration-300">
             <h2 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b-2 border-gray-200 flex items-center">
                 <div class="w-1.5 h-7 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
-                <span>Tỉ lệ doanh thu F&B trên mỗi vé</span>
+                <span>Tỉ lệ doanh thu F&B trên mỗi đơn hàng</span>
             </h2>
             <div class="h-80">
                 <div id="fnb-per-ticket-chart"></div>

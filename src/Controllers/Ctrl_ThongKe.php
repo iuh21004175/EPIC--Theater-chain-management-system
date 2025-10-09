@@ -161,5 +161,247 @@
                 ];
             }
         }
+
+        /**
+         * API xu hướng doanh thu toàn rạp
+         * Hiển thị biểu đồ xu hướng doanh thu theo thời gian
+         * Tham số: tuNgay, denNgay, idRap, loaiXuHuong (daily/weekly/monthly)
+         */
+        public function xuHuongDoanhThuToanRap(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                $loaiXuHuong = $_GET['loaiXuHuong'] ?? 'daily'; // daily, weekly, monthly
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->xuHuongDoanhThuToanRap($tuNgay, $denNgay, $idRap, $loaiXuHuong)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API xu hướng vé bán toàn rạp
+         * Hiển thị biểu đồ xu hướng số vé bán theo thời gian
+         * Tham số: tuNgay, denNgay, idRap, loaiXuHuong (daily/weekly/monthly)
+         */
+        public function xuHuongVeBanToanRap(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                $loaiXuHuong = $_GET['loaiXuHuong'] ?? 'daily'; // daily, weekly, monthly
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->xuHuongVeBanToanRap($tuNgay, $denNgay, $idRap, $loaiXuHuong)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Top 10 phim toàn rạp
+         * Hiển thị danh sách 10 phim có doanh thu cao nhất
+         * Tham số: tuNgay, denNgay, idRap
+         */
+        public function top10PhimToanRap(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->top10PhimToanRap($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Top 10 sản phẩm toàn rạp
+         * Hiển thị danh sách 10 sản phẩm có doanh thu cao nhất
+         * Tham số: tuNgay, denNgay, idRap
+         */
+        public function top10SanPhamToanRap(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->top10SanPhamToanRap($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Hiệu suất theo rạp
+         * Hiển thị biểu đồ so sánh doanh thu giữa các rạp
+         * Tham số: tuNgay, denNgay, idRap (optional)
+         */
+        public function hieuSuatTheoRapToanRap(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->hieuSuatTheoRap($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Cơ cấu doanh thu
+         * Hiển thị biểu đồ donut chart về phân bổ doanh thu
+         * Tham số: tuNgay, denNgay, idRap (optional)
+         */
+        public function coCauDoanhThuToanRap(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->coCauDoanhThuToanRap($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Hiệu suất theo ngày trong tuần
+         * Hiển thị biểu đồ line chart về vé bán và tỷ lệ lấp đầy theo ngày trong tuần
+         * Tham số: tuNgay, denNgay, idRap (optional)
+         */
+        public function hieuSuatTheoNgayTrongTuan(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->hieuSuatTheoNgayTrongTuan($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Hiệu suất theo giờ trong ngày
+         * Hiển thị biểu đồ area chart về tỷ lệ lấp đầy theo khung giờ
+         * Tham số: tuNgay, denNgay, idRap (optional)
+         */
+        public function hieuSuatTheoGioTrongNgay(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->hieuSuatTheoGioTrongNgay($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Top 10 sản phẩm F&B bán chay nhất
+         * Hiển thị bảng top 10 sản phẩm có số lượng bán cao nhất
+         * Tham số: tuNgay, denNgay, idRap (optional)
+         */
+        public function top10SanPhamBanChayNhat(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->top10SanPhamBanChayNhat($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
+
+        /**
+         * API Tỉ lệ doanh thu F&B trên mỗi đơn hàng
+         * Hiển thị biểu đồ cột về doanh thu F&B trung bình trên mỗi đơn hàng
+         * Tham số: tuNgay, denNgay, idRap (optional)
+         */
+        public function tiLeDoanhThuFnBTrenDonHang(){
+            $scThongKe = new Sc_ThongKe();
+            try{
+                $tuNgay = $_GET['tuNgay'] ?? date('Y-m-01');
+                $denNgay = $_GET['denNgay'] ?? date('Y-m-t');
+                $idRap = $_GET['idRap'] ?? 'all';
+                
+                return [
+                    'success' => true,
+                    'data' => $scThongKe->tiLeDoanhThuFnBTrenDonHang($tuNgay, $denNgay, $idRap)
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ];
+            }
+        }
     }
 ?>

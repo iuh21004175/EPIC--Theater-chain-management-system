@@ -12,6 +12,7 @@ use Carbon\Carbon;
                 $rapPhim = RapPhim::create([
                     'ten' => $_POST['ten'],
                     'dia_chi' => $_POST['diachi'],
+                    'ban_do' => $_POST['ban_do'] ?? null,
                     'trang_thai' => 1 // Mặc định là đang hoạt động
                 ]);
                 return $rapPhim ? true : false;
@@ -58,6 +59,7 @@ use Carbon\Carbon;
             else{
                 $rapPhim->ten = $_POST['ten'];
                 $rapPhim->dia_chi = $_POST['diachi'];
+                $rapPhim->ban_do = $_POST['ban_do'] ?? null;
                 return $rapPhim->save();
             }
         }
