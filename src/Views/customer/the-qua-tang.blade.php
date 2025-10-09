@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="{{ $_ENV['URL_WEB_BASE'] }}/css/tailwind.css">
 </head>
 
-<body class="min-h-screen flex flex-col bg-gray-50 text-gray-800">
+<body class="min-h-screen flex flex-col bg-gray-50 text-gray-800 font-sans">
   @include('customer.layout.header')
 
   <!-- Nội dung chính -->

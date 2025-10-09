@@ -6,7 +6,7 @@
 <title id="title"></title>
 <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen font-sans">
 
   <!-- Header -->
   @include('customer.layout.header')

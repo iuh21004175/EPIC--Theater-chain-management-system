@@ -12,6 +12,8 @@
             'ca',
             'gio_vao',
             'gio_ra',
+            'ly_do', 
+            'trang_thai', // 0: Lịch làm, 1: Chờ duyệt (xin nghỉ), 2: Đã duyệt nghỉ, 3: Từ chối
             'created_at',
             'updated_at'
         ];

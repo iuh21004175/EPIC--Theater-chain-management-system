@@ -9,6 +9,10 @@
             // Code for the index method
            return view('internal.phan-cong');
         }
+
+        public function duyetYeuCau() {
+           return view('internal.duyet-yeu-cau');
+        }
         public function docViTri(){
             $sc_PhanCong = new Sc_PhanCong();
             try {
@@ -90,6 +94,73 @@
             try {
                 $sc_PhanCong = new Sc_PhanCong();
                 $phanCong = $sc_PhanCong->docPhanCongTheoNV($batDau, $ketThuc);
+                return ['success' => true, 'data' => $phanCong];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+
+        public function docLichLamViec()
+        {
+            $service = new Sc_PhanCong();
+            try {
+                $result = $service->docLichLamViec();
+
+                return [
+                    'success' => true,
+                    'data' => $result
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải chi tiết lịch: ' . $e->getMessage()
+                ];
+            }
+        }
+        
+        public function docGuiYCLich()
+        {
+            $service = new Sc_PhanCong();
+            try {
+                $result = $service->docGuiYCLich();
+
+                return [
+                    'success' => true,
+                    'data' => $result
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải chi tiết lịch: ' . $e->getMessage()
+                ];
+            }
+        }
+        public function sua1PhanCong($argc)
+        {
+            $sc_PhanCong = new Sc_PhanCong();
+
+            try {
+                $result = $sc_PhanCong->sua1PhanCong($argc['id']);
+                return [
+                    'success' => true,
+                    'message' => 'Cập nhật phân công thành công',
+                    'data' => $result
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ];
+            }
+        }
+
+        public function docYCDaGui(){
+            $sc_PhanCong = new Sc_PhanCong();
+            try {
+                $phanCong = $sc_PhanCong->docYCDaGui();
                 return ['success' => true, 'data' => $phanCong];
             } catch (\Exception $e) {
                 return [

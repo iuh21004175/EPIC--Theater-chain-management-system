@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (!jMua.success) throw new Error(jMua.message);
 
                         suatChieu.classList.add("hidden");
-                        const soTien = 30000;
+                        const soTien = 150000;
                         const qrUrl = `https://qr.sepay.vn/img?bank=TPBank&acc=10001198354&template=compact&amount=${soTien}&des=DH${donhangId}`;
 
                         QR.innerHTML = `

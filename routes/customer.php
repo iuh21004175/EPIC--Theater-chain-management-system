@@ -9,6 +9,7 @@ use App\Controllers\Ctrl_SanPhamAnUong;
 use App\Controllers\Ctrl_TheQuaTang;
 use App\Controllers\Ctrl_TuVan;
 use App\Controllers\Ctrl_GoiVideo;
+use App\Controllers\Ctrl_TinTuc;
 use function App\Core\view;
 
 // Vai trò: Khách hàng thành viên, Khách hàng vãng lại
@@ -29,6 +30,8 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/ve-cua-toi', [Ctrl_DonHang::class, 'index']);
     $r->addRoute('GET', '/the-qua-tang', [Ctrl_TheQuaTang::class, 'index']);
     $r->addRoute('GET', '/san-pham', [Ctrl_SanPhamAnUong::class, 'sanPham']);
+    $r->addRoute('GET', '/tin-tuc', [Ctrl_TinTuc::class, 'index']);
+    $r->addRoute('GET', '/chi-tiet-tin-tuc/{id}', [Ctrl_TinTuc::class, 'chiTiet']);
     $r->addRoute('GET', '/tu-van/chat-truc-tuyen', [Ctrl_TuVan::class, 'pageChatTrucTuyen']);
     $r->addRoute('GET', '/tu-van/goi-video', [Ctrl_TuVan::class, 'khachHangDatLichGoiVideo']);
     $r->addRoute('GET', '/tu-van/dat-lich-goi-video', [Ctrl_GoiVideo::class, 'pageDatLichGoiVideo']);
