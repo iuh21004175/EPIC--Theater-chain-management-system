@@ -9,6 +9,10 @@
             // Code for the index method
            return view('internal.phan-cong');
         }
+        public function luongThuong() {
+            // Code for the index method
+           return view('internal.quan-ly-luong');
+        }
 
         public function duyetYeuCau() {
            return view('internal.duyet-yeu-cau');
@@ -117,6 +121,46 @@
                 return [
                     'success' => false,
                     'message' => 'Lỗi khi tải chi tiết lịch: ' . $e->getMessage()
+                ];
+            }
+        }
+
+        public function docChamCong()
+        {
+            $service = new Sc_PhanCong();
+
+            try {
+                $thang = $_GET['thang'] ?? null;
+                $result = $service->docChamCong($thang);
+
+                return [
+                    'success' => true,
+                    'data' => $result
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải chi tiết chấm công: ' . $e->getMessage()
+                ];
+            }
+        }
+
+        public function docChamCongToanRap()
+        {
+            $service = new Sc_PhanCong();
+
+            try {
+                $thang = $_GET['thang'] ?? null;
+                $result = $service->docChamCongToanRap($thang);
+
+                return [
+                    'success' => true,
+                    'data' => $result
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'message' => 'Lỗi khi tải chi tiết chấm công: ' . $e->getMessage()
                 ];
             }
         }

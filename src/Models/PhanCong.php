@@ -4,6 +4,7 @@
     class PhanCong extends Model{
         protected $table = 'phan_cong';
         protected $primaryKey = 'id';
+        public $timestamps = false;
         protected $fillable = [
             'id',
             'id_nhanvien',
