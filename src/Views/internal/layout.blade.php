@@ -53,6 +53,11 @@
                             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/thong-tin-ca-nhan" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                                 Thông tin cá nhân
                             </a>
+                            @if($_SESSION['UserInternal']['VaiTro'] == 'Nhân viên')
+                            <a href="{{$_ENV['URL_INTERNAL_BASE']}}/dang-ky-khuon-mat" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                Đăng ký khuôn mặt
+                            </a>
+                            @endif
                             <a href="{{$_ENV['URL_INTERNAL_BASE']}}/doi-mat-khau" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                                 Đổi mật khẩu
                             </a>

@@ -21,6 +21,7 @@ use App\Controllers\Ctrl_TuVan;
 use App\Controllers\Ctrl_DonHang;
 use App\Controllers\Ctrl_GoiVideo;
 use App\Controllers\Ctrl_TinTuc;
+use App\Controllers\Ctrl_ChamCong;
 
 use function App\Core\view;
 
@@ -60,6 +61,9 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/tu-van', [Ctrl_TuVan::class, 'pageNhanVienTuVan', ['Nhân viên']]);
     $r->addRoute('GET', '/duyet-lich-goi-video', [Ctrl_GoiVideo::class, 'pageDuyetLichGoiVideo', ['Nhân viên']]);
     $r->addRoute('GET', '/video-call', [Ctrl_GoiVideo::class, 'pageVideoCall', ['Nhân viên']]);
+    // Chấm công bằng khuôn mặt
+    $r->addRoute('GET', '/cham-cong', [Ctrl_ChamCong::class, 'index', ['Nhân viên']]);
+    $r->addRoute('GET', '/dang-ky-khuon-mat', [Ctrl_ChamCong::class, 'dangKyKhuonMat', ['Nhân viên']]);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];

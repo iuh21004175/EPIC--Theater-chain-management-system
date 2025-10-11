@@ -28,6 +28,7 @@ use App\Controllers\Ctrl_GoiVideo;
 use App\Controllers\Ctrl_ChatBotAI;
 use App\Controllers\Ctrl_ThongKe;
 use App\Controllers\Ctrl_TinTuc;
+use App\Controllers\Ctrl_ChamCong;
 
 $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/dang-nhap', [Ctrl_XacThucInternal::class, 'dangNhap']);
@@ -216,6 +217,12 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('POST', '/goi-video/ket-thuc', [Ctrl_GoiVideo::class, 'ketThucCuocGoi']);
     $r->addRoute('GET', '/lich-goi-video-theo-ngay', [Ctrl_GoiVideo::class, 'khachHangLayLichTheoNgay']);
     $r->addRoute('POST', '/dat-lich-goi-video', [Ctrl_GoiVideo::class, 'datLichGoiVideo']);
+    
+    // API Chấm công bằng khuôn mặt (cho Nhân viên)
+    $r->addRoute('POST', '/cham-cong/dang-ky-khuon-mat', [Ctrl_ChamCong::class, 'xuLyDangKyKhuonMat', ['Nhân viên']]);
+    $r->addRoute('POST', '/cham-cong/cham-cong', [Ctrl_ChamCong::class, 'chamCongKhuonMat', ['Nhân viên']]);
+    $r->addRoute('GET', '/cham-cong/lich-su', [Ctrl_ChamCong::class, 'lichSuChamCong', ['Nhân viên']]);
+    $r->addRoute('GET', '/cham-cong/kiem-tra-dang-ky', [Ctrl_ChamCong::class, 'kiemTraDangKy', ['Nhân viên']]);
 });
 
 $httpMethod = $_SERVER['REQUEST_METHOD'];
