@@ -57,6 +57,7 @@ $dispatcher = FastRoute\simpleDispatcher(function(FastRoute\RouteCollector $r) {
     $r->addRoute('GET', '/tin-tuc', [Ctrl_TinTuc::class, 'tinTuc', ['Quản lý rạp']]);
     $r->addRoute('GET', '/duyet-suat-chieu', [Ctrl_DuyetSuatChieu::class, 'index', ['Quản lý chuỗi rạp']]);
     $r->addRoute('GET', '/duyet-suat-chieu/{id:\d+}', [Ctrl_DuyetSuatChieu::class, 'chiTiet', ['Quản lý chuỗi rạp']]);
+    $r->addRoute('GET', '/quan-ly-luong', [Ctrl_PhanCong::class, 'luongThuong', ['Quản lý rạp']]);
     // Tư vấn
     $r->addRoute('GET', '/tu-van', [Ctrl_TuVan::class, 'pageNhanVienTuVan', ['Nhân viên']]);
     $r->addRoute('GET', '/duyet-lich-goi-video', [Ctrl_GoiVideo::class, 'pageDuyetLichGoiVideo', ['Nhân viên']]);

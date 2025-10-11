@@ -239,8 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
             input.click();
         },
 
-        images_upload_handler: function (blobInfo, success) {
-            success('data:' + blobInfo.blob().type + ';base64,' + blobInfo.base64());
+        images_upload_handler: function (blobInfo) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    // Trả lại ảnh dạng base64 để hiển thị ngay
+                    resolve('data:' + blobInfo.blob().type + ';base64,' + blobInfo.base64());
+                };
+                reader.onerror = () => reject({ message: 'Không thể đọc file ảnh.' });
+                reader.readAsDataURL(blobInfo.blob());
+            });
         }
     });
 

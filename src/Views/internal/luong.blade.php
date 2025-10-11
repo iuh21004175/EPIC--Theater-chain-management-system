@@ -39,6 +39,10 @@
             </tbody>
             <tfoot>
                 <tr class="bg-gray-200 font-semibold text-center">
+                    <td colspan="4" class="p-2 border text-right">Thưởng:</td>
+                    <td id="total-bonus" class="p-2 border text-green-700">0 đ</td>
+                </tr>
+                <tr class="bg-gray-200 font-semibold text-center">
                     <td colspan="4" class="p-2 border text-right">Tổng lương:</td>
                     <td id="total-salary" class="p-2 border text-green-700">0 đ</td>
                 </tr>
@@ -49,76 +53,112 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+    const baseUrl = "{{ $_ENV['URL_WEB_BASE'] }}";
     const salaryBody = document.getElementById("salary-body");
     const totalSalaryEl = document.getElementById("total-salary");
+    const totalBonusEl = document.getElementById("total-bonus");
     const monthTitle = document.getElementById("month-title");
     const prevBtn = document.getElementById("prev-month");
     const nextBtn = document.getElementById("next-month");
-    const currentBtn = document.getElementById("current-month");
 
-    let currentDate = new Date(); // tháng hiện tại
+    let currentDate = new Date(); // mặc định tháng hiện tại
+    const luongMotGio = 30000; // ví dụ: 30k/giờ
+    const heSoMacDinh = 1.0;
 
-    // Dữ liệu mẫu
-    const sampleData = []; 
-    const shifts = ["Sáng","Chiều","Tối"];
-    
-    // Tạo dữ liệu mẫu cho 1 tháng
-    function generateSampleData(year, month) {
-        sampleData.length = 0;
-        const daysInMonth = new Date(year, month+1, 0).getDate();
-        for(let d=1; d<=daysInMonth; d++){
-            shifts.forEach(shift=>{
-                const hours = Math.floor(Math.random()*4)+4; // 4-7 giờ
-                const heSo = (Math.random()*1+1).toFixed(2); // 1.00-2.00
-                const amount = Math.floor(hours*100000*heSo);
-                sampleData.push({
-                    day: d,
-                    shift,
-                    hours,
-                    heSo,
-                    amount
-                });
+    // Hàm định dạng YYYY-MM để gọi API
+    function formatMonth(date) {
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        return `${y}-${m}`;
+    }
+
+    // Gọi API lấy chấm công theo tháng
+    async function loadSalaryData(date) {
+        const thang = formatMonth(date);
+        monthTitle.innerText = `${date.toLocaleString('vi-VN', { month: 'long' })} ${date.getFullYear()}`;
+        salaryBody.innerHTML = `<tr><td colspan="5" class="p-4 text-gray-500 italic">Đang tải dữ liệu...</td></tr>`;
+
+        let total = 0;
+        let totalBonus = 0; 
+
+        try {
+            const res = await fetch(baseUrl + `/api/doc-cham-cong?thang=${thang}`);
+            const json = await res.json();
+
+            if (!json.success || !json.data || json.data.length === 0) {
+                salaryBody.innerHTML = `<tr><td colspan="5" class="p-4 text-gray-500 italic">Không có dữ liệu trong tháng này</td></tr>`;
+                totalSalaryEl.innerText = '0 đ';
+                return;
+            }
+
+            try {
+                const resThuong = await fetch(baseUrl + `/api/lay-thuong-nhan-vien?thang=${thang}`);
+                const thuongJson = await resThuong.json();
+
+                if (thuongJson.success && thuongJson.data) {
+                    totalBonus = thuongJson.data.thuong || 0;
+                }
+            } catch (e) {
+                console.warn("Không lấy được thưởng, để mặc định = 0");
+            }
+
+            salaryBody.innerHTML = '';
+
+            // 3️⃣ XỬ LÝ CHẤM CÔNG + LƯƠNG
+            json.data.forEach(item => {
+                const ngay = new Date(item.ngay).getDate();
+                const ca = item.ca || '-';
+                const gioVao = item.gio_vao ? new Date(item.gio_vao) : null;
+                const gioRa = item.gio_ra ? new Date(item.gio_ra) : null;
+
+                let soGio = 0;
+                if (gioVao && gioRa) {
+                    soGio = Math.max(0, (gioRa - gioVao) / (1000 * 60 * 60));
+                }
+
+                const heSo = item.he_so ?? heSoMacDinh;
+                const tienLuong = Math.round(soGio * luongMotGio * heSo);
+                total += tienLuong;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2 border">${ngay}</td>
+                    <td class="p-2 border">${ca}</td>
+                    <td class="p-2 border">
+                        ${soGio.toFixed(2)} 
+                        (${gioVao ? gioVao.toLocaleTimeString('vi-VN', { hour12: false, hour: '2-digit', minute: '2-digit' }) : '-'} 
+                        - 
+                        ${gioRa ? gioRa.toLocaleTimeString('vi-VN', { hour12: false, hour: '2-digit', minute: '2-digit' }) : '-'})
+                    </td>
+                    <td class="p-2 border">${heSo}</td>
+                    <td class="p-2 border text-green-700 font-semibold">${tienLuong.toLocaleString('vi-VN')} đ</td>
+                `;
+                salaryBody.appendChild(tr);
             });
+
+            // 4️⃣ HIỂN THỊ THƯỞNG & TỔNG
+            totalBonusEl.innerText = totalBonus.toLocaleString('vi-VN') + ' đ';
+            totalSalaryEl.innerText = (total + totalBonus).toLocaleString('vi-VN') + ' đ';
+
+        } catch (err) {
+            console.error(err);
+            salaryBody.innerHTML = `<tr><td colspan="5" class="p-4 text-red-600 italic">Lỗi khi tải dữ liệu!</td></tr>`;
         }
     }
 
-    function renderMonth(date){
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        monthTitle.innerText = `${date.toLocaleString('vi-VN',{month:'long'})} ${year}`;
-        generateSampleData(year, month);
-
-        salaryBody.innerHTML = '';
-        let total = 0;
-        sampleData.forEach(item=>{
-            total += item.amount;
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="p-2 border">${item.day}</td>
-                <td class="p-2 border">${item.shift}</td>
-                <td class="p-2 border">${item.hours}</td>
-                <td class="p-2 border">${item.heSo}</td>
-                <td class="p-2 border text-green-700 font-semibold">${item.amount.toLocaleString()} đ</td>
-            `;
-            salaryBody.appendChild(tr);
-        });
-        totalSalaryEl.innerText = total.toLocaleString()+' đ';
-    }
-
-    renderMonth(currentDate);
-
-    prevBtn.addEventListener('click',()=>{
-        currentDate.setMonth(currentDate.getMonth()-1);
-        renderMonth(currentDate);
+    // Điều hướng tháng
+    prevBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        loadSalaryData(currentDate);
     });
-    nextBtn.addEventListener('click',()=>{
-        currentDate.setMonth(currentDate.getMonth()+1);
-        renderMonth(currentDate);
+    nextBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        loadSalaryData(currentDate);
     });
-    currentBtn.addEventListener('click',()=>{
-        currentDate = new Date();
-        renderMonth(currentDate);
-    });
+
+    // Gọi mặc định tháng hiện tại
+    loadSalaryData(currentDate);
 });
 </script>
+
 @endsection

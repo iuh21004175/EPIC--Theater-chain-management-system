@@ -6,9 +6,9 @@
   <title>Sơ đồ ghế</title>
   <link rel="stylesheet" href="{{$_ENV['URL_WEB_BASE']}}/css/tailwind.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans">
+<body class="min-h-screen flex flex-col bg-gray-50 text-gray-800 font-sans">
 @include('customer.layout.header')
-
+<main class="flex-1">
 <div id="thongTinPhim" class="flex flex-col md:flex-row max-w-6xl mx-auto px-4 mt-10">
     
 </div>
@@ -77,6 +77,7 @@
         <!-- Nội dung sẽ render bằng JS -->
     </div>
 </div>
+</main>
 @include('customer.layout.footer')
 <script>
 const seatMap = document.getElementById("seatMap");
