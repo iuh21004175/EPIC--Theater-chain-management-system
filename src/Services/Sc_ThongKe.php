@@ -980,18 +980,33 @@
             $tyLeTangTruong = 0;
             $soNgay = count($danhSachNgay);
             
-            if ($soNgay > 1) {
-                // Chia thời gian thành 2 nửa để so sánh
-                $giuaKhoangThoiGian = floor($soNgay / 2);
+            // if ($soNgay > 1) {
+            //     // Chia thời gian thành 2 nửa để so sánh
+            //     $giuaKhoangThoiGian = floor($soNgay / 2);
                 
+            //     $nua1 = array_slice($tongKhach, 0, $giuaKhoangThoiGian);
+            //     $nua2 = array_slice($tongKhach, $giuaKhoangThoiGian);
+                
+            //     $tbNua1 = array_sum($nua1) / count($nua1);
+            //     $tbNua2 = array_sum($nua2) / count($nua2);
+                
+            //     if ($tbNua1 > 0) {
+            //         $tyLeTangTruong = (($tbNua2 - $tbNua1) / $tbNua1) * 100;
+            //     }
+            // }
+            // Fix lỗi
+            if ($soNgay > 1) {
+                $giuaKhoangThoiGian = floor($soNgay / 2);
                 $nua1 = array_slice($tongKhach, 0, $giuaKhoangThoiGian);
                 $nua2 = array_slice($tongKhach, $giuaKhoangThoiGian);
-                
-                $tbNua1 = array_sum($nua1) / count($nua1);
-                $tbNua2 = array_sum($nua2) / count($nua2);
-                
-                if ($tbNua1 > 0) {
-                    $tyLeTangTruong = (($tbNua2 - $tbNua1) / $tbNua1) * 100;
+
+                if (!empty($nua1) && !empty($nua2)) {
+                    $tbNua1 = array_sum($nua1) / count($nua1);
+                    $tbNua2 = array_sum($nua2) / count($nua2);
+
+                    if ($tbNua1 > 0) {
+                        $tyLeTangTruong = (($tbNua2 - $tbNua1) / $tbNua1) * 100;
+                    }
                 }
             }
             
@@ -1022,13 +1037,13 @@
                     ],
                     'ty_le_tang_truong' => round($tyLeTangTruong, 2),
                     'ty_le_theo_loai_ngay' => [
-                        'ngay_thuong' => !empty($khachNgayThuong) ? 
+                        'ngay_thuong' => (!empty($khachNgayThuong) && $tongSoKhach > 0) ? 
                             round((array_sum($khachNgayThuong) / $tongSoKhach) * 100, 2) : 0,
-                        'cuoi_tuan' => !empty($khachCuoiTuan) ?
+                        'cuoi_tuan' => (!empty($khachCuoiTuan) && $tongSoKhach > 0) ?
                             round((array_sum($khachCuoiTuan) / $tongSoKhach) * 100, 2) : 0,
-                        'ngay_le' => !empty($khachNgayLe) ?
+                        'ngay_le' => (!empty($khachNgayLe) && $tongSoKhach > 0) ?
                             round((array_sum($khachNgayLe) / $tongSoKhach) * 100, 2) : 0,
-                        'ngay_tet' => !empty($khachNgayTet) ?
+                        'ngay_tet' => (!empty($khachNgayTet) && $tongSoKhach > 0) ?
                             round((array_sum($khachNgayTet) / $tongSoKhach) * 100, 2) : 0
                     ]
                 ]

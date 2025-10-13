@@ -3,6 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.getElementById('overlay');
     const btnStart = document.getElementById('btnStartCapture');
     const faceNotify = document.getElementById('faceNotify') || createNotifyDiv();
+    // disable start until models loaded
+    btnStart.disabled = true;
     function createNotifyDiv() {
         let div = document.createElement('div');
         div.id = 'faceNotify';
@@ -18,6 +20,37 @@ document.addEventListener('DOMContentLoaded', function() {
     let lastDetectionBox = null;
     const lastDetections = [];
 
+    // Đồng bộ kích thước canvas internal với kích thước hiển thị (CSS) của element
+    function setCanvasSizeToElement(canvas, element) {
+        const rect = element.getBoundingClientRect();
+        // Gán internal pixel size = CSS display size để toDataURL trả ảnh đúng kích thước hiển thị
+        canvas.width = Math.round(rect.width);
+        canvas.height = Math.round(rect.height);
+        canvas.style.width = `${rect.width}px`;
+        canvas.style.height = `${rect.height}px`;
+    }
+
+    // Scale bounding box from video native pixels -> overlay CSS pixels and handle mirror
+    function scaleBoxToDisplay(box) {
+        if (!video.videoWidth || !video.videoHeight) return box;
+        const rect = overlay.getBoundingClientRect();
+        const scaleX = rect.width / video.videoWidth;
+        const scaleY = rect.height / video.videoHeight;
+        const computed = getComputedStyle(video);
+        const isFlipped = computed.transform && computed.transform.includes('-1');
+        let x = box.x * scaleX;
+        if (isFlipped) {
+            // flip horizontally: newX = displayWidth - (box.x + box.width) * scaleX
+            x = rect.width - (box.x + box.width) * scaleX;
+        }
+        return {
+            x: x,
+            y: box.y * scaleY,
+            width: box.width * scaleX,
+            height: box.height * scaleY
+        };
+    }
+
     /** 🔹 Tải mô hình */
     async function loadModels() {
         await Promise.all([
@@ -25,6 +58,10 @@ document.addEventListener('DOMContentLoaded', function() {
             faceapi.nets.faceLandmark68Net.loadFromUri('./models')
         ]);
         modelsLoaded = true;
+        // enable start button when models ready
+        btnStart.disabled = false;
+        faceNotify.textContent = 'Mô hình đã sẵn sàng.';
+        faceNotify.className = 'mt-4 w-full text-center text-base font-semibold text-green-600';
         startCamera();
     }
 
@@ -32,12 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
     async function startCamera() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({
-                video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+                video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
             });
             video.srcObject = stream;
             video.addEventListener('loadedmetadata', () => {
-                overlay.width = video.videoWidth;
-                overlay.height = video.videoHeight;
+                // Set overlay canvas size to match displayed video element size (CSS pixels)
+                setCanvasSizeToElement(overlay, video);
                 drawLoop(); // 🔥 Bắt đầu vòng lặp vẽ mượt
             });
         } catch (error) {
@@ -49,7 +86,10 @@ document.addEventListener('DOMContentLoaded', function() {
     /** 🔹 Vẽ video và khung khuôn mặt */
     async function drawLoop() {
         const ctx = overlay.getContext('2d', { willReadFrequently: true });
-        ctx.drawImage(video, 0, 0, overlay.width, overlay.height);
+        const rect = overlay.getBoundingClientRect();
+        ctx.clearRect(0, 0, rect.width, rect.height);
+        // drawImage to CSS-size canvas so overlay and capture match display
+        ctx.drawImage(video, 0, 0, rect.width, rect.height);
 
         if (modelsLoaded && !isAnalyzing) {
             isAnalyzing = true;
@@ -58,7 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(detection => {
                     if (detection && detection.detection) {
                         const box = detection.detection.box;
-                        lastDetectionBox = box; // lưu khung mới nhất
+                        // scale to overlay display coords (and handle mirror)
+                        lastDetectionBox = scaleBoxToDisplay(box);
                     }
                 })
                 .finally(() => (isAnalyzing = false));
@@ -76,69 +117,118 @@ document.addEventListener('DOMContentLoaded', function() {
         requestAnimationFrame(drawLoop);
     }
 
-    /** 🧩 Kiểm tra ảnh đạt chuẩn không */
+    /** 🧩 Kiểm tra ảnh đạt chuẩn để dùng với ArcFace (kèm phát hiện che mặt) */
     async function isFaceImageValid(canvas) {
-        if (!modelsLoaded) return { valid: false, message: 'Chưa tải xong mô hình nhận diện.' };
+        if (!modelsLoaded)
+            return { valid: false, message: '⏳ Chưa tải xong mô hình nhận diện.' };
 
-        const detections = await faceapi
-            .detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions())
-            .withFaceLandmarks();
+        // thử nhiều cấu hình để robust hơn
+        const tryOptions = [
+            new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.3 }),
+            new faceapi.TinyFaceDetectorOptions({ inputSize: 416, scoreThreshold: 0.35 }),
+            new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.25 })
+        ];
 
-        if (detections.length === 0)
-            return { valid: false, message: 'Không phát hiện khuôn mặt, hãy căn chỉnh lại vị trí khuôn mặt trong khung hình.' };
-        if (detections.length > 1)
-            return { valid: false, message: 'Có nhiều hơn 1 khuôn mặt trong khung hình, hãy đảm bảo chỉ có 1 người.' };
+        try {
+            let detection = null;
+            let detections = null;
 
-        const detection = detections[0];
-        const box = detection.detection.box;
+            // debug: lưu ảnh ra console để kiểm tra thủ công nếu cần
+            try { console.debug('Debug canvas dataURL (first 120 chars):', (canvas.toDataURL().slice(0,120))); } catch(e){}
 
-        // Độ sáng
-        const brightness = getAverageBrightness(canvas);
-        if (brightness < 60)
-            return { valid: false, message: 'Ảnh quá tối, hãy chụp ở nơi có đủ ánh sáng.' };
+            // Thử detectSingleFace nhanh trước, fallback sang detectAllFaces nếu không có
+            for (const options of tryOptions) {
+                try {
+                    detection = await faceapi.detectSingleFace(canvas, options).withFaceLandmarks();
+                } catch (e) {
+                    detection = null;
+                }
+                if (detection && detection.detection) break;
+            }
 
-        // Độ nét
-        const sharpness = getFaceSharpness(canvas, box);
-        const minSharpness = 200;
-        if (sharpness < minSharpness)
-            return { valid: false, message: 'Ảnh bị mờ, hãy chụp lại trong điều kiện sáng hơn.' };
+            // nếu detectSingleFace không thành công, thử detectAllFaces (để biết có >1 face)
+            if (!detection) {
+                for (const options of tryOptions) {
+                    try {
+                        detections = await faceapi.detectAllFaces(canvas, options).withFaceLandmarks();
+                    } catch (e) {
+                        detections = null;
+                    }
+                    if (detections && detections.length > 0) {
+                        if (detections.length > 1) {
+                            return { valid: false, message: '⚠️ Có nhiều khuôn mặt trong khung. Hãy để 1 người duy nhất.' };
+                        }
+                        detection = detections[0];
+                        break;
+                    }
+                }
+            }
 
-        // Kích thước khuôn mặt
-        const minSize = 240;
-        if (box.width < minSize || box.height < minSize)
-            return { valid: false, message: 'Khuôn mặt quá nhỏ, hãy đưa gần camera hơn.' };
+            console.debug('Final detection:', !!detection, detection);
 
-        // Độ nghiêng
-        const leftEye = detection.landmarks.getLeftEye();
-        const rightEye = detection.landmarks.getRightEye();
-        const eyeDx = Math.abs(leftEye[0].y - rightEye[0].y);
-        if (eyeDx > 15)
-            return { valid: false, message: 'Mặt nghiêng quá mức, hãy chỉnh lại cho thẳng.' };
+            if (!detection || !detection.detection) {
+                return { valid: false, message: '❌ Không phát hiện khuôn mặt. Hãy nhìn thẳng vào camera hoặc thử giảm threshold inputSize.' };
+            }
 
-        // Căn giữa
-        const faceCenterX = box.x + box.width / 2;
-        const frameCenterX = canvas.width / 2;
-        if (Math.abs(faceCenterX - frameCenterX) > canvas.width * 0.25)
-            return { valid: false, message: 'Khuôn mặt lệch sang một bên quá nhiều, hãy căn giữa.' };
+            const box = detection.detection.box;
+            const landmarks = detection.landmarks;
 
-        // Ổn định
-        lastDetections.push({ x: box.x, y: box.y, sharpness });
-        if (lastDetections.length > 5) lastDetections.shift();
+            // các kiểm tra tiếp theo (độ sáng, nét, tỷ lệ, che mặt...) giữ nguyên như cũ
+            const brightness = getAverageBrightness(canvas);
+            if (brightness < 70) return { valid: false, message: '💡 Ảnh quá tối. Hãy chụp ở nơi sáng hơn.' };
+            if (brightness > 200) return { valid: false, message: '💡 Ảnh quá sáng. Hãy giảm ánh sáng hoặc tránh ngược sáng.' };
 
-        if (lastDetections.length >= 3) {
-            const dx = Math.abs(lastDetections[4].x - lastDetections[0].x);
-            const dy = Math.abs(lastDetections[4].y - lastDetections[0].y);
-            const motion = Math.sqrt(dx * dx + dy * dy);
-            const avgSharp = lastDetections.reduce((a, b) => a + b.sharpness, 0) / lastDetections.length;
+            const sharpness = getFaceSharpness(canvas, box);
+            const minSharpness = 180;
+            if (sharpness < minSharpness) return { valid: false, message: '🔍 Ảnh bị mờ. Hãy giữ yên khuôn mặt khi chụp.' };
 
-            if (motion > 10)
-                return { valid: false, message: 'Khuôn mặt di chuyển, hãy giữ yên để chụp rõ hơn.' };
-            if (avgSharp < minSharpness)
-                return { valid: false, message: 'Ảnh bị mờ do chuyển động, hãy giữ yên khuôn mặt.' };
+            const faceRatio = (box.width * box.height) / (canvas.width * canvas.height);
+            if (faceRatio < 0.35) return { valid: false, message: '📏 Khuôn mặt quá nhỏ. Hãy tiến lại gần hơn.' };
+            if (faceRatio > 0.8) return { valid: false, message: '📏 Khuôn mặt quá gần. Hãy lùi ra một chút.' };
+
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+            const eyeSlope = Math.abs(leftEye[0].y - rightEye[0].y);
+            if (eyeSlope > 10) return { valid: false, message: '↔️ Mặt nghiêng quá mức. Hãy chỉnh lại cho thẳng.' };
+
+            const faceCenterX = box.x + box.width / 2;
+            const faceCenterY = box.y + box.height / 2;
+            const frameCenterX = canvas.width / 2;
+            const frameCenterY = canvas.height / 2;
+            if (Math.abs(faceCenterX - frameCenterX) > canvas.width * 0.2)
+                return { valid: false, message: '📸 Khuôn mặt lệch sang một bên. Hãy căn giữa.' };
+            if (Math.abs(faceCenterY - frameCenterY) > canvas.height * 0.2)
+                return { valid: false, message: '📸 Khuôn mặt quá cao hoặc thấp trong khung hình.' };
+
+            // phát hiện che mặt cơ bản
+            const nose = landmarks.getNose();
+            const mouth = landmarks.getMouth();
+            const jaw = landmarks.getJawOutline();
+            const mouthTopY = mouth[0].y;
+            const mouthBottomY = mouth[mouth.length - 1].y;
+            const mouthHeight = mouthBottomY - mouthTopY;
+            if (mouthHeight < 4) return { valid: false, message: '😷 Không thấy rõ vùng miệng. Có thể bạn đang đeo khẩu trang hoặc bị che mặt.' };
+
+            // ổn định chuyển động (giữ logic hiện tại)
+            lastDetections.push({ x: box.x, y: box.y, sharpness });
+            if (lastDetections.length > 5) lastDetections.shift();
+            if (lastDetections.length >= 3) {
+                const dx = Math.abs(lastDetections[4].x - lastDetections[0].x);
+                const dy = Math.abs(lastDetections[4].y - lastDetections[0].y);
+                const motion = Math.sqrt(dx * dx + dy * dy);
+                const avgSharp = lastDetections.reduce((a, b) => a + b.sharpness, 0) / lastDetections.length;
+                if (motion > 8) return { valid: false, message: '📷 Khuôn mặt đang di chuyển. Hãy giữ yên.' };
+                if (avgSharp < minSharpness) return { valid: false, message: '📷 Ảnh bị mờ do chuyển động. Hãy giữ yên khuôn mặt.' };
+            }
+
+            return { valid: true, message: '✅ Ảnh đạt chuẩn, có thể dùng cho nhận diện ArcFace.' };
+        } catch (err) {
+            console.error('Face detection error:', err);
+            return { valid: false, message: '❌ Lỗi khi nhận diện khuôn mặt, kiểm tra console để biết chi tiết.' };
         }
-
-        return { valid: true, message: '✅ Ảnh đạt chuẩn, có thể dùng để đăng ký khuôn mặt.' };
     }
+
+
 
     /** 🔹 Độ nét khuôn mặt */
     function getFaceSharpness(canvas, box) {
@@ -190,12 +280,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isAnalyzing) return;
 
             const offCanvas = document.createElement('canvas');
-            offCanvas.width = overlay.width;
-            offCanvas.height = overlay.height;
+            // Make capture canvas exactly the same displayed size as overlay/video
+            setCanvasSizeToElement(offCanvas, video);
             const ctx = offCanvas.getContext('2d', { willReadFrequently: true });
-            ctx.drawImage(video, 0, 0, offCanvas.width, offCanvas.height);
+            // offCanvas is not in DOM, so use its width/height properties (set by setCanvasSizeToElement)
+            const w = offCanvas.width || video.clientWidth || 640;
+            const h = offCanvas.height || video.clientHeight || 480;
+            console.debug('Capture canvas size:', w, h, 'video native:', video.videoWidth, video.videoHeight);
+            ctx.drawImage(video, 0, 0, w, h);
 
             const result = await isFaceImageValid(offCanvas);
+            console.debug('isFaceImageValid =>', result);
             faceNotify.textContent = result.message;
             faceNotify.className = result.valid
                 ? 'mt-4 w-full text-center text-base font-semibold text-green-700'
@@ -203,14 +298,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (result.valid) {
                 clearInterval(intervalOfCapture);
-                // Stop video and camera
-                if (stream) {
-                    stream.getTracks().forEach(track => track.stop());
-                }
-                video.srcObject = null;
 
-                // Convert base64 to Blob
+                // ensure last frame drawn to offCanvas: wait one rAF
+                await new Promise(r => requestAnimationFrame(r));
+
+                // Convert base64 to Blob BEFORE stopping the camera
                 const dataUrl = offCanvas.toDataURL('image/jpeg');
+                if (!dataUrl || dataUrl.length < 100) {
+                    console.error('Captured dataURL is empty or too small', dataUrl && dataUrl.length);
+                }
+
                 const byteString = atob(dataUrl.split(',')[1]);
                 const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
                 const ab = new ArrayBuffer(byteString.length);
@@ -220,10 +317,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 const blob = new Blob([ab], { type: mimeString });
 
+                // stop video AFTER we have the dataURL/blob
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+                video.srcObject = null;
+
                 const formData = new FormData();
                 formData.append('image', blob, 'face.jpg');
                 formData.append('staff_id', window.staffId || document.body.dataset.staffId);
 
+                console.debug('Uploading image blob, size:', blob.size, 'canvas:', offCanvas.width, offCanvas.height);
                 const response = await fetch(document.body.dataset.url + '/api/cham-cong/dang-ky-khuon-mat', {
                     method: 'POST',
                     body: formData
@@ -233,7 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     faceNotify.textContent = '✅ Đăng ký khuôn mặt thành công!';
                     faceNotify.className = 'mt-4 w-full text-center text-base font-semibold text-green-700';
                 } else {
-                    faceNotify.textContent = '❌ Đăng ký khuôn mặt thất bại, vui lòng thử lại.';
+                    faceNotify.textContent = '❌ Đăng ký khuôn mặt thất bại, Khuôn mặt không hợp lệ.';
                     faceNotify.className = 'mt-4 w-full text-center text-base font-semibold text-red-700';  
                 }
             }

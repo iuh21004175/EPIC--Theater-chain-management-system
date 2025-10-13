@@ -59,7 +59,7 @@ class Sc_ChamCong
      */
     public function dangKyKhuonMat()
     {
-       $fileHinhAnh = $_FILES['image'] ?? null;
+        $fileHinhAnh = $_FILES['image'] ?? null;
         $idNhanVien = $_SESSION['UserInternal']['ID'] ?? null;
         $url = $this->pythonApiUrl . "/api/face/dang-ky";
 
@@ -121,44 +121,21 @@ class Sc_ChamCong
         }
     }
     public function chamCongKhuonMat(){
-        $data = json_decode(file_get_contents('php://input'), true);
-        $imageBase64 = $data['image'] ?? null;
+        $fileHinhAnh = $_FILES['image'] ?? null;
         $idNhanVien = $_SESSION['UserInternal']['ID'] ?? null;
-        $loai = $data['loai'] ?? null;
-        $url = $this->pythonApiUrl . "/api/face/cham-cong";
-        if (!$imageBase64 || !$idNhanVien || !$loai) {
+        $url = $this->pythonApiUrl . "/api/face/dang-ky";
+        $loai = $_POST['loai']; // 'checkin' hoặc 'checkout'
+        if (!$fileHinhAnh || !$idNhanVien) {
             throw new Exception('Thiếu dữ liệu gửi đi');
         }
-        if (!$imageBase64) {
-            throw new Exception('Không có dữ liệu ảnh');
-        }
 
-        // Nếu ảnh có tiền tố "data:image/jpeg;base64,..."
-        if (strpos($imageBase64, ',') !== false) {
-            $imageBase64 = explode(',', $imageBase64)[1];
-        }
-
-        // Giải mã base64
-        $imageData = base64_decode($imageBase64);
-        if ($imageData === false) {
-            throw new Exception('Ảnh base64 không hợp lệ');
-        }
-
-        // Tạo file tạm
-        $tempFile = tempnam(sys_get_temp_dir(), 'face_') . '.jpg';
-        file_put_contents($tempFile, $imageData);
-
-        // Kiểm tra lại
-        if (!file_exists($tempFile)) {
-            throw new Exception('Không thể tạo file tạm');
-        }
-
+        // Tạo dữ liệu multipart/form-data
         $postFields = [
             'staff_id' => $idNhanVien,
             'image' => new \CURLFile(
-                $tempFile,
-                'image/jpeg',
-                basename($tempFile)
+                $fileHinhAnh['tmp_name'],
+                $fileHinhAnh['type'],
+                $fileHinhAnh['name']
             )
         ];
         // Khởi tạo CURL
@@ -190,12 +167,12 @@ class Sc_ChamCong
             if($daChamCong){
                 if($loai == 'checkin'){
                     $daChamCong->update([
-                        'gio_vao' => date('H:i:s')
+                        'gio_vao' => date('Y-m-d H:i:s')
                     ]);
                 }
                 else if($loai == 'checkout'){
                     $daChamCong->update([
-                        'gio_ra' => date('H:i:s')
+                        'gio_ra' => date('Y-m-d H:i:s')
                     ]);
                 }
             }
@@ -205,12 +182,13 @@ class Sc_ChamCong
                     'ngay' => $ngayHienTai
                 ];
                 if($loai == 'checkin'){
-                    $dataInsert['gio_vao'] = date('H:i:s');
+                    $dataInsert['gio_vao'] = date('Y-m-d H:i:s');
                 }
                 else if($loai == 'checkout'){
-                    $dataInsert['gio_ra'] = date('H:i:s');
+                    $dataInsert['gio_ra'] = date('Y-m-d H:i:s');
                 }
             }
+
             $nhanVien = NguoiDungInternal::find($idNhanVien);
             return $nhanVien;
         }

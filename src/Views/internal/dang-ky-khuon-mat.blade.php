@@ -14,7 +14,7 @@
 		<div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
 			<h2 class="text-lg font-semibold mb-4">Camera</h2>
 			<div class="relative flex justify-center">
-				<video id="video" autoplay muted playsinline class="rounded-lg border border-gray-300 max-w-md h-64 object-cover" style="width: 640px;"></video>
+				<video id="video" autoplay muted playsinline class="rounded-lg border border-gray-300 object-cover" style="width: 800px; height: 600px;"></video>
 				<canvas id="overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
 			</div>
 			<div id="faceNotify" class="mt-4 w-full text-center text-base font-semibold"></div>

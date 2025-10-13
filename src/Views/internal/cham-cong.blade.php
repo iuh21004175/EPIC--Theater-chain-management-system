@@ -3,12 +3,6 @@
 @section('title', 'Chấm công')
 
 @section('head')
-<style>
-    #video {
-        transform: scaleX(-1);
-        border-radius: 8px;
-    }
-</style>
 @endsection
 
 @section('breadcrumbs')

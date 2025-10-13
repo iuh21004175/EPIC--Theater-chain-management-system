@@ -65,25 +65,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Capture and recognize face
         async function captureAndRecognize(type) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0);
-            
-            const imageData = canvas.toDataURL('image/jpeg', 0.8);
+                // Use video native resolution for canvas but honor displayed mirroring
+                canvas.width = video.videoWidth || video.clientWidth || 640;
+                canvas.height = video.videoHeight || video.clientHeight || 480;
+                const ctx = canvas.getContext('2d');
+                // Detect if the video element is visually flipped via CSS (e.g. transform: scaleX(-1))
+                let isFlipped = false;
+                try {
+                    const cs = window.getComputedStyle(video);
+                    if (cs && cs.transform && (cs.transform.includes('-1') || cs.transform.includes('scaleX(-1)'))) {
+                        isFlipped = true;
+                    }
+                } catch (e) {
+                    // ignore
+                }
+
+                ctx.save();
+                if (isFlipped) {
+                    // flip horizontally so captured image matches what user sees on screen
+                    ctx.translate(canvas.width, 0);
+                    ctx.scale(-1, 1);
+                }
+                // draw video into canvas (use full canvas area)
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.restore();
             
             loadingModal.classList.remove('hidden');
 
             try {
+                // Convert canvas to blob (binary) and send as multipart/form-data to match registration
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
+                if (!blob) throw new Error('Không thể tạo Blob từ canvas');
+
+                const formData = new FormData();
+                formData.append('image', blob, 'face.jpg');
+                formData.append('loai', type);
+
                 const response = await fetch(`${API_URL}/cham-cong/cham-cong`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        image: imageData,
-                        loai: type
-                    })
+                    body: formData // browser sets Content-Type multipart/form-data automatically
                 });
 
                 const result = await response.json();

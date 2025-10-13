@@ -311,6 +311,7 @@ function transformRevenueByDateData(phanTichData) {
 // Hàm để chuyển đổi dữ liệu phân bổ doanh thu
 function transformRevenueDistributionData(phanTichData) {
     if (!phanTichData || !phanTichData.success || !phanTichData.data || !phanTichData.data.tong_ket) {
+
         return [
             { name: 'Vé phim', value: 75 },
             { name: 'Đồ ăn & Đồ uống', value: 20 }
@@ -319,16 +320,17 @@ function transformRevenueDistributionData(phanTichData) {
     
     const tongDoanhThu = phanTichData.data.tong_ket.tong_doanh_thu_ve + phanTichData.data.tong_ket.tong_doanh_thu_san_pham;
     
-    if (tongDoanhThu === 0) {
-        return [
-            { name: 'Vé phim', value: 75 },
-            { name: 'Đồ ăn & Đồ uống', value: 20 }
-        ];
-    }
+    // if (tongDoanhThu === 0) {
+    //     return [
+    //         { name: 'Vé phim', value: 75 },
+    //         { name: 'Đồ ăn & Đồ uống', value: 20 }
+    //     ];
+    // }
     
     const phanTramVe = Math.round((phanTichData.data.tong_ket.tong_doanh_thu_ve / tongDoanhThu) * 100);
     const phanTramDoAn = Math.round((phanTichData.data.tong_ket.tong_doanh_thu_san_pham / tongDoanhThu) * 100);
-    const phanTramKhac = 100 - phanTramVe - phanTramDoAn;
+    console.log('Revenue Distribution:', { phanTramVe, phanTramDoAn });
+    //const phanTramKhac = 100 - phanTramVe - phanTramDoAn;
     
     return [
         { name: 'Vé phim', value: phanTramVe },
@@ -890,7 +892,7 @@ async function fetchFoodsData(startDate, endDate) {
             
             // Nếu dữ liệu rỗng hoặc toàn số 0, hiển thị thông báo nhỏ bên dưới biểu đồ
             if (foodsData.length === 0 || foodsData.every(item => item.revenue === 0)) {
-                addChartMessage('top-foods-chart', 'Doanh thu sản phẩm trong khoảng thời gian này đều là 0');
+                // addChartMessage('top-foods-chart', 'Doanh thu sản phẩm trong khoảng thời gian này đều là 0');
             }
         } else {
             console.error('Error fetching foods data:', top10SanPhamData);
@@ -1255,6 +1257,7 @@ function initializeRevenueChart(data) {
 
 // Biểu đồ phân bổ doanh thu
 function initializeRevenueDistributionChart(data) {
+    console.log('Initializing revenue distribution chart with data:', data);
     const chartElement = document.querySelector("#revenue-distribution-chart");
     if (!chartElement) {
         console.error("Revenue distribution chart container not found");
@@ -1357,8 +1360,8 @@ function initializeTopMoviesChart(data) {
     
     // Kiểm tra nếu dữ liệu toàn số 0
     if (sortedData.every(item => item.revenue === 0)) {
-        showChartError('top-movies-chart', 'Chưa có dữ liệu doanh thu phim trong khoảng thời gian này', false);
-        return;
+        // showChartError('top-movies-chart', 'Chưa có dữ liệu doanh thu phim trong khoảng thời gian này', false);
+        // return;
     }
     
     const options = {
@@ -1465,8 +1468,8 @@ function initializeTopFoodsChart(data) {
     
     // Kiểm tra nếu dữ liệu toàn số 0
     if (sortedData.every(item => item.revenue === 0)) {
-        showChartError('top-foods-chart', 'Chưa có dữ liệu doanh thu sản phẩm trong khoảng thời gian này', false);
-        return;
+        // showChartError('top-foods-chart', 'Chưa có dữ liệu doanh thu sản phẩm trong khoảng thời gian này', false);
+        // return;
     }
     
     const options = {

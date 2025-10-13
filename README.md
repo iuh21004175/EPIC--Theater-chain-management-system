@@ -8,7 +8,7 @@
 3. Lệnh để kết nối database vps (lưu ý là tắt mysql của xampp)
   ssh -L 3306:127.0.0.1:3306 root@103.130.213.112
 4. Lệnh để kết nối với minio
-  ssh -L 3306:127.0.0.1:3306 -L 9000:127.0.0.1:9000 -L 9001:127.0.0.1:9001 root@103.130.213.112
+  ssh -L 3306:127.0.0.1:3306 -L 9000:127.0.0.1:9000 -L 9001:127.0.0.1:9001 -L 8000:127.0.0.1:8000 root@103.130.213.112
 5. Cấu hình minio trên vps
 sudo nano /etc/nginx/sites-available/minio.conf
 server {
