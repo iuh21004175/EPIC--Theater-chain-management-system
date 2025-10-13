@@ -341,6 +341,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     faceNotify.className = 'mt-4 w-full text-center text-base font-semibold text-red-700';  
                 }
             }
-        }, 1000);
+        }, 500);
     });
 });

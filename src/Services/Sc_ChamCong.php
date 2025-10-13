@@ -123,7 +123,7 @@ class Sc_ChamCong
     public function chamCongKhuonMat(){
         $fileHinhAnh = $_FILES['image'] ?? null;
         $idNhanVien = $_SESSION['UserInternal']['ID'] ?? null;
-        $url = $this->pythonApiUrl . "/api/face/dang-ky";
+        $url = $this->pythonApiUrl . "/api/face/cham-cong";
         $loai = $_POST['loai']; // 'checkin' hoặc 'checkout'
         if (!$fileHinhAnh || !$idNhanVien) {
             throw new Exception('Thiếu dữ liệu gửi đi');

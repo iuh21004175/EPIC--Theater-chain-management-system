@@ -66,8 +66,9 @@ document.addEventListener("DOMContentLoaded", function () {
         // Capture and recognize face
         async function captureAndRecognize(type) {
                 // Use video native resolution for canvas but honor displayed mirroring
-                canvas.width = video.videoWidth || video.clientWidth || 640;
-                canvas.height = video.videoHeight || video.clientHeight || 480;
+                    // Force capture size to 800x600 so uploaded images match desired dimensions
+                    canvas.width = 800;
+                    canvas.height = 600;
                 const ctx = canvas.getContext('2d');
                 // Detect if the video element is visually flipped via CSS (e.g. transform: scaleX(-1))
                 let isFlipped = false;
@@ -86,8 +87,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     ctx.translate(canvas.width, 0);
                     ctx.scale(-1, 1);
                 }
-                // draw video into canvas (use full canvas area)
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    // Draw the video frame scaled to 800x600
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 ctx.restore();
             
             loadingModal.classList.remove('hidden');
