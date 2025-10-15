@@ -16,7 +16,41 @@ let selectedSeats = [];
 let selectedFood = [];
 let suatChieuData = null;
 let selectedGiftCard = null;
+let listSoDoGhe = [];
+let seatCountdownInterval = null;
 
+// Start a selection countdown (duration in seconds)
+function startSeatCountdown(duration) {
+    const el = document.getElementById('seatCountdownTimer');
+    const wrapper = document.getElementById('seatCountdownWrapper');
+    if (!el || !wrapper) return;
+    clearSeatCountdown();
+    let time = duration;
+    function update() {
+        const m = Math.floor(time / 60);
+        const s = time % 60;
+        el.textContent = `Thời gian giữ ghế: ${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+    update();
+    seatCountdownInterval = setInterval(() => {
+        time--;
+        if (time < 0) {
+            clearSeatCountdown();
+            alert('Hết thời gian giữ ghế. Vui lòng đặt lại.');
+            // refresh trang hoặc chuyển về trang sơ đồ ghế để bắt đầu lại
+            window.location.reload();
+            return;
+        }
+        update();
+    }, 1000);
+}
+
+function clearSeatCountdown() {
+    if (seatCountdownInterval) {
+        clearInterval(seatCountdownInterval);
+        seatCountdownInterval = null;
+    }
+}
 // Giải mã base64 và lấy id phòng
 function base64Decode(str) {
     return decodeURIComponent(escape(atob(str)));
@@ -138,7 +172,8 @@ async function loadSeats() {
 
         // Render chú thích loại ghế
         const seatTypes = {};
-        data.phong.soDoGhe.forEach(ghe => {
+        listSoDoGhe = data.phong.soDoGhe || [];
+        listSoDoGhe.forEach(ghe => {
             if (ghe.loai_ghe) seatTypes[ghe.loai_ghe.ten] = ghe.loai_ghe.ma_mau;
         });
         Object.keys(seatTypes).forEach(ten => {
@@ -150,7 +185,7 @@ async function loadSeats() {
         });
         // Render sơ đồ ghế
         seatMap.style.gridTemplateColumns = `repeat(${data.phong.socot_ghe}, minmax(0, 1fr))`;
-        data.phong.soDoGhe.forEach(ghe => {
+        listSoDoGhe.forEach(ghe => {
             const seat = document.createElement("div");
             if (!ghe.loaighe_id) {
                 seat.className = "w-12 h-12 rounded-xl bg-transparent"; 
@@ -160,13 +195,14 @@ async function loadSeats() {
             seat.textContent = ghe.so_ghe;
             seat.className = "flex items-center justify-center w-12 h-12 text-sm font-bold rounded-xl cursor-pointer transition transform hover:scale-105 select-none shadow-md";
 
-            if (ghe.trang_thai === 1) {
+            if (ghe.trang_thai == 1) {
                 seat.classList.add("bg-gray-400", "text-white", "cursor-not-allowed", "shadow-inner");
-            } else if (ghe.trang_thai === 2) {
+            } else if (ghe.trang_thai == 2) {
                 seat.style.backgroundColor = "white"; 
                 seat.innerHTML = "🎟️";
                 seat.classList.add("text-white", "cursor-not-allowed", "shadow-inner");
             } else {
+                //console.log('Xử lý ghế trống:', ghe.loai_ghe.ma_mau);
                 seat.style.backgroundColor = ghe.loai_ghe.ma_mau;
                 seat.classList.add("text-white", "hover:opacity-80");
                 seat.dataset.gheId = ghe.id;
@@ -175,27 +211,67 @@ async function loadSeats() {
                 seat.dataset.dinhdang = data.phong.loai_phongchieu;
 
                 seat.addEventListener("click", () => {
-                    socket.emit('khach-hang-chon-ghe', JSON.stringify({gheId: ghe.id, suatChieuId: idSuatChieu}))
-                    toggleSeat(seat, ghe.loai_ghe.ma_mau, selectedSeatsContainer, totalPriceEl, continueContainer)
+
+                    toggleSeat(seat, ghe.loai_ghe.ma_mau, selectedSeatsContainer, totalPriceEl, continueContainer, ghe.id, idSuatChieu)
                 });
             }
             seatMap.appendChild(seat);
         });
         socket.emit('lay-danh-sach-ghe-da-chon', JSON.stringify({suatChieuId: idSuatChieu}));
-        socket.on('cap-nhat-danh-sach-ghe-da-chon', (data) => {
+        socket.on(`cap-nhat-danh-sach-ghe-${idSuatChieu}-da-chon`, (data) => {
             const danhSachGheDaChon = JSON.parse(data);
-            console.log('Cập nhật danh sách ghế đã chọn:', danhSachGheDaChon);
+            // console.log('Cập nhật danh sách ghế đã chọn:', danhSachGheDaChon);
             document.querySelectorAll('#seatMap div[data-ghe-id]').forEach(seat => {
                 const gheId = seat.dataset.gheId;
                 if (danhSachGheDaChon.includes(parseInt(gheId))) {
                     seat.style.backgroundColor = '';
                     seat.style.pointerEvents = "none";
                     console.log('Đánh dấu ghế đã chọn:', gheId);
-                    seat.classList.remove("text-white", "hover:opacity-80", "cursor-pointer");
+                    seat.classList.remove("hover:opacity-80", "cursor-pointer");
                     seat.classList.add("bg-gray-400", "text-white", "cursor-not-allowed", "shadow-inner");
-                    seat.innerHTML = "&nbsp;";
+                }
+                else{
+                    // Chưa ai chọn, trả về trạng thái ban đầu nếu chưa được chọn bởi khách hàng
+                    const maMau = listSoDoGhe.find(g => g.id == gheId).loai_ghe.ma_mau;
+                    seat.style.backgroundColor = maMau;
+                    seat.style.pointerEvents = "auto";
+                    seat.classList.add("text-white", "hover:opacity-80", "cursor-pointer");
+                    seat.classList.remove("bg-gray-400", "cursor-not-allowed", "shadow-inner");
                 }
             });
+           
+        });
+        socket.on(`cap-nhat-danh-sach-ghe-${idSuatChieu}-da-dat`, (data) => {
+            const danhSachGheDaDat = JSON.parse(data);
+            document.querySelectorAll('#seatMap div[data-ghe-id]').forEach(seat => {
+                const gheId = seat.dataset.gheId;
+                if (danhSachGheDaDat.includes(parseInt(gheId))) {
+                    seat.style.backgroundColor = "white"; 
+                    seat.innerHTML = "🎟️";
+                    seat.style.pointerEvents = "none";
+                    seat.classList.add("text-white", "cursor-not-allowed", "shadow-inner");
+                    seat.classList.remove("bg-gray-400", "hover:opacity-80", "cursor-pointer");
+                }
+            });
+        });
+        socket.on(`khach-hang-chon-ghe-suat-chieu-${idSuatChieu}`, (id) => {
+                console.log('Khách hàng đã chọn ghế:', id);
+                const list = document.querySelectorAll(`#seatMap div[data-ghe-id]`);
+                const seat = Array.from(list).find(s => s.dataset.gheId == id);
+                seat.style.backgroundColor = '';
+                seat.style.pointerEvents = "none";
+                seat.classList.add("bg-gray-400", "text-white", "cursor-not-allowed", "shadow-inner");
+                seat.classList.remove("hover:opacity-80", "cursor-pointer");
+        });
+        socket.on(`khach-hang-huy-chon-ghe-suat-chieu-${idSuatChieu}`, (id) => {
+                console.log('Khách hàng đã hủy chọn ghế:', id);
+                const list = document.querySelectorAll(`#seatMap div[data-ghe-id]`);
+                const seat = Array.from(list).find(s => s.dataset.gheId == id);
+                const maMau = listSoDoGhe.find(g => g.id == id).loai_ghe.ma_mau;
+                seat.style.backgroundColor = maMau;
+                seat.style.pointerEvents = "auto";
+                seat.classList.remove("bg-gray-400", "cursor-not-allowed", "shadow-inner");
+                seat.classList.add("hover:opacity-80", "cursor-pointer");
         });
         // Nút tiếp tục → hiển thị đồ ăn
         document.getElementById("continueBtn").addEventListener("click", () => {
@@ -579,7 +655,7 @@ function applyGift(cardId, amount) {
 
 
 // Toggle ghế
-async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl, continueContainer) {
+async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl, continueContainer, gheId, suatChieuId) {
     const seatNum = seat.textContent;
 
     if (seat.classList.contains("ring-4")) {
@@ -587,7 +663,22 @@ async function toggleSeat(seat, baseColor, selectedSeatsContainer, totalPriceEl,
         seat.style.backgroundColor = baseColor;
         seat.classList.remove("ring-4", "ring-red-600");
         selectedSeats = selectedSeats.filter(s => s.so_ghe !== seatNum);
+        socket.emit('khach-hang-huy-chon-ghe', JSON.stringify({gheId, suatChieuId}))
+          const seatKT = document.querySelector('#seatMap div[data-ghe-id].ring-4');
+        if(!seatKT){
+            clearInterval(seatCountdownInterval);
+            seatCountdownInterval = null;
+            const el = document.getElementById('seatCountdownTimer');
+            const wrapper = document.getElementById('seatCountdownWrapper');
+            if (!el || !wrapper) return;
+            el.textContent = 'Thời gian giữ ghế: 10:00';
+        }
     } else {
+        if(!seatCountdownInterval){
+            
+            startSeatCountdown(600); // 10 phút
+        }
+        socket.emit('khach-hang-chon-ghe', JSON.stringify({gheId, suatChieuId}))
         // Lấy giá ghế
         let gia = seat.dataset.price ? parseInt(seat.dataset.price) : 0;
 
@@ -902,7 +993,5 @@ function addFood(id, gia, ten) {
 
 loadSeats();
 loadGiftCards();
-socket.on('khach-hang-chon-ghe', (id) => {
-    console.log('Khách hàng đã chọn ghế:', id);
-});
+
 })

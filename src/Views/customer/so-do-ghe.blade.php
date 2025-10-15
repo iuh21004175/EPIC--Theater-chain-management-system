@@ -9,14 +9,18 @@
 <body class="min-h-screen flex flex-col bg-gray-50 text-gray-800 font-sans" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
 @include('customer.layout.header')
 <main class="flex-1">
+    
 <div id="thongTinPhim" class="flex flex-col md:flex-row max-w-6xl mx-auto px-4 mt-10">
     
 </div>
-
+<div id="seatCountdownWrapper" class="mb-4">
+            <div id="seatCountdownTimer" class="text-center text-lg font-semibold text-red-600">Thời gian giữ ghế: 10:00</div>
+        </div>
 <div class="flex flex-col md:flex-row max-w-6xl mx-auto px-4 mt-10 mb-10">
     
     <!-- Bên trái: Sơ đồ ghế -->
     <div id="leftContainer" class="flex-1 transition-opacity duration-500">
+        <!-- Countdown hiển thị khi khách bắt đầu giữ chỗ (10 phút) -->
         <div class="w-full text-white text-center py-3 rounded-lg mb-6 
                     shadow-2xl tracking-wider font-bold text-lg
                     bg-gray-900 border border-gray-800">
@@ -80,9 +84,5 @@
 </main>
 @include('customer.layout.footer')
 <script type="module" src="{{$_ENV['URL_WEB_BASE']}}/js/so-do-ghe.js"></script>
-<script>
-
-</script>
-
 </body>
 </html>

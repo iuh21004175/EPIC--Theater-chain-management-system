@@ -5,6 +5,7 @@ use App\Models\GiaoDich;
 use App\Models\DonHang;
 use App\Models\Ve;
 use App\Models\MuaPhim;
+use function App\Core\getRedisConnection;
 
 class Sc_GiaoDich
 {
@@ -50,7 +51,9 @@ class Sc_GiaoDich
                         $donHang->trang_thai = 2;
                         $donHang->save();
                         echo "Updated DonHang ID {$donhangId} to trang_thai=2\n";
-
+                        $veList = $donHang->ve(); // Trả về mảng các vé
+                        $gheIds = array_column($veList, 'ghe_id');
+                        getRedisConnection()->publish('thanh-toan-don-hang-thanh-cong', json_encode(['suatChieuId' => $donHang->suat_chieu_id, 'gheIds' => $gheIds]));
                         Ve::where('donhang_id', $donhangId)
                           ->update(['trang_thai' => 2]);
                         echo "Updated Ve of DonHang ID {$donhangId} to 'da_dat'\n";
