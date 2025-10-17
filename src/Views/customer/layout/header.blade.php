@@ -476,5 +476,5 @@
     });
 
 </script>
-<script src="{{ $_ENV['URL_WEB_BASE'] }}/customer/js/auth.js"></script>
+<script src="{{ $_ENV['URL_WEB_BASE'] }}/js/auth.js"></script>
 </html>
