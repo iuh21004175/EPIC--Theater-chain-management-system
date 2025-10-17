@@ -41,7 +41,7 @@ use Exception;
                     'id_rapphim'=> $_SESSION['UserInternal']['ID_RapPhim']
                 ]);
                 if ($hinh_anh) {
-                    $fileName = $sanPham->ten . '_' . time() . '.' . pathinfo($hinh_anh, PATHINFO_EXTENSION);
+                    $fileName = 'san_pham' . '_' . time() . '.' . pathinfo($hinh_anh, PATHINFO_EXTENSION);
                     getS3Client()->putObject([
                         'Bucket' => $bucket,
                         'Key'    => $fileName,

@@ -310,7 +310,7 @@
                 </table>
             </div>
         </div>
-
+        
         <!-- Theater Performance -->
         <div class="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200 hover:shadow-3xl hover:border-gray-300 transition-all duration-300">
             <h2 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b-2 border-gray-200 flex items-center">
@@ -330,31 +330,6 @@
             </h2>
             <div class="h-80">
                 <div id="revenue-breakdown-chart"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Third row of charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <!-- Weekly Performance Chart -->
-        <div class="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200 hover:shadow-3xl hover:border-gray-300 transition-all duration-300">
-            <h2 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b-2 border-gray-200 flex items-center">
-                <div class="w-1.5 h-7 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
-                <span>Hiệu suất theo ngày trong tuần</span>
-            </h2>
-            <div class="h-80">
-                <div id="weekly-performance-chart"></div>
-            </div>
-        </div>
-
-        <!-- Hourly Performance Chart -->
-        <div class="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200 hover:shadow-3xl hover:border-gray-300 transition-all duration-300">
-            <h2 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b-2 border-gray-200 flex items-center">
-                <div class="w-1.5 h-7 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
-                <span>Hiệu suất theo giờ trong ngày</span>
-            </h2>
-            <div class="h-80">
-                <div id="hourly-performance-chart"></div>
             </div>
         </div>
     </div>
@@ -421,5 +396,34 @@
                 <div id="fnb-per-ticket-chart"></div>
             </div>
         </div>
+    </div>
+    <div class="grid grid-cols-1 gap-8 mb-10">
+        <!-- All Films Revenue Table -->
+            <div id="all-films-revenue" class="bg-white rounded-2xl shadow-2xl p-8 border-2 border-gray-200 hover:shadow-3xl hover:border-gray-300 transition-all duration-300">
+                <h2 class="text-xl font-bold text-gray-800 mb-6 pb-4 border-b-2 border-gray-200 flex items-center">
+                    <div class="w-1.5 h-7 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
+                    <span>Doanh thu phim (Toàn bộ phim)</span>
+                </h2>
+
+                <div class="overflow-y-auto max-h-80 rounded-lg border border-gray-200" style="min-height: 200px;">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Poster</th>
+                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tên phim</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Doanh thu bán vé</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Doanh thu mua phim</th>
+                                <th class="px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Tổng</th>
+                            </tr>
+                        </thead>
+                        <tbody id="all-film-revenue-body" class="bg-white divide-y divide-gray-100" data-urlminio="{{$_ENV['MINIO_SERVER_URL']}}">
+                            <tr>
+                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Đang tải dữ liệu...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
     </div>
 @endsection

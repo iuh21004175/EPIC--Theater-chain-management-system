@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initializeCharts();
         initializeTables();
         updateLastUpdateTime();
+        populateAllFilmsTable()
     } catch (error) {
         console.error('Lỗi khởi tạo:', error);
     }
@@ -951,8 +952,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try { initializeTicketsChart(); } catch (e) { console.error("Error initializing tickets chart:", e); }
         try { initializeTheaterPerformanceChart(); } catch (e) { console.error("Error initializing theater performance chart:", e); }
         try { initializeRevenueBreakdownChart(); } catch (e) { console.error("Error initializing revenue breakdown chart:", e); }
-        try { initializeWeeklyPerformanceChart(); } catch (e) { console.error("Error initializing weekly performance chart:", e); }
-        try { initializeHourlyPerformanceChart(); } catch (e) { console.error("Error initializing hourly performance chart:", e); }
+        // try { initializeWeeklyPerformanceChart(); } catch (e) { console.error("Error initializing weekly performance chart:", e); }
+        // try { initializeHourlyPerformanceChart(); } catch (e) { console.error("Error initializing hourly performance chart:", e); }
         try { initializeFnBPerTicketChart(); } catch (e) { console.error("Error initializing F&B per ticket chart:", e); }
     }
 
@@ -1388,171 +1389,171 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function updateWeeklyPerformanceChart() {
-        fetchWeeklyPerformanceData();
-    }
+    // function updateWeeklyPerformanceChart() {
+    //     fetchWeeklyPerformanceData();
+    // }
 
-    async function fetchWeeklyPerformanceData() {
-        const chartElement = document.querySelector("#weekly-performance-chart");
-        if (!chartElement) return;
+    // async function fetchWeeklyPerformanceData() {
+    //     const chartElement = document.querySelector("#weekly-performance-chart");
+    //     if (!chartElement) return;
 
-        // Hiển thị spinner
-        const spinner = Spinner.show({
-            target: chartElement.parentElement,
-            text: 'Đang tải dữ liệu...',
-            size: 'md',
-            overlay: true
-        });
+    //     // Hiển thị spinner
+    //     const spinner = Spinner.show({
+    //         target: chartElement.parentElement,
+    //         text: 'Đang tải dữ liệu...',
+    //         size: 'md',
+    //         overlay: true
+    //     });
 
-        try {
-            // Lấy tham số từ date filter
-            const tuNgay = dateStartInput.value;
-            const denNgay = dateEndInput.value;
-            const idRap = selectedCinema;
+    //     try {
+    //         // Lấy tham số từ date filter
+    //         const tuNgay = dateStartInput.value;
+    //         const denNgay = dateEndInput.value;
+    //         const idRap = selectedCinema;
 
-            const baseUrl = document.getElementById('btn-apply-filter')?.dataset.url || '';
-            const params = new URLSearchParams({
-                tuNgay: tuNgay,
-                denNgay: denNgay,
-                idRap: idRap
-            });
+    //         const baseUrl = document.getElementById('btn-apply-filter')?.dataset.url || '';
+    //         const params = new URLSearchParams({
+    //             tuNgay: tuNgay,
+    //             denNgay: denNgay,
+    //             idRap: idRap
+    //         });
 
-            const apiUrl = `${baseUrl}/api/thong-ke-toan-rap/hieu-suat-theo-ngay-trong-tuan?${params}`;
-            console.log('Fetching weekly performance data from:', apiUrl);
+    //         const apiUrl = `${baseUrl}/api/thong-ke-toan-rap/hieu-suat-theo-ngay-trong-tuan?${params}`;
+    //         console.log('Fetching weekly performance data from:', apiUrl);
 
-            const response = await fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            });
+    //         const response = await fetch(apiUrl, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Accept': 'application/json'
+    //             }
+    //         });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
 
-            const result = await response.json();
-            console.log('Weekly performance API response:', result);
+    //         const result = await response.json();
+    //         console.log('Weekly performance API response:', result);
 
-            if (result.success && result.data) {
-                const data = result.data;
+    //         if (result.success && result.data) {
+    //             const data = result.data;
                 
-                // Chuẩn bị dữ liệu cho biểu đồ
-                const categories = data.danh_sach.map(item => item.ngay);
-                const veBanData = data.danh_sach.map(item => item.so_ve_ban);
-                const tyLeLapDayData = data.danh_sach.map(item => item.ty_le_lap_day);
+    //             // Chuẩn bị dữ liệu cho biểu đồ
+    //             const categories = data.danh_sach.map(item => item.ngay);
+    //             const veBanData = data.danh_sach.map(item => item.so_ve_ban);
+    //             const tyLeLapDayData = data.danh_sach.map(item => item.ty_le_lap_day);
 
-                // Cập nhật biểu đồ
-                weeklyPerformanceChart.updateOptions({
-                    xaxis: {
-                        categories: categories
-                    }
-                });
+    //             // Cập nhật biểu đồ
+    //             weeklyPerformanceChart.updateOptions({
+    //                 xaxis: {
+    //                     categories: categories
+    //                 }
+    //             });
 
-                weeklyPerformanceChart.updateSeries([{
-                    name: 'Vé bán',
-                    type: 'column',
-                    data: veBanData
-                }, {
-                    name: 'Tỷ lệ lấp đầy',
-                    type: 'line',
-                    data: tyLeLapDayData
-                }]);
+    //             weeklyPerformanceChart.updateSeries([{
+    //                 name: 'Vé bán',
+    //                 type: 'column',
+    //                 data: veBanData
+    //             }, {
+    //                 name: 'Tỷ lệ lấp đầy',
+    //                 type: 'line',
+    //                 data: tyLeLapDayData
+    //             }]);
 
-                console.log('Weekly performance chart updated successfully');
-            } else {
-                console.error('API returned error:', result.message);
-                showToast('Lỗi khi tải dữ liệu hiệu suất theo tuần: ' + (result.message || 'Không xác định'));
-            }
+    //             console.log('Weekly performance chart updated successfully');
+    //         } else {
+    //             console.error('API returned error:', result.message);
+    //             showToast('Lỗi khi tải dữ liệu hiệu suất theo tuần: ' + (result.message || 'Không xác định'));
+    //         }
 
-        } catch (error) {
-            console.error('Error fetching weekly performance data:', error);
-            showToast('Lỗi khi tải dữ liệu hiệu suất theo tuần: ' + error.message);
-        } finally {
-            // Hide spinner
-            Spinner.hide(spinner);
-        }
-    }
+    //     } catch (error) {
+    //         console.error('Error fetching weekly performance data:', error);
+    //         showToast('Lỗi khi tải dữ liệu hiệu suất theo tuần: ' + error.message);
+    //     } finally {
+    //         // Hide spinner
+    //         Spinner.hide(spinner);
+    //     }
+    // }
 
-    function updateHourlyPerformanceChart() {
-        fetchHourlyPerformanceData();
-    }
+    // function updateHourlyPerformanceChart() {
+    //     fetchHourlyPerformanceData();
+    // }
 
-    async function fetchHourlyPerformanceData() {
-        const chartElement = document.querySelector("#hourly-performance-chart");
-        if (!chartElement) return;
+    // async function fetchHourlyPerformanceData() {
+    //     const chartElement = document.querySelector("#hourly-performance-chart");
+    //     if (!chartElement) return;
 
-        // Hiển thị spinner
-        const spinner = Spinner.show({
-            target: chartElement.parentElement,
-            text: 'Đang tải dữ liệu...',
-            size: 'md',
-            overlay: true
-        });
+    //     // Hiển thị spinner
+    //     const spinner = Spinner.show({
+    //         target: chartElement.parentElement,
+    //         text: 'Đang tải dữ liệu...',
+    //         size: 'md',
+    //         overlay: true
+    //     });
 
-        try {
-            // Lấy tham số từ date filter
-            const tuNgay = dateStartInput.value;
-            const denNgay = dateEndInput.value;
-            const idRap = selectedCinema;
+    //     try {
+    //         // Lấy tham số từ date filter
+    //         const tuNgay = dateStartInput.value;
+    //         const denNgay = dateEndInput.value;
+    //         const idRap = selectedCinema;
 
-            const baseUrl = document.getElementById('btn-apply-filter')?.dataset.url || '';
-            const params = new URLSearchParams({
-                tuNgay: tuNgay,
-                denNgay: denNgay,
-                idRap: idRap
-            });
+    //         const baseUrl = document.getElementById('btn-apply-filter')?.dataset.url || '';
+    //         const params = new URLSearchParams({
+    //             tuNgay: tuNgay,
+    //             denNgay: denNgay,
+    //             idRap: idRap
+    //         });
 
-            const apiUrl = `${baseUrl}/api/thong-ke-toan-rap/hieu-suat-theo-gio-trong-ngay?${params}`;
-            console.log('Fetching hourly performance data from:', apiUrl);
+    //         const apiUrl = `${baseUrl}/api/thong-ke-toan-rap/hieu-suat-theo-gio-trong-ngay?${params}`;
+    //         console.log('Fetching hourly performance data from:', apiUrl);
 
-            const response = await fetch(apiUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                }
-            });
+    //         const response = await fetch(apiUrl, {
+    //             method: 'GET',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Accept': 'application/json'
+    //             }
+    //         });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
 
-            const result = await response.json();
-            console.log('Hourly performance API response:', result);
+    //         const result = await response.json();
+    //         console.log('Hourly performance API response:', result);
 
-            if (result.success && result.data) {
-                const data = result.data;
+    //         if (result.success && result.data) {
+    //             const data = result.data;
                 
-                // Chuẩn bị dữ liệu cho biểu đồ
-                const categories = data.danh_sach.map(item => item.gio);
-                const tyLeLapDayData = data.danh_sach.map(item => item.ty_le_lap_day);
+    //             // Chuẩn bị dữ liệu cho biểu đồ
+    //             const categories = data.danh_sach.map(item => item.gio);
+    //             const tyLeLapDayData = data.danh_sach.map(item => item.ty_le_lap_day);
 
-                // Cập nhật biểu đồ
-                hourlyPerformanceChart.updateOptions({
-                    xaxis: {
-                        categories: categories
-                    }
-                });
+    //             // Cập nhật biểu đồ
+    //             hourlyPerformanceChart.updateOptions({
+    //                 xaxis: {
+    //                     categories: categories
+    //                 }
+    //             });
 
-                hourlyPerformanceChart.updateSeries([{
-                    name: 'Tỷ lệ lấp đầy',
-                    data: tyLeLapDayData
-                }]);
+    //             hourlyPerformanceChart.updateSeries([{
+    //                 name: 'Tỷ lệ lấp đầy',
+    //                 data: tyLeLapDayData
+    //             }]);
 
-                console.log('Hourly performance chart updated successfully');
-            } else {
-                throw new Error(result.message || 'Không có dữ liệu');
-            }
-        } catch (error) {
-            console.error('Error fetching hourly performance data:', error);
-            showToast('Lỗi khi tải dữ liệu hiệu suất theo giờ: ' + error.message);
-        } finally {
-            // Hide spinner
-            Spinner.hide(spinner);
-        }
-    }
+    //             console.log('Hourly performance chart updated successfully');
+    //         } else {
+    //             throw new Error(result.message || 'Không có dữ liệu');
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching hourly performance data:', error);
+    //         showToast('Lỗi khi tải dữ liệu hiệu suất theo giờ: ' + error.message);
+    //     } finally {
+    //         // Hide spinner
+    //         Spinner.hide(spinner);
+    //     }
+    // }
 
     function updateFnBPerTicketChart() {
         fetchFnBPerOrderData();
@@ -1853,4 +1854,63 @@ document.addEventListener('DOMContentLoaded', function() {
             Spinner.hide(spinner);
         }
     }
+
+    // --- All films revenue table ---
+    function populateAllFilmsTable() {
+        fetchAndPopulateAllFilms();
+    }
+
+    async function fetchAndPopulateAllFilms() {
+        const tbody = document.getElementById('all-film-revenue-body');
+        if (!tbody) return;
+
+        tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Đang tải dữ liệu...</td></tr>';
+
+        try {
+            const tuNgay = document.getElementById('date-start')?.value || '';
+            const denNgay = document.getElementById('date-end')?.value || '';
+            const idRap = document.getElementById('cinema-filter')?.value || 'all';
+            const baseUrl = document.getElementById('btn-apply-filter')?.dataset?.url || '';
+
+            const endpoint = (baseUrl ? baseUrl.replace(/\/+$/, '') : '') + '/api/thong-ke-toan-rap/doanh-thu-phim';
+            const url = `${endpoint}?tuNgay=${encodeURIComponent(tuNgay)}&denNgay=${encodeURIComponent(denNgay)}&idRap=${encodeURIComponent(idRap)}`;
+
+            console.log('Fetching all films revenue from', url);
+
+            const resp = await fetch(url, { credentials: 'same-origin' });
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const body = await resp.json();
+
+            if (!body || !body.data || !Array.isArray(body.data.danh_sach)) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Không có dữ liệu</td></tr>';
+                return;
+            }
+
+            const rows = body.data.danh_sach;
+            if (rows.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Không có phim trong cơ sở dữ liệu</td></tr>';
+                return;
+            }
+
+            const html = rows.map(r => {
+
+                const poster = `<img src="${tbody.dataset.urlminio}/${r.poster_url}" alt="" class="h-12 w-8 object-cover rounded">`;
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-4 py-3 text-sm text-gray-700">${r.id ?? ''}</td>
+                        <td class="px-4 py-3">${poster}</td>
+                        <td class="px-4 py-3 text-sm text-gray-800">${r.ten_phim}</td>
+                        <td class="px-4 py-3 text-sm text-gray-800 text-right">${formatCurrency(r.doanh_thu_ve ?? 0)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-800 text-right">${formatCurrency(r.doanh_thu_mua ?? 0)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-900 font-bold text-right">${formatCurrency(r.tong_doanh_thu ?? 0)}</td>
+                    </tr>`;
+            }).join('');
+
+            tbody.innerHTML = html;
+        } catch (err) {
+            console.error('Failed to load all films revenue', err);
+            tbody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Lỗi khi tải dữ liệu</td></tr>';
+        }
+    }
+
 });

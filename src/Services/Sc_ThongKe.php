@@ -10,6 +10,7 @@
     use App\Models\ChiTietDonHang;
     use App\Models\PhanPhoiPhim;
     use App\Models\Ngay; // Thêm model Ngay vào danh sách import
+    use App\Models\MuaPhim; // Doanh thu mua phim trực tuyến
 
     class Sc_ThongKe{
         // Thống kê cho quản lý rạp
@@ -2195,14 +2196,14 @@
         
         // 2. DOANH THU ĐỒ ĂN & THỨC UỐNG
         $doanhThuFnB = $this->tinhDoanhThuFnB($idRap, $tuNgayQuery, $denNgayQuery);
-        
-        // Tính tổng doanh thu (chỉ 2 nguồn)
+
+        // Tính tổng doanh thu (Vé + F&B)
         $tongDoanhThu = $doanhThuVe + $doanhThuFnB;
-        
+
         // Tính phần trăm từng loại
         $phanTramVe = $tongDoanhThu > 0 ? round(($doanhThuVe / $tongDoanhThu) * 100, 1) : 0;
         $phanTramFnB = $tongDoanhThu > 0 ? round(($doanhThuFnB / $tongDoanhThu) * 100, 1) : 0;
-        
+
         return [
             'chi_tiet' => [
                 [
@@ -2536,6 +2537,163 @@
             ]
         ];
     }
+
+    /**
+     * Thống kê doanh thu mua phim xem online (MuaPhim) theo ngày trong khoảng
+     * @param string $tuNgay (Y-m-d)
+     * @param string $denNgay (Y-m-d)
+     * @return array
+     */
+    public function doanhThuPhim($tuNgay, $denNgay) {
+        // Định dạng thời gian
+        $tuNgayDate = new \DateTime($tuNgay . ' 00:00:00');
+        $denNgayDate = new \DateTime($denNgay . ' 23:59:59');
+        $tuNgayQuery = $tuNgayDate->format('Y-m-d H:i:s');
+        $denNgayQuery = $denNgayDate->format('Y-m-d H:i:s');
+
+        // 1) Doanh thu vé theo phim (dựa trên ve -> suatchieu.id_phim)
+        $veRows = Ve::selectRaw('suatchieu.id_phim as phim_id, SUM(ve.gia_ve) as doanh_thu_ve, COUNT(ve.id) as so_ve')
+            ->join('suatchieu', 've.suat_chieu_id', '=', 'suatchieu.id')
+            ->join('donhang', 've.donhang_id', '=', 'donhang.id')
+            ->where('ve.trang_thai', 2)
+            ->where('donhang.trang_thai', 2)
+            ->whereBetween('donhang.ngay_dat', [$tuNgayQuery, $denNgayQuery])
+            ->groupBy('suatchieu.id_phim')
+            ->get();
+
+        $veByFilm = [];
+        foreach ($veRows as $r) {
+            $id = $r->phim_id;
+            if (!$id) continue;
+            $veByFilm[(int)$id] = [
+                'doanh_thu_ve' => (float)$r->doanh_thu_ve,
+                'so_ve' => (int)$r->so_ve
+            ];
+        }
+
+        // 2) Doanh thu mua phim theo phim
+        // Note: `donhang.phim_id` column may not exist in the schema. Derive film id from the linked `suatchieu` record.
+        // We join through donhang -> suatchieu and group by suatchieu.id_phim. Rows without a linked suatchieu will be ignored
+        // (they cannot be confidently mapped to a film).
+        $mpRows = MuaPhim::selectRaw('suatchieu.id_phim as phim_id, SUM(mua_phim.so_tien) as doanh_thu_mua, COUNT(mua_phim.id) as so_giao_dich')
+            ->join('donhang', 'mua_phim.don_hang_id', '=', 'donhang.id')
+            ->join('suatchieu', 'donhang.suat_chieu_id', '=', 'suatchieu.id')
+            ->where('mua_phim.trang_thai', 2)
+            ->where('donhang.trang_thai', 2)
+            ->whereBetween('donhang.ngay_dat', [$tuNgayQuery, $denNgayQuery])
+            ->groupBy('suatchieu.id_phim')
+            ->get();
+
+        $mpByFilm = [];
+        foreach ($mpRows as $r) {
+            $id = $r->phim_id;
+            if (!$id) continue;
+            $mpByFilm[(int)$id] = [
+                'doanh_thu_mua' => (float)$r->doanh_thu_mua,
+                'so_giao_dich' => (int)$r->so_giao_dich
+            ];
+        }
+
+        // Tính tổng các giao dịch mua phim không có suat_chieu liên kết (không thể map tới phim)
+        $unmappedSum = 0.0;
+        $unmappedCnt = 0;
+        $unmappedRow = MuaPhim::join('donhang', 'mua_phim.don_hang_id', '=', 'donhang.id')
+            ->whereNull('donhang.suat_chieu_id')
+            ->where('mua_phim.trang_thai', 2)
+            ->where('donhang.trang_thai', 2)
+            ->whereBetween('donhang.ngay_dat', [$tuNgayQuery, $denNgayQuery])
+            ->selectRaw('SUM(mua_phim.so_tien) as sum_mua, COUNT(mua_phim.id) as cnt')
+            ->first();
+
+        if ($unmappedRow) {
+            $unmappedSum = (float)($unmappedRow->sum_mua ?? 0);
+            $unmappedCnt = (int)($unmappedRow->cnt ?? 0);
+        }
+
+        // 3) Use the full film list so the returned danh_sach contains ALL films
+        // (films with no revenue will show 0 for both sources). This guarantees a
+        // consistent list regardless of whether a film had transactions.
+        $filmIds = Phim::select('id')->get()->map(function ($phim) {
+            return $phim->id;
+        })->toArray();
+
+        // If there are no films in the DB, return empty result
+        if (empty($filmIds)) {
+            return [
+                'tu_ngay' => $tuNgay,
+                'den_ngay' => $denNgay,
+                'danh_sach' => [],
+                'tong_ket' => [
+                    'tong_doanh_thu_ve' => 0.0,
+                    'tong_doanh_thu_mua' => 0.0,
+                    'tong_doanh_thu' => 0.0
+                ]
+            ];
+        }
+
+        // 4) Lấy thông tin phim
+        $phims = Phim::whereIn('id', $filmIds)->get()->keyBy('id');
+
+        $list = [];
+        $totalVe = 0.0;
+        $totalMua = 0.0;
+
+        foreach ($filmIds as $fid) {
+            $fid = (int)$fid;
+            $ph = isset($phims[$fid]) ? $phims[$fid] : null;
+            $ten = $ph ? $ph->ten_phim : ('Phim #' . $fid);
+            $poster = $ph ? ($ph->poster_url ?? null) : null;
+
+            $dv = isset($veByFilm[$fid]) ? $veByFilm[$fid]['doanh_thu_ve'] : 0.0;
+            $dm = isset($mpByFilm[$fid]) ? $mpByFilm[$fid]['doanh_thu_mua'] : 0.0;
+
+            $totalVe += $dv;
+            $totalMua += $dm;
+
+            $total = $dv + $dm;
+
+            $list[] = [
+                'id' => $fid,
+                'ten_phim' => $ten,
+                'poster_url' => $poster,
+                'doanh_thu_ve' => (float)$dv,
+                'doanh_thu_mua' => (float)$dm,
+                'tong_doanh_thu' => (float)$total
+            ];
+        }
+
+        // Nếu có giao dịch mua phim không thể map tới suatchieu/phim, thêm một mục tổng hợp riêng
+        if ($unmappedCnt > 0) {
+            $list[] = [
+                'id' => null,
+                'ten_phim' => 'Chưa xác định (Mua phim trực tuyến không gắn suất chiếu)',
+                'poster_url' => null,
+                'doanh_thu_ve' => 0.0,
+                'doanh_thu_mua' => (float)$unmappedSum,
+                'tong_doanh_thu' => (float)$unmappedSum
+            ];
+            $totalMua += $unmappedSum;
+        }
+
+        // sort by total desc
+        usort($list, function($a, $b) {
+            return $b['tong_doanh_thu'] <=> $a['tong_doanh_thu'];
+        });
+
+        $grandTotal = $totalVe + $totalMua;
+
+        return [
+            'tu_ngay' => $tuNgay,
+            'den_ngay' => $denNgay,
+            'danh_sach' => $list,
+            'tong_ket' => [
+                'tong_doanh_thu_ve' => (float)$totalVe,
+                'tong_doanh_thu_mua' => (float)$totalMua,
+                'tong_doanh_thu' => (float)$grandTotal
+            ]
+        ];
     }
+    
+}
     
 ?>

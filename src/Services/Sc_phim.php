@@ -64,7 +64,7 @@
                 $keyName = '';
                 if ($hinhAnh && isset($hinhAnh['name']) && !empty($hinhAnh['name'])) {
                     $fileExtension = pathinfo($hinhAnh['name'], PATHINFO_EXTENSION);
-                    $keyName = $ten . '_' . time() . '.' . $fileExtension;
+                    $keyName = 'poster_phim' . '_' . time() . '.' . $fileExtension;
                     $posterUrl = $bucket.'/'.$keyName;
                 }
                 
@@ -72,7 +72,7 @@
                 $videoUrl = null;
                 $trangThaiVideo = null; // Không có video
                 if ($video && isset($video['name']) && !empty($video['name'])) {
-                    $pathVideoCSDL = 'video/'.$ten . '_' . time() . '/';
+                    $pathVideoCSDL = 'video/'.'phim' . '_' . time() . '/';
                     $videoUrl = $pathVideoCSDL.'master.m3u8';
                     $trangThaiVideo = 2; // Video đang xử lý
                 }
@@ -368,7 +368,7 @@
                 $posterUrl = $phimCu->poster_url;
                 if ($hinhAnh && isset($hinhAnh['name']) && !empty($hinhAnh['name'])) {
                     $fileExtension = pathinfo($hinhAnh['name'], PATHINFO_EXTENSION);
-                    $keyName = $ten . '_' . time() . '.' . $fileExtension;
+                    $keyName = 'poster_phim' . '_' . time() . '.' . $fileExtension;
                     $posterUrl = $bucket.'/'.$keyName;
                 }
                 
@@ -376,7 +376,7 @@
                 $videoUrl = $phimCu->video_url;
                 $trangThaiVideo = $phimCu->trang_thai_video;
                 if ($video && isset($video['name']) && !empty($video['name'])) {
-                    $pathVideoCSDL = 'video/'.$ten . '_' . time() . '/';
+                    $pathVideoCSDL = 'video/'.'phim' . '_' . time() . '/';
                     $videoUrl = $pathVideoCSDL.'master.m3u8';
                     $trangThaiVideo = 2; // Video đang xử lý
                 }

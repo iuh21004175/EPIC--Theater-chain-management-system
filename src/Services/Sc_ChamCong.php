@@ -59,64 +59,83 @@ class Sc_ChamCong
      */
     public function dangKyKhuonMat()
     {
-        $fileHinhAnh = $_FILES['image'] ?? null;
         $idNhanVien = $_SESSION['UserInternal']['ID'] ?? null;
         $url = $this->pythonApiUrl . "/api/face/dang-ky";
 
-        if (!$fileHinhAnh || !$idNhanVien) {
-            throw new Exception('Thiếu dữ liệu gửi đi');
+        if (!$idNhanVien) {
+            throw new Exception('Thiếu id nhân viên');
         }
 
-        // Tạo dữ liệu multipart/form-data
+        // Collect uploaded files: support multiple inputs name="images[]" or single name="image"
+        $files = [];
+        if (isset($_FILES['images'])) {
+            $images = $_FILES['images'];
+            $count = is_array($images['name']) ? count($images['name']) : 0;
+            for ($i = 0; $i < $count; $i++) {
+                if (($images['error'][$i] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+                    $tmp  = $images['tmp_name'][$i];
+                    $type = $images['type'][$i] ?? 'image/jpeg';
+                    $name = $images['name'][$i] ?? "image_{$i}.jpg";
+                    $files[] = new \CURLFile($tmp, $type, $name);
+                }
+            }
+        } elseif (isset($_FILES['image']) && ($_FILES['image']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_OK) {
+            $f = $_FILES['image'];
+            $files[] = new \CURLFile($f['tmp_name'], $f['type'] ?? 'image/jpeg', $f['name'] ?? 'image.jpg');
+        }
+
+        if (empty($files)) {
+            throw new Exception('Không có file ảnh được tải lên');
+        }
+
+        // Build multipart POST fields
         $postFields = [
-            'staff_id' => $idNhanVien,
-            'image' => new \CURLFile(
-                $fileHinhAnh['tmp_name'],
-                $fileHinhAnh['type'],
-                $fileHinhAnh['name']
-            )
+            'staff_id' => $idNhanVien
         ];
 
-        // Khởi tạo CURL
+        foreach ($files as $i => $file) {
+            $postFields["images[$i]"] = $file;
+        }
+        // Send to Python API
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
-
-        // Gửi yêu cầu
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         $response = curl_exec($ch);
         $error = curl_error($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         if ($error) {
             throw new Exception('Lỗi CURL: ' . $error);
         }
 
-        // Giải mã phản hồi JSON từ Python API (nếu có)
         $result = json_decode($response, true);
-
-        if (!$result['success']) {
-            throw new Exception('Phản hồi không hợp lệ');
+        if (!$result || empty($result['success'])) {
+            // include server body for easier debugging
+            throw new Exception('Phản hồi không hợp lệ từ Python API. HTTP ' . $httpCode . ' — ' . substr($response ?? '', 0, 200));
         }
-        else{
-            $dangKyKhuonMat = DangKyKhuonMat::where('id_nhanvien', $idNhanVien)->first();
-            if($dangKyKhuonMat){
-                $dangKyKhuonMat->update([
-                    'ngay_dang_ky' => date('Y-m-d H:i:s'),
-                    'so_anh_dang_ky' => $dangKyKhuonMat->so_anh_dang_ky + 1
-                ]);
-            }
-            else{
-                $result = DangKyKhuonMat::create([
-                    'id_nhanvien' => $idNhanVien,
-                    'ngay_dang_ky' => date('Y-m-d H:i:s'),
-                    'so_anh_dang_ky' => 1,
-                    'trang_thai' => 'Đang hoạt động',
-                    'ghi_chu' => 'Đăng ký qua hệ thống nhận diện khuôn mặt'
-                ]);
-                if(!$result){
-                    throw new Exception('Lỗi lưu thông tin đăng ký khuôn mặt');
-                }
+
+        // Update DB: tăng số ảnh đã đăng ký bằng số file đã upload
+        $uploadedCount = count($files);
+
+        $dangKyKhuonMat = DangKyKhuonMat::where('id_nhanvien', $idNhanVien)->first();
+        if ($dangKyKhuonMat) {
+            $dangKyKhuonMat->update([
+                'ngay_dang_ky' => date('Y-m-d H:i:s'),
+                'so_anh_dang_ky' => ($dangKyKhuonMat->so_anh_dang_ky ?? 0) + $uploadedCount
+            ]);
+        } else {
+            $created = DangKyKhuonMat::create([
+                'id_nhanvien' => $idNhanVien,
+                'ngay_dang_ky' => date('Y-m-d H:i:s'),
+                'so_anh_dang_ky' => $uploadedCount,
+                'trang_thai' => 'Đang hoạt động',
+                'ghi_chu' => 'Đăng ký qua hệ thống nhận diện khuôn mặt'
+            ]);
+            if (!$created) {
+                throw new Exception('Lỗi lưu thông tin đăng ký khuôn mặt');
             }
         }
     }
